@@ -14,7 +14,7 @@ def gerade2(zahl):
         print("Gerade")
     else:
         print("ungerade")            
-#gerade(int(input("welche Zahl")))        
+#gerade(int(input("aplewelche Zahl")))        
 
 liste = []
 
@@ -86,7 +86,7 @@ def fibonnaci(n):
             return x         
 
 #zwei while-Schleifen ineinander
-#"str"[n] ist der n-te Buchstabe von str (es wird bei 0 angefangen zu zählen).
+#"str"[n] ist der n-te Buchstabe von str (es wird bei 10000" angefangen zu zählen).
 #len("str") ist die Länge von str (es wird bei 1 angefangen zu zählen)
 
 def zähler(wort , muster):
@@ -141,63 +141,22 @@ def Wurzel_nachkomma(zahl, anzahl_nachkommastellen):
         z /= 10
     return teiler                          
 
-def verschlüsseln(text):
-    zahl = 0
-    zahl1 = 0
-    while zahl < 5:
-        zahl += 1
-        if text[zahl1] == "a":
-            text[zahl1] = "b"
-        if text[zahl1] == "c":
-            text[zahl1] = "d"
-        if text[zahl1] == "d":
-            text[zahl1] = "e" 
-        if text[zahl1] == "e":
-            text[zahl1] = "f"
-        if text[zahl1] == "f":
-            text[zahl1] = "g"
-        if text[zahl1] == "g":
-            text[zahl1] = "h"
-        if text[zahl1] == "h":
-            text[zahl1] = "i"
-        if text[zahl1] == "i":
-            text[zahl1] = "j"
-        if text[zahl1] == "j":
-            text[zahl1] = "k"
-        if text[zahl1] == "k":
-            text[zahl1] = "l"
-        if text[zahl1] == "l":
-            text[zahl1] = "m"  
-        if text[zahl1] == "m":
-            text[zahl1] = "n"
-        if text[zahl1] == "n":
-            text[zahl1] = "o"
-        if text[zahl1] == "o":
-            text[zahl1] = "p" 
-        if text[zahl1] == "p":
-            text[zahl1] = "q"
-        if text[zahl1] == "q":
-            text[zahl1] = "r"
-        if text[zahl1] == "r":
-            text[zahl1] = "s"
-        if text[zahl1] == "s":
-            text[zahl1] = "t"
-        if text[zahl1] == "t":
-            text[zahl1] = "u"
-        if text[zahl1] == "u":
-            text[zahl1] = "v"
-        if text[zahl1] == "v":
-            text[zahl1] = "w"
-        if text[zahl1] == "w":
-            text[zahl1] = "x"    
-        if text[zahl1] == "x":
-            text[zahl1] = "y"
-        if text[zahl1] == "y":
-            text[zahl1] = "z"
-        if text[zahl1] == "z":
-            text[zahl1] = "text[zahl1]"
-        print(text[text[zahl1]], end = "")
-        zahl1 += 1
-   
-                          
-verschlüsseln("h")    
+def verschlüsselung(text):
+    Buchstabe = 0 
+    while Buchstabe < 5:
+        za = ord(text[Buchstabe])
+        ord(text[Buchstabe])
+        za += 5
+        print(chr(za), end="")
+        Buchstabe += 1
+        
+def entschlüsselung(text):
+    Buchstabe = 0 
+    while Buchstabe < 5:
+        za = ord(text[Buchstabe])
+        ord(text[Buchstabe])
+        za -= 5
+        print(za, end="")    
+        Buchstabe += 1
+
+verschlüsselung("hallo")        
