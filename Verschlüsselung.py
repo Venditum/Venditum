@@ -256,4 +256,48 @@ def entschlüsselung(text):
         Zwischenablage = ""
     return ergebnis 
 
-print(entschlüsselung(verschlüsselung("Hallo, wie geht es dir?")))
+def verschlüsselung_involutorisch(text: str) -> str:
+    text_versclüsselt = ""
+    for Zeichen in text:
+        ascii_position = ord(Zeichen)
+        alphabet_position = ascii_position - ord("a")
+        alphabet_position_neu = (alphabet_position + 13) % 26
+        ascii_position_neu = alphabet_position_neu + ord("a")
+        zeichen_neu = chr(ascii_position_neu)
+        text_versclüsselt += zeichen_neu
+    return text_versclüsselt 
+
+def verschlüsselung_verschiebung(text: str, Verschiebung: int) -> str:
+    text_versclüsselt = ""
+    for Zeichen in text:
+        ascii_position = ord(Zeichen)
+        alphabet_position = ascii_position - ord("a")
+        alphabet_position_neu = (alphabet_position + Verschiebung) % 26
+        ascii_position_neu = alphabet_position_neu + ord("a")
+        zeichen_neu = chr(ascii_position_neu)
+        text_versclüsselt += zeichen_neu
+    return text_versclüsselt 
+
+def entschlüsselung_verschiebung(text: str, Verschiebung: int) -> str:
+    text_versclüsselt = ""
+    for Zeichen in text:
+        ascii_position = ord(Zeichen)
+        alphabet_position = ascii_position - ord("a")
+        alphabet_position_neu = (alphabet_position - Verschiebung) % 26
+        ascii_position_neu = alphabet_position_neu + ord("a")
+        zeichen_neu = chr(ascii_position_neu)
+        text_versclüsselt += zeichen_neu
+    return text_versclüsselt   
+
+def dedection(text: str) -> int:
+    shift = evshift = 0
+    while shift == 0:
+        print(entschlüsselung_verschiebung(text, evshift))
+        Eingabe = input("Ergibt das Sinn?")
+        if Eingabe == "ja":
+            shift = evshift
+        else:
+            evshift += 1    
+    return shift
+
+print(dedection("kdoor"))
