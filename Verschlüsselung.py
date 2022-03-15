@@ -300,4 +300,4 @@ def dedection(text: str) -> int:
             evshift += 1    
     return shift
 
-print(dedection("kdoor"))
+print(dedection("mfqqt"))

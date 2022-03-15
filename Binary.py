@@ -1,1 +1,2 @@
 def Binary(buchstabe):
+   
