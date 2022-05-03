@@ -84,18 +84,31 @@
 
 #Bauernhof
 
-Beine = 94
-Kaninchen = 0
-Hühner = 0
-x = 34
+# Beine = 94
+# Kaninchen = 0
+# Hühner = 0
+# x = 34
 
-for i in range(x):
-    if(Beine - 4) >= 0:
-        Kaninchen += 1
-        Beine -= 4
-    else:
-        Hühner += 1
-        Beine -= 2    
+# for i in range(x):
+#     while (Beine - 4) >= 0:
+#         Kaninchen += 1
+#         Beine -= 4
+#     x -= Kaninchen
+#     while x > 0:
+#         Kaninchen -= 1
+#         Hühner += 2
+#         x -= 1
+#     while (Beine - 2) >= 0:
+#         Hühner += 1
+#         Beine -= 2    
 
-print(Kaninchen)     
-print(Hühner)   
+# print(Kaninchen)     
+# print(Hühner)   
+
+def bauernhof(köpfe: int, beine: int, dict_beine: dict):
+    for i in bauernhof(köpfe, beine, dict_beine):
+        for e in bauernhof(köpfe, beine, dict_beine):
+            if e + i == köpfe and i * 4 + e * 2 == beine:
+                print(e, i)
+
+print(bauernhof(10, 10, {"Igel": 4, "Ente": 2}))    
