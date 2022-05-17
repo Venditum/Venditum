@@ -105,6 +105,7 @@
 # print(Kaninchen)     
 # print(Hühner)   
 
+<<<<<<< Updated upstream
 def bauernhof(köpfe: int, beine: int, dict_beine: dict):
     for i in bauernhof(köpfe, beine, dict_beine):
         for e in bauernhof(köpfe, beine, dict_beine):
@@ -112,3 +113,14 @@ def bauernhof(köpfe: int, beine: int, dict_beine: dict):
                 print(e, i)
 
 print(bauernhof(10, 10, {"Igel": 4, "Ente": 2}))    
+=======
+def bauernhof(köpfe: int, beine: int, dict_beine: dict) -> dict:
+    dict_tiere = dict_beine
+    x = len(dict_beine)  
+    for tiere in range(len(dict_tiere)):
+        key = dict_tiere.popitem()
+        for x in range(köpfe):
+            
+            
+print(bauernhof(10, 20, {"Igel": 4, "Ente": 2}))    
+>>>>>>> Stashed changes
