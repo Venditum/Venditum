@@ -18,6 +18,7 @@ def Computer():
 #Spielfeld
 
 spielfeld = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+übrig_spielfeld = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 def ausgabe():
     print(" " + spielfeld[0] + " | " + spielfeld[1] + " | " + spielfeld[2])
@@ -39,11 +40,7 @@ def Zug_Spieler():
 
 def Zug_Computer():
     gültige_eingabe = False
-    while not gültige_eingabe:
-        x = random.choice(spielfeld)
-        if type(int(x)) == int:
-            feld = x
-        if feld in spielfeld and feld != "x" and feld != "o":
+    if feld in spielfeld and feld != "x" and feld != "o":
             gültige_eingabe = True  
     return feld 
 
@@ -65,7 +62,7 @@ spiel_fertig = False
 while not spiel_fertig:   
  
     feld = Zug_Spieler() if spieler == "x" else Zug_Computer()
-     
+    übrig_spielfeld.remove(str(spielfeld[int(feld) - 1]))
     spielfeld[int(feld) - 1] = spieler
     
     ausgabe()

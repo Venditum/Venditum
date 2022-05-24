@@ -20,8 +20,8 @@ def wörterzählen(text_liste):
 dict_wörter = wörterzählen(text_liste)
 def größer(dict_wörter):
     bishergrößte = 0
-    bisherzweite = 0
-    zweit = 0
+    bisherzweit = 0
+    zweitgrößte = 0
     größte = 0
     ding = ""
     zweit = ""
@@ -29,11 +29,15 @@ def größer(dict_wörter):
         if value > bishergrößte:
             bishergrößte = value
             ding = key
-        if value < bishergrößte and value > bisherzweite:
-            bisherzweite = value
-            zweit = key
+        if bisherzweite < value:
+            if value < bishergrößte:
+                bisherzweite = value
+                zweit = key
     größte = bishergrößte
-    return zweit  
+    zweitgrößte = bisherzweit
+
+
+
         
 def durchschnitt(dict_wörter):
     gesamt = 0
@@ -42,4 +46,8 @@ def durchschnitt(dict_wörter):
     durchschnitt = gesamt / len(dict_wörter)
     return durchschnitt
 
-print(durchschnitt(dict_wörter))
+anfangbuchstaben = []
+for key in dict_wörter.keys:
+    if key[0] not in anfangbuchstaben:
+        anfangbuchstaben.append(key[0])
+print(len(anfangbuchstaben))            
