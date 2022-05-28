@@ -2,6 +2,19 @@ from turtle import *
 
 nummer = 0
 x = 0
+liste = []
+
+Zahl = 1
+vorherigezahl = 0
+Nummer = 0
+vorherigezahl2 = 0
+
+while Nummer <= 1000:
+    liste.append(Zahl)
+    vorherigezahl2 = vorherigezahl
+    vorherigezahl = Zahl
+    Zahl = vorherigezahl + vorherigezahl2
+    Nummer += 1
 
 def flocke(stufe, länge):
     if stufe == 0:
@@ -23,9 +36,9 @@ right(90)
 backward(200)
 pendown()
 while nummer < 360:
-    x += 0.01
-    flocke(2 , 12)
-    right(x)    
+    for x in range(90):
+        forward(liste[nummer] / 5)
+        right(1)    
     nummer += 1   
 
 done()    
