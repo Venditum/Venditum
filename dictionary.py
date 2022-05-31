@@ -50,4 +50,5 @@ anfangbuchstaben = []
 for key in dict_wörter.keys:
     if key[0] not in anfangbuchstaben:
         anfangbuchstaben.append(key[0])
+
 print(len(anfangbuchstaben))            

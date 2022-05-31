@@ -16,17 +16,19 @@ def gerade2(zahl):
         print("ungerade")            
 #gerade(int(input("aplewelche Zahl")))        
 
-liste = []
+def fibonacci_zahlen():
+    liste = []
 
-Zahl = 1
-vorherigezahl = 0
-vorherigezahl2 = 0
+    Zahl = 1
+    vorherigezahl = 0
+    vorherigezahl2 = 0
 
-while Zahl <= 144:
-    liste.append(Zahl)
-    vorherigezahl2 = vorherigezahl
-    vorherigezahl = Zahl
-    Zahl = vorherigezahl + vorherigezahl2
+    while Zahl <= 144:
+        liste.append(Zahl)
+        vorherigezahl2 = vorherigezahl
+        vorherigezahl = Zahl
+        Zahl = vorherigezahl + vorherigezahl2
+    return liste    
 
 
 def Wurzel(zahl1):

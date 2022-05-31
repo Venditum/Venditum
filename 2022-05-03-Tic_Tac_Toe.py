@@ -18,7 +18,6 @@ def Computer():
 #Spielfeld
 
 spielfeld = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-übrig_spielfeld = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 def ausgabe():
     print(" " + spielfeld[0] + " | " + spielfeld[1] + " | " + spielfeld[2])
@@ -26,7 +25,7 @@ def ausgabe():
     print(" " + spielfeld[3] + " | " + spielfeld[4] + " | " + spielfeld[5])
     print("__________")
     print(" " + spielfeld[6] + " | " + spielfeld[7] + " | " + spielfeld[8])
-    print("__________")
+    print()
 
 def Zug_Spieler():
     gültige_eingabe = False
@@ -39,22 +38,66 @@ def Zug_Spieler():
     return feld 
 
 def Zug_Computer():
+    feld = 0
     gültige_eingabe = False
-    if feld in spielfeld and feld != "x" and feld != "o":
-            gültige_eingabe = True  
+    if spielfeld[0] == spielfeld[1] == "x" and spielfeld[2] != "o":
+        feld = 3
+    elif spielfeld[1] == spielfeld[2] == "x" and spielfeld[0] != "o":
+        feld = 1
+    elif spielfeld[3] == spielfeld[4] == "x" and spielfeld[5] != "o":
+        feld = 6
+    elif spielfeld[4] == spielfeld[5] == "x" and spielfeld[3] != "o":
+        feld = 4
+    elif spielfeld[6] == spielfeld[7] == "x" and spielfeld[8] != "o":
+        feld = 9
+    elif spielfeld[7] == spielfeld[8] == "x" and spielfeld[6] != "o":
+        feld = 7
+    elif spielfeld[0] == spielfeld[3] == "x" and spielfeld[6] != "o":
+        feld = 7
+    elif spielfeld[3] == spielfeld[6] == "x" and spielfeld[0] != "o":
+        feld = 1
+    elif spielfeld[1] == spielfeld[4] == "x" and spielfeld[7] != "o":
+        feld = 8
+    elif spielfeld[4] == spielfeld[7] == "x" and spielfeld[1] != "o":
+        feld = 2
+    elif spielfeld[2] == spielfeld[5] == "x" and spielfeld[8] != "o": 
+        feld = 9                                
+    elif spielfeld[5] == spielfeld[8] == "x" and spielfeld[2] != "o":   
+        feld = 3
+    elif spielfeld[0] == spielfeld[4] == "x" and spielfeld[8] != "o":
+        feld = 9
+    elif spielfeld[4] == spielfeld[8] == "x" and spielfeld[0] != "o":
+        feld = 1
+    elif spielfeld[2] == spielfeld[4] == "x" and spielfeld[6] != "o":
+        feld = 7
+    elif spielfeld[4] == spielfeld[6] == "x" and spielfeld[2] != "o": 
+        feld = 3
+    elif spielfeld[0] == spielfeld[2] == "x" and spielfeld[1] != "o": 
+        feld = 2
+    elif spielfeld[3] == spielfeld[5] == "x" and spielfeld[4] != "o": 
+        feld = 5
+    elif spielfeld[6] == spielfeld[8] == "x" and spielfeld[7] != "o": 
+        feld = 8
+    elif spielfeld[0] == spielfeld[6] == "x" and spielfeld[3] != "o": 
+        feld = 4
+    elif spielfeld[1] == spielfeld[7] == "x" and spielfeld[4] != "o": 
+        feld = 5
+    elif spielfeld[2] == spielfeld[8] == "x" and spielfeld[5] != "o": 
+        feld = 6
+    elif spielfeld[0] == spielfeld[8] == "x" and spielfeld[4] != "o": 
+        feld = 5
+    elif spielfeld[2] == spielfeld[6] == "x" and spielfeld[4] != "o": 
+        feld = 5                               
+    elif spielfeld[0] == "x" and spielfeld[4] != "o":
+        feld = 5
+    else:
+        while not gültige_eingabe:
+            feld += 1
+            if str(feld) in spielfeld and str(feld) != "x" and str(feld) != "o":
+                gültige_eingabe = True
     return feld 
 
 ausgabe()
-
-def Zug_Computer_Verbessert():
-    Zeile_1 = [0, 1, 2]
-    Zeile_2 = [3, 4, 5]
-    Zeile_3 = [0, 1, 2]
-    Spalte_1 = [0, 1, 2]
-    Spalte_2 = [0, 1, 2]
-    Spalte_3 = [0, 1, 2]
-    Diagonale_1 = [0, 1, 2]
-    Diagonale_2 = [0, 1, 2]
 
 spieler = "x"
 spiel_fertig = False
@@ -62,19 +105,18 @@ spiel_fertig = False
 while not spiel_fertig:   
  
     feld = Zug_Spieler() if spieler == "x" else Zug_Computer()
-    übrig_spielfeld.remove(str(spielfeld[int(feld) - 1]))
     spielfeld[int(feld) - 1] = spieler
     
     ausgabe()
     
-    if (spielfeld[0] == spielfeld[1] and spielfeld[2] == spieler) or \
-    (spielfeld[3] == spielfeld[4] == spielfeld[5] == spieler) or \
-    (spielfeld[6] == spielfeld[7] == spielfeld[8] == spieler) or \
-    (spielfeld[0] == spielfeld[3] == spielfeld[6] == spieler) or \
-    (spielfeld[1] == spielfeld[4] == spielfeld[7] == spieler) or \
-    (spielfeld[2] == spielfeld[5] == spielfeld[8] == spieler) or \
-    (spielfeld[0] == spielfeld[4] == spielfeld[8] == spieler) or \
-    (spielfeld[2] == spielfeld[4] == spielfeld[6] == spieler):
+    if (spielfeld[0] == spielfeld[1] == spielfeld[2]) or \
+    (spielfeld[3] == spielfeld[4] == spielfeld[5]) or \
+    (spielfeld[6] == spielfeld[7] == spielfeld[8]) or \
+    (spielfeld[0] == spielfeld[3] == spielfeld[6]) or \
+    (spielfeld[1] == spielfeld[4] == spielfeld[7]) or \
+    (spielfeld[2] == spielfeld[5] == spielfeld[8]) or \
+    (spielfeld[0] == spielfeld[4] == spielfeld[8]) or \
+    (spielfeld[2] == spielfeld[4] == spielfeld[6]):
         print("Glückwunsch Spieler " + spieler + ", du hast gewonnen")
         spiel_fertig = True
     
