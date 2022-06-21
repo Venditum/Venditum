@@ -69,8 +69,12 @@ class Safaripark:
         for x in self.tiere:
             gesamtgewicht += x.gewicht
         return gesamtgewicht
+    def Safaripark_ist_leer(self) -> bool:
+        return len(self.tiere) == 0  
     def schwerstes(self) -> Tier:
-        schwerstes = None
+        if self.Safaripark_ist_leer:
+            raise ValueError("Der Zoo ist ller!")
+        schwerstes = ""
         bisherschwerstes_gewicht = 0
         bisherschwerstes = ""
         for x in self.tiere:
@@ -83,11 +87,37 @@ class Safaripark:
         junges = random.choice(self.tiere).junges()
         self.aufnehmen(junges)
         return junges
+    def tierezählen(self) -> dict:
+        arten = {}
+        for tier in self.tiere:
+            if tier.tierart not in arten:
+                arten.update({tier.tierart: 1})
+            else:
+                arten[tier.tierart] += 1
+        return arten
+    def tierarten(self):
+        arten = []
+        for tier in self.tiere:
+            if tier.tierart not in arten:
+                arten.append(tier.tierart)
+        return arten    
     def häufigste_tierart(self) -> str:
-        pass
-                
+        übergang = self.tierezählen()
+        häufigstes = 0 
+        for key, value in übergang.items():
+            if value > häufigstes:
+                häufigstes = value
+                tier = key
+        return tier
+    def häufigste_tierart_2(self) -> str:
+        anzahl = 0
+        for tier in self.tierarten():
+            anzahl = self.anzahl_tierart(tier) and  häufigstes_tier = tier if self.anzahl_tierart(tier) > anzahl else None
+            häufigstes_tier = tier
+        return häufigstes_tier        
+
 tier1 = Tier("Löwe", ["Zebra", "Gazelle", "Gnu"], [], 150.0, 150, "gelb")
 tier2 = Tier("Zebra", ["Gras"], ["Löwe"], 300.0, 210, "schwarz-weiß")
 tier3 = Tier("Gnu", ["Gras"], ["Löwe"], 200.0, 190, "schwarz")
-Safaripark_Venditum = Safaripark("Venditum", [tier1, tier2, tier3], 10)
-print(Safaripark_Venditum.geburt())
+Safaripark_Venditum = Safaripark("Venditum", [tier1, tier2, tier2], 10)
+print(Safaripark_Venditum.häufigste_tierart_2())
