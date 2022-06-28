@@ -110,14 +110,20 @@ class Safaripark:
                 tier = key
         return tier
     def häufigste_tierart_2(self) -> str:
-        anzahl = 0
-        for tier in self.tierarten():
-            anzahl = self.anzahl_tierart(tier) and  häufigstes_tier = tier if self.anzahl_tierart(tier) > anzahl else None
-            häufigstes_tier = tier
+        häufigste_anzahl = 0
+        häufigstes_tier = ""
+        liste = self.tierarten()
+        for tier in liste:
+            anzahl = self.anzahl_tierart(tier)
+            if anzahl > häufigste_anzahl:
+                häufigste_anzahl = anzahl
+                häufigstes_tier = tier
+            print(tier)
+        print(häufigstes_tier)
         return häufigstes_tier        
 
 tier1 = Tier("Löwe", ["Zebra", "Gazelle", "Gnu"], [], 150.0, 150, "gelb")
 tier2 = Tier("Zebra", ["Gras"], ["Löwe"], 300.0, 210, "schwarz-weiß")
 tier3 = Tier("Gnu", ["Gras"], ["Löwe"], 200.0, 190, "schwarz")
-Safaripark_Venditum = Safaripark("Venditum", [tier1, tier2, tier2], 10)
-print(Safaripark_Venditum.häufigste_tierart_2())
+Safaripark_Venditum = Safaripark("Venditum", [tier1, tier2, tier2, tier3, tier1, tier1, tier3], 10)
+print(Safaripark_Venditum.anzahl_tierart(tier1))
