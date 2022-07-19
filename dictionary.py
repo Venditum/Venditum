@@ -36,9 +36,6 @@ def größer(dict_wörter):
     größte = bishergrößte
     zweitgrößte = bisherzweit
 
-
-
-        
 def durchschnitt(dict_wörter):
     gesamt = 0
     for value in dict_wörter.values():

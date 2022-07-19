@@ -17,21 +17,21 @@ def Computer():
 
 #Spielfeld
 
-spielfeld = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+spielfeld = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 def ausgabe():
-    print(" " + spielfeld[0] + " | " + spielfeld[1] + " | " + spielfeld[2])
+    print(" " + str(spielfeld[0]) + " | " + str(spielfeld[1]) + " | " + str(spielfeld[2]))
     print("__________")
-    print(" " + spielfeld[3] + " | " + spielfeld[4] + " | " + spielfeld[5])
+    print(" " + str(spielfeld[3]) + " | " + str(spielfeld[4]) + " | " + str(spielfeld[5]))
     print("__________")
-    print(" " + spielfeld[6] + " | " + spielfeld[7] + " | " + spielfeld[8])
+    print(" " + str(spielfeld[6]) + " | " + str(spielfeld[7]) + " | " + str(spielfeld[8]))
     print()
 
 def Zug_Spieler():
     gültige_eingabe = False
     while not gültige_eingabe:
-        feld = input("Spieler " + spieler + ", Feld eingeben: ")
-        if feld in spielfeld and feld != "x" and feld != "o":
+        feld = int(input("Spieler " + spieler + ", Feld eingeben: "))
+        if feld != "x" and feld != "o":
             gültige_eingabe = True
         else:
             print("Ungültig!")   
@@ -97,14 +97,55 @@ def Zug_Computer():
                 gültige_eingabe = True
     return feld 
 
-ausgabe()
+def Algorithmus(Spielfeld, gegner):
+    gefahr = 0
+    test = 0
+    for i in range(3):
+        reihe = [[Spielfeld[0], Spielfeld[1], Spielfeld[2]], [Spielfeld[3], Spielfeld[4], Spielfeld[5]], [Spielfeld[6], Spielfeld[7], Spielfeld[8]]]
+        test = 0
+        for I in reihe[i]:
+            if I == gegner:
+                test += 1
+            if test == 2: 
+                gefahr = reihe[i]
+                break    
+    for i in range(3):
+        spalte = [[Spielfeld[0], Spielfeld[3], Spielfeld[6]], [Spielfeld[1], Spielfeld[4], Spielfeld[7]], [Spielfeld[2], Spielfeld[5], Spielfeld[8]]]
+        test = 0
+        for I in spalte[i]:
+            if I == gegner:
+                    test += 1 
+            if test == 2: 
+                gefahr = spalte[i]
+                break    
+    for i in range(2):
+        diagonale = [[Spielfeld[0], Spielfeld[4], Spielfeld[8]], [Spielfeld[2], Spielfeld[4], Spielfeld[6]]]
+        test = 0
+        for I in diagonale[i]:
+            if I == gegner:
+                test += 1
+            if test == 2: 
+                gefahr = diagonale[i]
+                break    
+    print(gefahr)
+    if gefahr !=0:
+        for i in gefahr:
+            if type(i) == int:
+                print(type(i))
+                return int(i)  
+    gültig = False
+    while not gültig:
+        feld = random.choice(spielfeld)
+        if feld != "x" and "o":
+            return feld             
 
+ausgabe()
 spieler = "x"
 spiel_fertig = False
 
 while not spiel_fertig:   
  
-    feld = Zug_Spieler() if spieler == "x" else Zug_Computer()
+    feld = Zug_Spieler() if spieler == "x" else Algorithmus(spielfeld, "x")
     spielfeld[int(feld) - 1] = spieler
     
     ausgabe()
@@ -121,3 +162,4 @@ while not spiel_fertig:
         spiel_fertig = True
     
     spieler = "o" if spieler == "x" else "x"
+
