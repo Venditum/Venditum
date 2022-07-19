@@ -37,8 +37,8 @@ backward(200)
 pendown()
 while nummer < 360:
     for x in range(90):
-        forward(liste[nummer] / 5)
-        right(1)    
+        forward(liste[nummer] / 20)
+        right(20)    
     nummer += 1   
 
 done()    
