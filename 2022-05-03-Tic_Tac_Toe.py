@@ -127,7 +127,6 @@ def Algorithmus(Spielfeld, gegner):
             if test == 2: 
                 gefahr = diagonale[i]
                 break    
-    print(gefahr)
     if gefahr !=0:
         for i in gefahr:
             if type(i) == int:

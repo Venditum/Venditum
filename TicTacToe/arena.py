@@ -1,6 +1,7 @@
 from spieler_mensch import spieler_mensch
 from KI import Level_1
 from KI import Level_2
+from KI import TTT_God
 import random
 
 class Arena:
@@ -44,6 +45,8 @@ class Arena:
             
             self.spielfeld[int(feld) - 1 ] = spieler.symbol
 
+            print(s5.bewertung(self.spielfeld, spieler.symbol, "x"))
+
             self.__ausgabe()
 
             if self.__gewinnprüfung():
@@ -60,6 +63,7 @@ s1 = spieler_mensch("Johannes")
 s2 = spieler_mensch("Hirakula")
 s3 = Level_1("Computer1")
 s4 = Level_2("Computer2")
+s5 = TTT_God("Unbesiegbar")
 
 for i in range(1000):
     wins1 = 0

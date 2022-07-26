@@ -142,4 +142,33 @@ class Level_2:
         return feld        
 
 class TTT_God:
-    pass
+    def __init__(self, name, symbol, symbol_gegner):
+        self.name = name
+        self.symbol = symbol
+        self.symbol_gegner = symbol_gegner
+    
+    def gewinnprüfung(self, spielfeld):
+        return spielfeld[0] == spielfeld[1] == spielfeld[2] or \
+                spielfeld[3] == spielfeld[4] == spielfeld[5] or \
+                spielfeld[6] == spielfeld[7] == spielfeld[8] or \
+                spielfeld[0] == spielfeld[3] == spielfeld[6] or \
+                spielfeld[1] == spielfeld[4] == spielfeld[7] or \
+                spielfeld[2] == spielfeld[5] == spielfeld[8] or \
+                spielfeld[0] == spielfeld[4] == spielfeld[8] or \
+                spielfeld[2] == spielfeld[4] == spielfeld[6]
+    
+    def freie_felder(self, spielfeld):
+        return [freies_feld for freies_feld in spielfeld if freies_feld not in ["x", "o"]]
+    
+    def bewertung(self, spielfeld, symbol):
+        if self.gewinnprüfung(spielfeld):
+            return -(len(self.freie_felder(spielfeld)) + 1)
+        if self.freie_felder(spielfeld) == 0:
+            return 0       
+        for feld in self.freie_felder(spielfeld):
+            spielfeld[int(feld) - 1] = self.symbol
+            bewertung = self.bewertung(spielfeld, self.symbol_gegner)   
+            self.bewertung(spielfeld, spielfeld, symbol) 
+            if bewertung > max:
+                max = bewertung
+                        
