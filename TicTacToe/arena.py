@@ -1,15 +1,73 @@
-from spielfeld import Spielfeld
-from mensch import Spieler
+from spieler_mensch import spieler_mensch
+from KI import Level_1
+from KI import Level_2
+import random
 
 class Arena:
-    def __init__(self):
-        pass
+    def __init__(self, spielfeld):
+        self.spielfeld = spielfeld
 
-    def spielen(self, spieler1, spieler2):
-        Spielfeld_neu = Spielfeld([1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 5, 6, 7, 8, 9])
-        Spielfeld_neu.ausgabe()
-        while not Spielfeld_neu.vorbei:
-            spieler1.zug()
-            spieler2.zug()
+    def __ausgabe(self):
+        print("")
+        print(" " + self.spielfeld[0] + " | " + self.spielfeld[1] + " | " + self.spielfeld[2])
+        print("___________")
+        print(" " + self.spielfeld[3] + " | " + self.spielfeld[4] + " | " + self.spielfeld[5])
+        print("___________")
+        print(" " + self.spielfeld[6] + " | " + self.spielfeld[7] + " | " + self.spielfeld[8])
+        print("")
 
-     
+    def __gewinnprüfung(self):
+        return self.spielfeld[0] == self.spielfeld[1] == self.spielfeld[2] or \
+                self.spielfeld[3] == self.spielfeld[4] == self.spielfeld[5] or \
+                self.spielfeld[6] == self.spielfeld[7] == self.spielfeld[8] or \
+                self.spielfeld[0] == self.spielfeld[3] == self.spielfeld[6] or \
+                self.spielfeld[1] == self.spielfeld[4] == self.spielfeld[7] or \
+                self.spielfeld[2] == self.spielfeld[5] == self.spielfeld[8] or \
+                self.spielfeld[0] == self.spielfeld[4] == self.spielfeld[8] or \
+                self.spielfeld[2] == self.spielfeld[4] == self.spielfeld[6]
+
+
+    def spielen(self ,spieler1, spieler2):
+        spieler = random.choice([spieler1, spieler2])
+        if spieler == spieler:
+            spieler1.symbol = "x"
+            spieler2.symbol = "o"
+        else:
+            spieler2.symbol = "x"
+            spieler1.symbol = "o"
+
+        spiel_fertig = False
+
+        while not spiel_fertig:
+            
+            feld = spieler1.zug(self.spielfeld) if spieler == spieler1 else spieler2.zug(self.spielfeld)
+            
+            self.spielfeld[int(feld) - 1 ] = spieler.symbol
+
+            self.__ausgabe()
+
+            if self.__gewinnprüfung():
+                print("Du hast gewonnen " + spieler.name)
+                spiel_fertig = True
+                gewinner = spieler.name
+
+            spieler = spieler2 if spieler == spieler1 else spieler1
+
+        return gewinner    
+            
+a = Arena(["1" ,"2" ,"3" ,"4" ,"5" ,"6" ,"7" ,"8" ,"9"])
+s1 = spieler_mensch("Johannes")
+s2 = spieler_mensch("Hirakula")
+s3 = Level_1("Computer1")
+s4 = Level_2("Computer2")
+
+for i in range(1000):
+    wins1 = 0
+    wins2 = 0
+    x = a.spielen(s3, s4)
+    if x == "Computer1":
+        wins1 += 1
+    if x == "Computer2":
+        wins2 += 1
+
+print(wins1, wins2)
