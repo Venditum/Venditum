@@ -45,8 +45,6 @@ class Arena:
             
             self.spielfeld[int(feld) - 1 ] = spieler.symbol
 
-            print(s5.bewertung(self.spielfeld, spieler.symbol, "x"))
-
             self.__ausgabe()
 
             if self.__gewinnprüfung():
@@ -63,8 +61,7 @@ s1 = spieler_mensch("Johannes")
 s2 = spieler_mensch("Hirakula")
 s3 = Level_1("Computer1")
 s4 = Level_2("Computer2")
-s5 = TTT_God("Unbesiegbar", "x", "o")
-
+s5 = TTT_God("Unbesiegbar", "o", "x")
 for i in range(1000):
     wins1 = 0
     wins2 = 0
@@ -73,5 +70,3 @@ for i in range(1000):
         wins1 += 1
     if x == "Computer2":
         wins2 += 1
-
-print(wins1, wins2)

@@ -166,29 +166,29 @@ class TTT_God:
                 return -(len(self.freie_felder(spielfeld)) + 1)
             if len(self.freie_felder(spielfeld)) == 0:
                 return 0    
-            min = 10
+            max = -10
             bewertung = 0
             for freies_feld in self.freie_felder(spielfeld):
                 spielfeld[int(freies_feld) - 1] = self.symbol
                 bewertung = self.bewertung(spielfeld, self.symbol_gegner)
                 spielfeld[int(freies_feld) - 1] = freies_feld 
-                if bewertung < min:
-                    min = bewertung
-            return min
+                if bewertung > max:
+                    max = bewertung
+            return max
         else: 
             if self.gewinnprüfung(spielfeld):
                 return len(self.freie_felder(spielfeld)) + 1
             if len(self.freie_felder(spielfeld)) == 0:
                 return 0    
-            max = -10
+            min = 10
             bewertung = 0
             for freies_feld in self.freie_felder(spielfeld):
                 spielfeld[int(freies_feld) - 1] = self.symbol_gegner
                 bewertung = self.bewertung(spielfeld, self.symbol)
                 spielfeld[int(freies_feld) - 1] = freies_feld                 
-                if bewertung > max:
-                    max = bewertung  
-            return max
+                if bewertung < min:
+                    min = bewertung  
+            return min
     
     def minimax(self, spielfeld):
         max = -10
@@ -196,15 +196,17 @@ class TTT_God:
         for freies_feld in self.freie_felder(spielfeld):
             spielfeld[int(freies_feld) - 1] = self.symbol
             bewertung = self.bewertung(spielfeld, self.symbol_gegner)
+            print(bewertung)
             if bewertung > max:
                 max = bewertung
                 bestes_feld = freies_feld
             spielfeld[int(freies_feld) - 1] = freies_feld
+            #print(bestes_feld)
         return bestes_feld
 
     def zug(self, spielfeld):
-        return self.minimax(spielfeld)    
+        return self.minimax(spielfeld)   
 
-Hallo = TTT_God("sss", "o", "x")    
+Hallo = TTT_God("sss", "x", "o")    
 
-print(Hallo.minimax(["x" ,"2" ,"3" ,"o" ,"o" ,"x" ,"7" ,"8" ,"x"]))
+print(Hallo.minimax(["o" ,"x" ,"x" ,"o" ,"o" ,"6" ,"7" ,"8" ,"9"]))
