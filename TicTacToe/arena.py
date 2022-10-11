@@ -29,13 +29,9 @@ class Arena:
 
 
     def spielen(self ,spieler1, spieler2):
-        spieler = random.choice([spieler1, spieler2])
-        if spieler == spieler:
-            spieler1.symbol = "x"
-            spieler2.symbol = "o"
-        else:
-            spieler2.symbol = "x"
-            spieler1.symbol = "o"
+        spieler1.symbol = "x"
+        spieler2.symbol = "o"
+        spieler = "o"
 
         spiel_fertig = False
 
@@ -43,16 +39,15 @@ class Arena:
             
             feld = spieler1.zug(self.spielfeld) if spieler == spieler1 else spieler2.zug(self.spielfeld)
             
-            self.spielfeld[int(feld) - 1 ] = spieler.symbol
+            self.spielfeld[int(feld) - 1 ] = spieler
 
             self.__ausgabe()
 
             if self.__gewinnprüfung():
-                print("Du hast gewonnen " + spieler.name)
                 spiel_fertig = True
-                gewinner = spieler.name
+                gewinner = spieler
 
-            spieler = spieler2 if spieler == spieler1 else spieler1
+            spieler = spieler2.symbol if spieler == spieler1.symbol else spieler1.symbol
 
         return gewinner    
             
@@ -70,3 +65,5 @@ for i in range(1000):
         wins1 += 1
     if x == "Computer2":
         wins2 += 1
+
+print(wins1, wins2)

@@ -20,4 +20,14 @@ def quersumme(n: int, n2: int) -> int:
         return zahl1
     return zahl1     
 
-print(quersumme(55, 0))
+#Quersumme2
+
+def quersumme_a(n: int) -> int:
+    x = n
+    if n < 10:
+        return n
+    vorgänger = x - n 
+    quersumme_vorgänger = quersumme_a(vorgänger)
+    return (n % 10) + quersumme_vorgänger
+
+print(quersumme_a(425))
