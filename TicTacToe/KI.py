@@ -205,7 +205,8 @@ class TTT_God:
         return bestes_feld
 
     def zug(self, spielfeld):
-        return self.minimax(spielfeld)   
+        self.symbol_gegner = "x" if self.symbol == "o" else "o"
+        return int(self.minimax(spielfeld)) - 1   
 
 Hallo = TTT_God("sss", "x", "o")    
 

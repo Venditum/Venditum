@@ -29,9 +29,16 @@ class Arena:
 
 
     def spielen(self ,spieler1, spieler2):
-        spieler1.symbol = "x"
-        spieler2.symbol = "o"
-        spieler = "o"
+        self.spielfeld = ["1" ,"2" ,"3" ,"4" ,"5" ,"6" ,"7" ,"8" ,"9"] 
+        
+        spieler = random.choice([spieler1, spieler2])
+
+        if spieler == spieler:
+            spieler1.symbol = "x"
+            spieler2.symbol = "o"
+        else:
+            spieler1.symbol = "o"
+            spieler2.symbol = "x"
 
         spiel_fertig = False
 
@@ -41,7 +48,7 @@ class Arena:
             
             self.spielfeld[int(feld) - 1 ] = spieler
 
-            self.__ausgabe()
+            #self.__ausgabe()
 
             if self.__gewinnprüfung():
                 spiel_fertig = True
@@ -56,7 +63,7 @@ s1 = spieler_mensch("Johannes")
 s2 = spieler_mensch("Hirakula")
 s3 = Level_1("Computer1")
 s4 = Level_2("Computer2")
-s5 = TTT_God("Unbesiegbar", "o", "x")
+s5 = TTT_God("Unbesiegbar", " ", " ")
 for i in range(1000):
     wins1 = 0
     wins2 = 0
