@@ -29,13 +29,16 @@ class Arena:
 
 
     def spielen(self ,spieler1, spieler2):
+        self.spielfeld = ["1" ,"2" ,"3" ,"4" ,"5" ,"6" ,"7" ,"8" ,"9"] 
+        
         spieler = random.choice([spieler1, spieler2])
+
         if spieler == spieler:
             spieler1.symbol = "x"
             spieler2.symbol = "o"
         else:
-            spieler2.symbol = "x"
             spieler1.symbol = "o"
+            spieler2.symbol = "x"
 
         spiel_fertig = False
 
@@ -43,18 +46,15 @@ class Arena:
             
             feld = spieler1.zug(self.spielfeld) if spieler == spieler1 else spieler2.zug(self.spielfeld)
             
-            self.spielfeld[int(feld) - 1 ] = spieler.symbol
+            self.spielfeld[int(feld) - 1 ] = spieler
 
-            print(s5.bewertung(self.spielfeld, spieler.symbol, "x"))
-
-            self.__ausgabe()
+            #self.__ausgabe()
 
             if self.__gewinnprüfung():
-                print("Du hast gewonnen " + spieler.name)
                 spiel_fertig = True
-                gewinner = spieler.name
+                gewinner = spieler
 
-            spieler = spieler2 if spieler == spieler1 else spieler1
+            spieler = spieler2.symbol if spieler == spieler1.symbol else spieler1.symbol
 
         return gewinner    
             
@@ -63,12 +63,11 @@ s1 = spieler_mensch("Johannes")
 s2 = spieler_mensch("Hirakula")
 s3 = Level_1("Computer1")
 s4 = Level_2("Computer2")
-s5 = TTT_God("Unbesiegbar")
-
+s5 = TTT_God("Unbesiegbar", " ", " ")
 for i in range(1000):
     wins1 = 0
     wins2 = 0
-    x = a.spielen(s3, s4)
+    x = a.spielen(s3, s5)
     if x == "Computer1":
         wins1 += 1
     if x == "Computer2":

@@ -160,15 +160,54 @@ class TTT_God:
     def freie_felder(self, spielfeld):
         return [freies_feld for freies_feld in spielfeld if freies_feld not in ["x", "o"]]
     
-    def bewertung(self, spielfeld, symbol):
-        if self.gewinnprüfung(spielfeld):
-            return -(len(self.freie_felder(spielfeld)) + 1)
-        if self.freie_felder(spielfeld) == 0:
-            return 0       
-        for feld in self.freie_felder(spielfeld):
-            spielfeld[int(feld) - 1] = self.symbol
-            bewertung = self.bewertung(spielfeld, self.symbol_gegner)   
-            self.bewertung(spielfeld, spielfeld, symbol) 
+    def bewertung(self, spielfeld: list, symbol: str):
+        if symbol == self.symbol:
+            if self.gewinnprüfung(spielfeld):
+                return -(len(self.freie_felder(spielfeld)) + 1)
+            if len(self.freie_felder(spielfeld)) == 0:
+                return 0    
+            max = -10
+            bewertung = 0
+            for freies_feld in self.freie_felder(spielfeld):
+                spielfeld[int(freies_feld) - 1] = self.symbol
+                bewertung = self.bewertung(spielfeld, self.symbol_gegner)
+                spielfeld[int(freies_feld) - 1] = freies_feld 
+                if bewertung > max:
+                    max = bewertung
+            return max
+        else: 
+            if self.gewinnprüfung(spielfeld):
+                return len(self.freie_felder(spielfeld)) + 1
+            if len(self.freie_felder(spielfeld)) == 0:
+                return 0    
+            min = 10
+            bewertung = 0
+            for freies_feld in self.freie_felder(spielfeld):
+                spielfeld[int(freies_feld) - 1] = self.symbol_gegner
+                bewertung = self.bewertung(spielfeld, self.symbol)
+                spielfeld[int(freies_feld) - 1] = freies_feld                 
+                if bewertung < min:
+                    min = bewertung  
+            return min
+    
+    def minimax(self, spielfeld):
+        max = -10
+        bestes_feld = None
+        for freies_feld in self.freie_felder(spielfeld):
+            spielfeld[int(freies_feld) - 1] = self.symbol
+            bewertung = self.bewertung(spielfeld, self.symbol_gegner)
+            print(bewertung)
             if bewertung > max:
                 max = bewertung
-                        
+                bestes_feld = freies_feld
+            spielfeld[int(freies_feld) - 1] = freies_feld
+            #print(bestes_feld)
+        return bestes_feld
+
+    def zug(self, spielfeld):
+        self.symbol_gegner = "x" if self.symbol == "o" else "o"
+        return int(self.minimax(spielfeld)) - 1   
+
+Hallo = TTT_God("sss", "x", "o")    
+
+print(Hallo.minimax(["o" ,"x" ,"x" ,"o" ,"o" ,"6" ,"7" ,"8" ,"9"]))
