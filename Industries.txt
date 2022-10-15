@@ -1,0 +1,230 @@
+Fahrzeugakku 9897
+    Akkuzelle 8000000
+        Strom 16000000
+            Brennstab 16000
+        Alu 16000
+            Bauxit 160000
+                Strom 1600
+            Graphit 16
+            Strom 4800000
+                Brennstab 4800
+        Lithium 8000
+            Lithiumchlorid 5000
+                Lithiumcarbonat 6000
+                    Natriumcarbonat 600
+                        Ammoniak 300
+                            Wasserstoff 150
+                            Stickstoff 150              
+                        Erdgas 600              
+                    Wasser 5400000
+                        Strom 54000
+                    Strom 30000       
+                Strom 5000
+            Kaliumchlorid 4000
+                Kalilauge 2000
+                    Strom 20000
+                    Wasser 4000
+                    Sylvin 4000           
+                Salzsäure 3000
+                    Schwefelsäure 1500
+                        Erdgas 2000
+                        Schwefel 2500                   
+                    Salz 6000
+                    Strom 9000
+                Strom 4000
+            Strom 64000
+        Kobalt 16000
+            Strom 160000
+                Brennstab 160
+            Kupfererz 48000
+            Schwefelsäure 3200
+                Erdgas 5000
+                Schwefel 6000                 
+            Wasser 32000   
+        Feinkupfer 16000
+            Kupfer 24000
+                Schlacke 50000
+                Strom 110000
+                    Brennstab 110
+                Erdgas 128000 
+                Kohle 32000
+                Kupfererz 64000   
+            Strom 640000
+                Brennstab 640        
+    Chipset 10000
+        Reinsilizium 200
+            Silizium 1000
+                Strom 8000
+                Sand 5000
+                Kohle 4000
+                Erdgas 12000
+            Strom 120000
+                Brennstab 120
+        Feinkupfer 100
+            Kupfer 150
+                Schlacke 1200
+                Strom 1050
+            Strom 4000
+        Feingold 100
+            Strom 8000
+            Gold 150
+                Schlacke 18000
+                Strom 22500
+                    Brennstab 100                
+        Strom 100000
+            Brennstab 100
+    BM 20000
+        Strom 2000
+        Erdgas 400
+        Stahl 1000
+            Eisen 1200
+                Strom 6000
+                Eisenerz 9600
+                Kohle 2400
+                Kalkstein 600
+                Erdgas 12000 
+            Strom 60000
+                Brennstab 60
+            Erdgas 20000
+    Alu 10000
+        Bauxit 100000
+            Strom 8000
+        Graphit 10
+        Strom 3000000 
+            Brennstab 3000
+    Strom 100000
+        Brennstab 100
+
+Fahrzeugakku 9897           ;1
+Akkuzelle 8000000   	    ;42
+Alu 26000                   ;0.6
+Ammoniak 300                ;...  (Insgesamt 1)
+Bauxit 260000               ;0.3
+BM 20000                    ;0.1
+Brennstab 27000 	        ;0.2  (Uran; 0.1)
+Chipset 10000               ;0.2
+Eisen 1200                  ;...  (Insgesamt 3)
+Eisenerz 9600               ;...  (Insgesamt 8)
+Erdgas 181000               ;0.2
+Feingold 100                ;...  (Insgesamt 3)
+Feinkupfer 16100            ;0.9
+Gold 150                    ;...  (Insgesamt 2)
+Graphit ...                 ;...  (Insgesamt 5)
+Kalilauge 2000              ;...  (Insgesamt 2)
+Kaliumchlorid 4000          ;...  (Insgesamt 3)
+Kalkstein ...               ;...  (Insgesamt 10)
+Kobalt 16000                ;1.1
+Kohle 2400                  ;...  (Insgesamt 40)
+Kupfer 24150                ;...  (Insgesamt 2), 0.2
+Kupfererz 112000            ;0.25 
+Lithium 8000                ;0.55
+Lithiumcarbonat 6000        ;0.7
+Lithiumchlorid 5000         ;...  (Insgesamt 3)
+Natriumcarbonat 600         ;...  (Insgesamt 1)
+Reinsilizium 200            ;...  (Insgesamt 2)
+Salz 6000                   ;...  (Insgesamt 5)
+Salzsäure 3000              ;...  (Insgesamt 3)
+Sand 5000                   ;...  (Insgesamt 5)
+Schlacke 55000              ;...
+Schwefel 8500               ;...  (Insgesamt 10)
+Schwefelsäure 4700          ;...  (Insgesamt 5)
+Silizium 1000               ;...  (Insgesamt 3)
+Stahl 1000                  ;...  (Insgesamt 4)
+Stickstoff 150              ;...  (Insgesamt 1)
+Strom 26000000              ;8       
+Sylvin 4000                 ;...  (Insgesamt 10)
+Wasser 5500000              ;6
+Wasserstoff 150             ;...  (Insgesamt 1)
+
+Transportwagen 42775
+    Strom 45000000
+        Brennstab 45000
+    Stahl 855500
+        Strom 52000000
+            52000 Brennstab
+        Erdgas 17200000
+        Eisen 1026600
+            Strom 5000000
+                Brennstab 5000
+            Eisenerz 8200000
+            Kohle 2100000
+            Kalkstein 600000
+            Erdgas 8200000
+    BM 5133000
+        Stahl 52000
+            Strom 3120000
+                Brennstab 3000
+            Erdgas 1000000
+            Eisen 62400
+                Strom 400000
+                    Brennstab 400
+                Eisenerz 500000
+                Kohle 125000
+                Kalkstein 32000
+                Erdgas 600000
+    Motor 42775
+        Stahlblock 42775
+            Stahl 1200000
+                Strom 72000000
+                    Brennstab 72000
+                Erdgas 24000000
+                Eisen 1440000
+                    Strom 7400000
+                        Brennstab 7000
+                    Eisenerz 11000000
+                    Kohle 3000000
+                    Kalkstein 800000
+                    Erdgas 15000000
+            Strom 4000000
+                Brennstab 4000
+            Erdgas 2500000
+        BM 5133000
+            Stahl 52000
+                Strom 3120000
+                    Brennstab 3000
+                Erdgas 1000000
+                Eisen 62400
+                    Strom 400000
+                        Brennstab 400
+                    Eisenerz 500000
+                    Kohle 125000
+                    Kalkstein 32000
+                    Erdgas 600000
+        Strom 13400000
+            Brennstab 13000
+    Karosserie 42775
+        Strom 43000000
+            Brennstab 43000
+        Stahlblech 342200
+            Strom 24000000
+                Brennstab 24000
+            Erdgas 12000000
+            Stahl 4450000
+                Eisen 5340000
+                    Strom 26000000
+                    Eisenerz 40000000
+                    Kohle 10000000
+                    Kalkstein 2500000
+                    Erdgas 50000000
+                Strom 250000000
+                    Brennstab 250000
+                Erdgas 89000000
+        BM 855500
+        Stahl 4277500
+            Eisen 5340000
+                Strom 26000000
+                Eisenerz 40000000
+                Kohle 10000000
+                Kalkstein 2500000
+                Erdgas 50000000
+            Strom 250000000
+                Brennstab 250000
+            Erdgas 89000000
+    Benzin 2138750
+        Strom 2200000
+            Brennstab 2200
+        Erdgas 2138750
+        Erdöl 3208125
+
+BM 11121500
+Brennstab 330000
