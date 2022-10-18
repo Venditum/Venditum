@@ -1,3 +1,5 @@
+import math
+
 #Fakultät
 
 def fak(n: int) -> int:
@@ -7,7 +9,7 @@ def fak(n: int) -> int:
 
 #Quersumme
 
-def quersumme(n: int, n2: int) -> int:
+def quersumme(n: int) -> int:
     n_str = str(n)
     if len(n_str) == 1:
         return n
@@ -27,10 +29,45 @@ def quersumme_a(n: int) -> int:
 
 #V_Q
 
-def V_Q(x):
-    if x >= 1000000:
-        return x 
-    nachfolger = V_Q(x * 2)
-    return nachfolger ** 2
+def V_Q(zahl: int, verdoppeln: bool) -> int:
+    if zahl >= 1000000:
+        return zahl 
+    elif verdoppeln:
+        zahl *= 2
+        return V_Q(zahl, False)   
+    else: 
+        zahl *= 2
+        return V_Q(zahl, True)     
 
-print(V_Q(50))        
+def V_Q_(zahl: int) -> int:
+    return V_Q(zahl, True)    
+
+#V_Q_alt
+
+def V_Q_alt(zahl: int, verdoppeln: bool, anzahl: int) -> int:
+    if zahl >= 1000000:
+        return anzahl
+    elif verdoppeln:
+        zahl *= 2
+        return V_Q_alt_(zahl, False, anzahl + 1)   
+    else: 
+        zahl *= 2
+        return V_Q_alt_(zahl, True, anzahl + 1) 
+
+def V_Q_alt_(zahl: int) -> int:
+    return V_Q_alt(zahl, True, 0)            
+
+#optimum
+
+def optimum(list: list[int]) -> int:
+    best = -math.inf
+    best_i = -1
+    for i in range(len(list)):
+        original = list[i]
+        list[i] = 0
+        lb = ...
+        list[i] = original
+        if lb > best:
+            best = lb
+            best_i = i
+    return best_i        
