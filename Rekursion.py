@@ -3,9 +3,9 @@ import math
 #Fakultät
 
 def fak(n: int) -> int:
-    if n != 1:
-        n *= fak(n - 1)
-    return n       
+    if n == 0:
+        return 1
+    return n * fak(n - 1)       
 
 #Quersumme
 
@@ -59,6 +59,7 @@ def V_Q_alt_(zahl: int) -> int:
 
 #optimum
 
+<<<<<<< Updated upstream
 def optimum(list: list[int]) -> int:
     best = -math.inf
     best_i = -1
@@ -71,3 +72,6 @@ def optimum(list: list[int]) -> int:
             best = lb
             best_i = i
     return best_i        
+=======
+print(quersumme_a(24))        
+>>>>>>> Stashed changes
