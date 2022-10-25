@@ -10,7 +10,7 @@ class Level_1:
             x = random.choice(spielfeld)
             if x in spielfeld and x != "x" and x!= "o":
                 gültige_eingabe = True
-        return x   
+        return x  
 
 class Level_2:
     def __init__(self, name):
@@ -192,11 +192,10 @@ class TTT_God:
     
     def minimax(self, spielfeld):
         max = -10
-        bestes_feld = None
+        bestes_feld = 0
         for freies_feld in self.freie_felder(spielfeld):
             spielfeld[int(freies_feld) - 1] = self.symbol
             bewertung = self.bewertung(spielfeld, self.symbol_gegner)
-            print(bewertung)
             if bewertung > max:
                 max = bewertung
                 bestes_feld = freies_feld
@@ -207,7 +206,3 @@ class TTT_God:
     def zug(self, spielfeld):
         self.symbol_gegner = "x" if self.symbol == "o" else "o"
         return int(self.minimax(spielfeld)) - 1   
-
-Hallo = TTT_God("sss", "x", "o")    
-
-print(Hallo.minimax(["o" ,"x" ,"x" ,"o" ,"o" ,"6" ,"7" ,"8" ,"9"]))
