@@ -1,5 +1,3 @@
-import math
-
 #Fakultät
 
 def fak(n: int) -> int:
@@ -57,9 +55,7 @@ def V_Q_alt(zahl: int, verdoppeln: bool, anzahl: int) -> int:
 def V_Q_alt_(zahl: int) -> int:
     return V_Q_alt(zahl, True, 0)            
 
-#optimum
-
-<<<<<<< Updated upstream
+#optimum 
 def optimum(list: list[int]) -> int:
     best = -math.inf
     best_i = -1
@@ -71,7 +67,4 @@ def optimum(list: list[int]) -> int:
         if lb > best:
             best = lb
             best_i = i
-    return best_i        
-=======
-print(quersumme_a(24))        
->>>>>>> Stashed changes
+    return best_i               
