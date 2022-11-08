@@ -109,4 +109,7 @@ def komposition(n: int) -> int:
         if komposition_helper(n, i) % 1 == 0:
             komposition(komposition_helper(n, i))        
 
-komposition(9)                
+def fib_besser(n: int) -> int:
+    return 1 if n == 1 or n == 0 else fib(n - 1) + fib(n - 2)
+
+print(fib(5))
