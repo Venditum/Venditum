@@ -42,9 +42,11 @@ class Arena:
 
         spiel_fertig = False
 
+        spieler = spieler1.symbol
+
         while not spiel_fertig:
             
-            feld = spieler1.zug(self.spielfeld) if spieler == spieler1 else spieler2.zug(self.spielfeld)
+            feld = spieler1.zug(self.spielfeld) if spieler == spieler1.symbol else spieler2.zug(self.spielfeld)
             
             self.spielfeld[int(feld) - 1 ] = spieler
 
@@ -64,9 +66,11 @@ s2 = spieler_mensch("Hirakula")
 s3 = Level_1("Computer1")
 s4 = Level_2("Computer2")
 s5 = TTT_God("Unbesiegbar", " ", " ")
-for i in range(1000):
-    wins1 = 0
-    wins2 = 0
+
+wins1 = 0
+wins2 = 0
+
+for i in range(10):
     x = a.spielen(s3, s5)
     if x == "Computer1":
         wins1 += 1
@@ -74,3 +78,4 @@ for i in range(1000):
         wins2 += 1
 
 print(wins1, wins2)
+
