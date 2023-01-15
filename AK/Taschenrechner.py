@@ -36,6 +36,7 @@ def fortsetzen():
     return ergebnis    
 eingabe = input("reset oder fortsetzen: ")
 while eingabe != "reset":
+    eingabe = input("reset oder fortsetzen: ")
     if eingabe == "fortsetzen":
         ergebnis = fortsetzen()
         print(ergebnis)
