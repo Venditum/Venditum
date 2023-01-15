@@ -200,9 +200,8 @@ class TTT_God:
                 max = bewertung
                 bestes_feld = freies_feld
             spielfeld[int(freies_feld) - 1] = freies_feld
-            #print(bestes_feld)
         return bestes_feld
 
     def zug(self, spielfeld):
         self.symbol_gegner = "x" if self.symbol == "o" else "o"
-        return int(self.minimax(spielfeld)) - 1   
+        return int(self.minimax(spielfeld))   

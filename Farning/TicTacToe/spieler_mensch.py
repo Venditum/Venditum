@@ -1,7 +1,7 @@
 class spieler_mensch:
-    def __init__(self, name):
+    def __init__(self, name, symbol):
         self.name = name
-        self.symbol = None
+        self.symbol = symbol
 
     def zug(self, spielfeld):
         gültige_eingabe = False

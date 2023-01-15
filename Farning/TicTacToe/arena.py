@@ -27,6 +27,11 @@ class Arena:
                 self.spielfeld[0] == self.spielfeld[4] == self.spielfeld[8] or \
                 self.spielfeld[2] == self.spielfeld[4] == self.spielfeld[6]
 
+    def gewinnüberprüfung(self):
+        for i in range(9):
+            if self.spielfeld[i - 1] == str(i):
+                return False
+        return True        
 
     def spielen(self ,spieler1, spieler2):
         self.spielfeld = ["1" ,"2" ,"3" ,"4" ,"5" ,"6" ,"7" ,"8" ,"9"] 
@@ -56,25 +61,30 @@ class Arena:
                 spiel_fertig = True
                 gewinner = spieler
 
+            if self.gewinnüberprüfung():
+                spiel_fertig = True
+                gewinner = "unentschieden"    
+
             spieler = spieler2.symbol if spieler == spieler1.symbol else spieler1.symbol
 
         return gewinner    
             
 a = Arena(["1" ,"2" ,"3" ,"4" ,"5" ,"6" ,"7" ,"8" ,"9"])
-s1 = spieler_mensch("Johannes")
-s2 = spieler_mensch("Hirakula")
+s1 = spieler_mensch("Johannes", " ")
+s2 = spieler_mensch("Hirakula", " ")
 s3 = Level_1("Computer1")
 s4 = Level_2("Computer2")
 s5 = TTT_God("Unbesiegbar", " ", " ")
+s6 = TTT_God("Unbesiegbar2", " ", " ")
 
 wins1 = 0
 wins2 = 0
 
 for i in range(10):
-    x = a.spielen(s3, s5)
-    if x == "Computer1":
+    x = a.spielen(s6, s5)
+    if x == s6.symbol:
         wins1 += 1
-    if x == "Computer2":
+    if x == s5.symbol:
         wins2 += 1
 
 print(wins1, wins2)
