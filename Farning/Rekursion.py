@@ -36,7 +36,7 @@ def V_Q(zahl: int, verdoppeln: bool) -> int:
         zahl *= 2
         return V_Q(zahl, False)   
     else: 
-        zahl *= 2
+        zahl **= 2
         return V_Q(zahl, True)     
 
 def V_Q_(zahl: int) -> int:
@@ -51,7 +51,7 @@ def V_Q_alt(zahl: int, verdoppeln: bool, anzahl: int) -> int:
         zahl *= 2
         return V_Q_alt_(zahl, False, anzahl + 1)   
     else: 
-        zahl *= 2
+        zahl **= 2
         return V_Q_alt_(zahl, True, anzahl + 1) 
 
 def V_Q_alt_(zahl: int) -> int:
@@ -69,47 +69,4 @@ def optimum(list: list[int]) -> int:
         if lb > best:
             best = lb
             best_i = i
-    return best_i       
-
-#fibonacci
-
-def fib(n: int) -> int:
-    if n == 0:
-        return 0
-    if n == 1:
-        return 1    
-    return fib(n - 1) + fib(n - 2)
-
-#pallindrom
-
-def pallindrom(wort: str) -> bool:
-    if len(wort) == 0:
-        return True
-    if wort[-1] == wort[0]:
-        return pallindrom(wort[1:-1])     
-    else:
-        return False     
-
-#komposition
-
-def komposition_helper(n: int, x: int) -> int:
-    if x == 1:
-        return (n + 1) / 4
-    if x == 2:
-        return (n + 3) / 4
-    if x == 3:
-        return (3 * n + 1) / 4      
-    
-def komposition(n: int) -> int:
-    for i in range(1, 4):
-        if komposition_helper(n, i) == 1:
-            print(i)
-            exit()
-    for i in range(1, 4):
-        if komposition_helper(n, i) % 1 == 0:
-            komposition(komposition_helper(n, i))        
-
-def fib_besser(n: int) -> int:
-    return 1 if n == 1 or n == 0 else fib(n - 1) + fib(n - 2)
-
-print(fib(5))
+    return best_i               

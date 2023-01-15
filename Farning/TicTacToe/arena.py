@@ -74,18 +74,19 @@ s1 = spieler_mensch("Johannes", " ")
 s2 = spieler_mensch("Hirakula", " ")
 s3 = Level_1("Computer1")
 s4 = Level_2("Computer2")
-s5 = TTT_God("Unbesiegbar", " ", " ")
-s6 = TTT_God("Unbesiegbar2", " ", " ")
+s5 = Level_2("Computer3")
+s6 = TTT_God("Unbesiegbar", " ", " ")
+s7 = TTT_God("Unbesiegbar2", " ", " ")
 
 wins1 = 0
 wins2 = 0
 
-for i in range(10):
-    x = a.spielen(s6, s5)
-    if x == s6.symbol:
+for i in range(1000):
+    x = a.spielen(s4, s5)
+    if x == s4.symbol:
         wins1 += 1
     if x == s5.symbol:
         wins2 += 1
+    print(i)
 
 print(wins1, wins2)
-

@@ -1,0 +1,9 @@
+#7, 9
+
+Menge {1, 2, ..., 2n} 
+Betrachtung n + 1 Zahlen
+Mindestens eine gerade und ungerade Zahl und mindestens n / 2 + 1 gerade oder ungerade Zahlen in der Betrachtung
+
+#17
+
+22 -> 20 -> 18 -> 16 -> 14 -> 12 -> 10
