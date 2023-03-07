@@ -1,9 +1,22 @@
 mal2 :: Int -> Int
 mal2 x = x * 2
 
+vergleichen :: Eq a => a -> a -> Bool
+vergleichen x y
+    | x == y = True
+    | otherwise = False  
+
 fakultät :: Int -> Int
 fakultät 0 = 1
 fakultät n = (fakultät (n - 1)) * n
+
+addieren :: Int -> Int -> Int
+addieren n y = n + y
+
+kleiner :: Ord a => Eq a => a -> a -> Bool
+kleiner x y
+    | x < y = True
+    | otherwise = False
 
 fibonacci :: Int -> Int
 fibonacci 0 = 0
@@ -114,11 +127,23 @@ filter_ f (x:xs)
     | f x == True = x:filter_ f xs
     | otherwise = filter_ f xs
 
+filter__ :: (a -> a -> Bool) -> a -> [a] -> [a]
+filter__ f n [] = []
+filter__ f n (x:xs) 
+    | f x n == True = x:filter__ f n xs
+    | otherwise = filter__ f n xs    
+
+filter___ :: (a -> a -> Bool) -> a -> [a] -> [a]
+filter___ f n [] = []
+filter___ f n (x:xs) 
+    | f x n == False = x:filter___ f n xs
+    | otherwise = filter___ f n xs 
+
 zipper :: (Int -> Int -> Int) -> [Int] -> [Int] -> [Int]
 zipper f [] [] = []
 zipper f (x:xs) (y:ys) = (f x y):zipper f xs ys  
 
-folder :: (Int -> Int -> Int) -> Int -> [Int] -> Int
+folder :: (a -> a -> a) -> a -> [a] -> a
 folder f y [] = y
 folder f n [x] = f n x
 folder f n (x:y:ys) = folder f n (ys ++ [f x y])
@@ -162,7 +187,7 @@ anzahlen (x:y:ys)
     where anzahlenTail = anzahlen (y:ys)
 
 packen :: [Char] -> [[Char]]
-packen [] = [[]]
+packen [] = []
 packen [x] = [[x]]
 packen (x:y:ys)
     | x == y = (x:head packenTail):tail packenTail
@@ -186,3 +211,16 @@ lauflängendekodierung (x:xs)
 
 flipper :: (a -> b -> c) -> (b -> a -> c) 
 flipper f x y = f y x   
+
+summe20000 :: Int
+summe20000 = folder addieren 0 (filter_ gerade [1..20000])
+
+enthaltenh :: Eq a => [a] -> a -> Bool
+enthaltenh (x:xs) n
+    | erstes (filter__ vergleichen n (x:xs)) == n = True
+    | otherwise = False
+
+quicksort :: Ord a => [a] -> [a]
+quicksort [] = []
+quicksort [x] = [x] 
+quicksort (x:xs) = (quicksort (filter__ kleiner x (x:xs))) ++ (x:quicksort (filter___ kleiner x xs))

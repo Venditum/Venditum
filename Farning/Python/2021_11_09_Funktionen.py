@@ -11,9 +11,9 @@ def gerade(zahl):
 
 def gerade2(zahl):
     if zahl % 2 == 0:
-        print("Gerade")
+        return True
     else:
-        print("ungerade")            
+        return False         
 #gerade(int(input("aplewelche Zahl")))        
 
 def fibonacci_zahlen():
@@ -159,6 +159,11 @@ def entschlüsselung(text):
         ord(text[Buchstabe])
         za -= 5
         print(za, end="")    
-        Buchstabe += 1
+        Buchstabe += 1     
 
-verschlüsselung("hallo")        
+test = 0
+for i in range(20001):
+    if gerade2(i):
+        test += i
+
+print(test)
