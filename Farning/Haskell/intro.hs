@@ -222,5 +222,4 @@ enthaltenh (x:xs) n
 
 quicksort :: Ord a => [a] -> [a]
 quicksort [] = []
-quicksort [x] = [x] 
-quicksort (x:xs) = (quicksort (filter__ kleiner x (x:xs))) ++ (x:quicksort (filter___ kleiner x xs))
+quicksort (x:xs) = quicksort (filter (<=x) xs) ++ [x] ++ quicksort (filter (>x) xs))
