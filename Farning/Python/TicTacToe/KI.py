@@ -15,7 +15,7 @@ class Level_1:
 class Level_2:
     def __init__(self, name):
         self.name = name
-    
+
     def zug(self, spielfeld):
         feld = 0
         gültige_eingabe = False
@@ -145,7 +145,7 @@ class TTT_God:
     def __init__(self, name, symbol, symbol_gegner):
         self.name = name
         self.symbol = symbol
-        self.symbol_gegner = symbol_gegner
+        self.symbol_gegner = symbol_gegner  
     
     def gewinnprüfung(self, spielfeld):
         return spielfeld[0] == spielfeld[1] == spielfeld[2] or \

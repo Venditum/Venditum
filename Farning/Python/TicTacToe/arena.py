@@ -1,3 +1,4 @@
+import arcade
 from spieler_mensch import spieler_mensch
 from KI import Level_1
 from KI import Level_2
@@ -34,7 +35,7 @@ class Arena:
         return True        
 
     def spielen(self ,spieler1, spieler2):
-        self.spielfeld = ["1" ,"2" ,"3" ,"4" ,"5" ,"6" ,"7" ,"8" ,"9"] 
+        self.spielfeld = [" " ," " ," " ," " ," " ," " ," " ," " ," "] 
         
         spieler = random.choice([spieler1, spieler2])
 
@@ -81,12 +82,10 @@ s7 = TTT_God("Unbesiegbar2", " ", " ")
 wins1 = 0
 wins2 = 0
 
-for i in range(1000):
-    x = a.spielen(s4, s5)
-    if x == s4.symbol:
-        wins1 += 1
-    if x == s5.symbol:
-        wins2 += 1
-    print(i)
-
-print(wins1, wins2)
+#for i in range(1000):
+    #x = a.spielen(s4, s5)
+    #if x == s4.symbol:
+    #    wins1 += 1
+    #if x == s5.symbol:
+    #    wins2 += 1
+    #print(i)

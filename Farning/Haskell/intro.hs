@@ -37,10 +37,10 @@ letztes [] = error ("Liste leer!")
 letztes [x] = x
 letztes (x:xs) = letztes xs
 
-summe :: [Int] -> Int
-summe [] = -1
-summe [x] = x
-summe (x:xs) = x + summe xs
+--summe :: Eq a => [a] -> a
+--summe [] = 0
+--summe [x] = x
+--summe (x:xs) = x + summe xs
 
 länge :: [a] -> Int
 länge [] = 0
@@ -212,6 +212,10 @@ lauflängendekodierung (x:xs)
 flipper :: (a -> b -> c) -> (b -> a -> c) 
 flipper f x y = f y x   
 
+mapper :: (a -> b) -> [a] -> [b]
+mapper f [] = []
+mapper f (x:xs) = (f x):mapper f xs
+
 summe20000 :: Int
 summe20000 = folder addieren 0 (filter_ gerade [1..20000])
 
@@ -222,4 +226,35 @@ enthaltenh (x:xs) n
 
 quicksort :: Ord a => [a] -> [a]
 quicksort [] = []
-quicksort (x:xs) = quicksort (filter (<=x) xs) ++ [x] ++ quicksort (filter (>x) xs))
+quicksort (x:xs) = quicksort (filter (<=x) xs) ++ [x] ++ quicksort (filter (>x) xs) 
+
+fak :: Int -> Int
+fak 0 = 1
+n = foldl (*) 1 [1..n]
+
+fibonaccim :: [Int]
+fibonaccim = 0:1:zipWith (+) fibonaccim (tail fibonaccim)
+
+aufsummieren :: Num a => [a] -> [a]
+aufsummieren [] = []
+aufsummieren [x] = [x]
+aufsummieren (x:y:ys) = x:y + x:zipWith (+) (aufsummieren (x + y:ys)) (aufsummieren ([head ys]))
+
+-- Quadratwurzel Methode: (q + n/q) / 2 ist näher als q
+
+quadratwurzel :: (Fractional a, Eq a) => a -> a -> a
+quadratwurzel n q 
+    | n / q == q = q
+    | otherwise = quadratwurzel n ((q + n/q) / 2)
+
+quadratwurzel1 :: (Fractional a, Ord a) => a -> a -> a
+quadratwurzel1 n q 
+    | abs(q * q - n) < 0.0000000000000000000000001 = q
+    | otherwise = quadratwurzel1 n ((q + n/q) / 2)    
+
+sieb :: [Int] -> [Int]
+sieb (x:xs) = filter (\y -> mod y x /= 0) xs
+
+eratosthenes :: [Int]
+eratosthenes = map head (iterate sieb [2..])
+
