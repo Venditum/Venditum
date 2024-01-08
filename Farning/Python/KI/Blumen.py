@@ -29,3 +29,14 @@ top_k = distances_datensatz[:k]
 prediction = max([abstand[-1] for abstand in top_k], key= top_k.count)
 
 print(prediction)
+
+def normalisieren_datensatz(liste):
+    maxwerte = []
+    for i in liste:
+        maxwerte.append(max(liste))
+    maxi = max(maxwerte) 
+    for i in liste:
+        for x in i:
+            x /= maxi  
+
+normalisieren_datensatz(distances_datensatz)
