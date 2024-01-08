@@ -7,9 +7,15 @@ def euklidischer_abstand(p, q):
         a += (float(p[i]) - float(q[i]))**2
     return math.sqrt(a)
 
-datensatz = []
-with open("iris.csv") as f:
-    datensatz = list(csv.reader(f))
+def read_lines():
+    with open("iris.csv") as f:
+        datensatz = list(csv.reader(f))
+        for row in datensatz:
+            yield [float(i) for i in row[:-1]]
+
+datensatz = list(read_lines())
+
+print(datensatz)
 
 test_datensatz = datensatz[0]
 
@@ -31,12 +37,17 @@ prediction = max([abstand[-1] for abstand in top_k], key= top_k.count)
 print(prediction)
 
 def normalisieren_datensatz(liste):
+    new_list = []
     maxwerte = []
     for i in liste:
-        maxwerte.append(max(liste))
+        maxwerte.append(max(i))
     maxi = max(maxwerte) 
+    print(maxi)
     for i in liste:
+        y = []
+        new_list.append(y)
         for x in i:
-            x /= maxi  
-
-normalisieren_datensatz(distances_datensatz)
+            new = x / maxi
+            y.append(new)
+    return new_list        
+print(normalisieren_datensatz(datensatz))
