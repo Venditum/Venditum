@@ -1,5 +1,8 @@
 import csv
 import math
+import random
+from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 def euklidischer_abstand(zeile1, zeile2):
     a = 0
@@ -24,7 +27,13 @@ for zeile in datensatz_transponiert:
     maxima.append(max(zeile))
 for i in range(len(datensatz)):
     for j in range(len(datensatz[i]) - 2):
-        datensatz[i][j] /= maxima[j]    
+        datensatz[i][j] /= maxima[j] 
+
+def generate_trainingsdata(p):
+    random.shuffle(datensatz)
+    trainings_flowers = datensatz[:int(len(datensatz) * p)]
+    trainings_data = datensatz[int(len(datensatz) * p):]
+    return trainings_flowers, trainings_data    
 
 def predict(datensatz, probant, abstandvalue):
     distances_datensatz = []
@@ -32,15 +41,44 @@ def predict(datensatz, probant, abstandvalue):
         distances_datensatz.append((euklidischer_abstand(probant, zeile[:-1]), zeile[-1]))
 
     top_k = list(filter(lambda x: x[0] <= abstandvalue, distances_datensatz))    
-    prediction = max([abstand[-1] for abstand in top_k], key= top_k.count)
+    prediction = max([abstand[-1] for abstand in top_k], key= top_k.count) if len(top_k) > 0 else None
 
     return prediction
 
-def evaluate(abstandvalue):
+def evaluate(abstandvalue, trainings_tuple):
     korrekt = 0
-    for i in datensatz:
-        if predict(datensatz, i, abstandvalue) == i[-1]:
+    failed = 0
+    for i in trainings_tuple[0]:
+        prediction = predict(trainings_tuple[1], i, abstandvalue)
+        if prediction == i[-1]:
             korrekt += 1
-    return korrekt / len(datensatz)
+        if prediction == None:
+            failed += 1    
+    return korrekt / len(trainings_tuple[0]), failed / len(trainings_tuple[0])
 
-print(evaluate(0.05))
+def superevaluation(durchläufe, test_size, abstandvalue):
+    total = 0
+    for i in range(durchläufe):
+        total += evaluate(abstandvalue, generate_trainingsdata(test_size))[0]
+    return total / durchläufe    
+
+def findoptimal(durchläufe, start, p, accuracy):
+    abstandvalue = start
+    for i in tqdm(range(durchläufe)):
+        if superevaluation(100, p, abstandvalue + accuracy) > superevaluation(100, p, abstandvalue - accuracy):
+            abstandvalue += accuracy
+        else:
+            abstandvalue -= accuracy
+    return abstandvalue
+
+def findoptimal2(durchläufe, p):
+    accuracies = []
+    for k in tqdm(range(durchläufe)):
+        ks = k / durchläufe
+        accuracies.append((superevaluation(100, p, ks), ks))
+    plt.plot(accuracies)
+    plt.show()
+    print(max(accuracies))
+    return max(accuracies)[1]
+
+findoptimal2(200, 0.2)
