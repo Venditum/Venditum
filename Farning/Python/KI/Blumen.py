@@ -1,53 +1,84 @@
 import csv
 import math
+import random
+from tqdm import tqdm
+import matplotlib.pyplot as plt
 
-def euklidischer_abstand(p, q):
+def euklidischer_abstand(zeile1, zeile2):
     a = 0
-    for i in range(len(q)):
-        a += (float(p[i]) - float(q[i]))**2
+    for i in range(len(zeile2)):
+        a += (zeile1[i] - zeile2[i])**2
     return math.sqrt(a)
 
-def read_lines():
-    with open("iris.csv") as f:
-        datensatz = list(csv.reader(f))
-        for row in datensatz:
-            yield [float(i) for i in row[:-1]]
+def normalisieren(liste):
+    maxi = max(liste)
+    for i in range(len(liste)):
+        i /= maxi
 
-datensatz = list(read_lines())
+datensatz = []
+with open("iris.csv") as f:
+    csvreader = list(csv.reader(f))
+    for zeile in csvreader:
+        datensatz.append([float(wert) for wert in zeile[:-1]] + [zeile[-1]])
 
-print(datensatz)
+datensatz_transponiert = list(zip(*datensatz))
+maxima = []
+for zeile in datensatz_transponiert:
+    maxima.append(max(zeile))
+for i in range(len(datensatz)):
+    for j in range(len(datensatz[i]) - 2):
+        datensatz[i][j] /= maxima[j] 
 
-test_datensatz = datensatz[0]
+def generate_trainingsdata(p):
+    random.shuffle(datensatz)
+    trainings_flowers = datensatz[:int(len(datensatz) * p)]
+    trainings_data = datensatz[int(len(datensatz) * p):]
+    return trainings_flowers, trainings_data    
 
-trainings_datensatz = datensatz[1:]
+def predict(datensatz, probant, abstandvalue):
+    distances_datensatz = []
+    for zeile in datensatz:
+        distances_datensatz.append((euklidischer_abstand(probant, zeile[:-1]), zeile[-1]))
 
-name_list = ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]
+    top_k = list(filter(lambda x: x[0] <= abstandvalue, distances_datensatz))    
+    prediction = max([abstand[-1] for abstand in top_k], key= top_k.count) if len(top_k) > 0 else None
 
-k = 10
+    return prediction
 
-distances_datensatz = []
-for zeile in trainings_datensatz:
-    distances_datensatz.append((euklidischer_abstand(test_datensatz, zeile[:-1]), zeile[-1]))
+def evaluate(abstandvalue, trainings_tuple):
+    korrekt = 0
+    failed = 0
+    for i in trainings_tuple[0]:
+        prediction = predict(trainings_tuple[1], i, abstandvalue)
+        if prediction == i[-1]:
+            korrekt += 1
+        if prediction == None:
+            failed += 1    
+    return korrekt / len(trainings_tuple[0]), failed / len(trainings_tuple[0])
 
-distances_datensatz.sort(key=lambda x : x[0])
-top_k = distances_datensatz[:k]
+def superevaluation(durchläufe, test_size, abstandvalue):
+    total = 0
+    for i in range(durchläufe):
+        total += evaluate(abstandvalue, generate_trainingsdata(test_size))[0]
+    return total / durchläufe    
 
-prediction = max([abstand[-1] for abstand in top_k], key= top_k.count)
+def findoptimal(durchläufe, start, p, accuracy):
+    abstandvalue = start
+    for i in tqdm(range(durchläufe)):
+        if superevaluation(100, p, abstandvalue + accuracy) > superevaluation(100, p, abstandvalue - accuracy):
+            abstandvalue += accuracy
+        else:
+            abstandvalue -= accuracy
+    return abstandvalue
 
-print(prediction)
+def findoptimal2(durchläufe, p):
+    accuracies = []
+    for k in tqdm(range(durchläufe)):
+        ks = k / durchläufe
+        accuracies.append((superevaluation(100, p, ks), ks))
+    plt.plot(accuracies)
+    plt.show()
+    print(max(accuracies))
+    return max(accuracies)[1]
 
-def normalisieren_datensatz(liste):
-    new_list = []
-    maxwerte = []
-    for i in liste:
-        maxwerte.append(max(i))
-    maxi = max(maxwerte) 
-    print(maxi)
-    for i in liste:
-        y = []
-        new_list.append(y)
-        for x in i:
-            new = x / maxi
-            y.append(new)
-    return new_list        
-print(normalisieren_datensatz(datensatz))
+findoptimal2(200, 0.2)
