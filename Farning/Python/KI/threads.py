@@ -7,7 +7,7 @@ def semifakultät(x, y):
         res *= i 
     return res 
 
-def thread_function(x, y, results, index): 
+def thread_fakultät(x, y, results, index): 
     results[index] = semifakultät(x, y)
 
 def fakultät_multithreaded(n, t):
@@ -24,8 +24,37 @@ def fakultät_multithreaded(n, t):
         threads[i].join()
         result *= results[i]
     
-    return result
+    return result   
 
-start = time.time()
-fakultät_multithreaded(200000, 1)
-print(time.time() - start)
+def thread_listensumme(liste, x, y, results, index):    
+    results[index] = sum(liste[x:y])
+
+def listensumme_multithreaded(liste, t):
+    summe = 0
+    threads = []
+    results = [0 for i in range(t)]
+
+    for index in range(t):
+        x = threading.Thread(target=thread_listensumme, args=[liste, len(liste) // t * index, len(liste) // t * (index + 1), results, index])
+        threads.append(x)
+        x.start()
+
+    for i in range(t):
+        threads[i].join()
+        summe += results[i]
+
+    return summe
+
+test = range(2222222222)
+start1 = time.time()
+
+x = sum(test)          
+
+time1 = time.time() - start1
+start2 = time.time()
+
+y = listensumme_multithreaded(test, 8)
+
+time2 = time.time() - start2
+
+print(time1, time2, x, y)
