@@ -19,7 +19,7 @@ datensatz = []
 with open("iris.csv") as f:
     csvreader = list(csv.reader(f))
     for zeile in csvreader:
-        datensatz.append([float(wert) for wert in zeile[:-1]] + [zeile[-1]])
+        datensatz.append([float(wert) for wert in zeile[:-1]] + [zeile[-1]]) 
 
 datensatz_transponiert = list(zip(*datensatz))
 maxima = []
@@ -27,7 +27,7 @@ for zeile in datensatz_transponiert:
     maxima.append(max(zeile))
 for i in range(len(datensatz)):
     for j in range(len(datensatz[i]) - 2):
-        datensatz[i][j] /= maxima[j] 
+        datensatz[i][j] /= maxima[j]      
 
 def generate_trainingsdata(p):
     random.shuffle(datensatz)
@@ -71,14 +71,30 @@ def findoptimal(durchläufe, start, p, accuracy):
             abstandvalue -= accuracy
     return abstandvalue
 
-def findoptimal2(durchläufe, p):
+def findoptimal2(durchläufe, p, kfaktor):
     accuracies = []
     for k in tqdm(range(durchläufe)):
-        ks = k / durchläufe
-        accuracies.append((superevaluation(100, p, ks), ks))
-    plt.plot(accuracies)
-    plt.show()
-    print(max(accuracies))
-    return max(accuracies)[1]
+        ks = (k / durchläufe) * kfaktor
+        accuracies.append((ks, superevaluation(int(durchläufe // 2), p, ks)))
+    return accuracies, max(accuracies, key = lambda x: x[1])
 
-findoptimal2(200, 0.2)
+def gewichtung(datensatz, ks, durchläufe):
+    maxies = []
+    for i in tqdm(range(1, ks)):
+        for j in range(1, ks):
+            for k in range(len(datensatz)):
+                datensatz[k][2] *= i
+                datensatz[k][3] *= j  
+            plotsubject = findoptimal2(durchläufe, 0.2, 1)
+            maxies.append((plotsubject[1], i, j))  
+            for l in range(len(datensatz)):
+                datensatz[l][2] /= i
+                datensatz[l][3] /= j 
+
+    return max(maxies, key = lambda x: x[0][1])
+
+for k in range(len(datensatz)):
+    datensatz[k][2] *= 5
+    datensatz[k][3] *= 3
+
+print(gewichtung(datensatz, 8, 100))   
