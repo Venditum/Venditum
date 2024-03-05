@@ -64,6 +64,9 @@ def max_multithreaded(liste, t):
 
     return max([max(maxies), max(liste[listenlänge // t * (t - 1):])])
 
+#def mergesort(liste):
+
+
 test = list(range(222222225))
 start1 = time.time()
 
