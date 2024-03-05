@@ -26,35 +26,54 @@ def fakultät_multithreaded(n, t):
     
     return result   
 
-def thread_listensumme(liste, x, y, results, index):    
-    results[index] = sum(liste[x:y])
+def thread_listensumme(liste, results):    
+    results.append(sum(liste))
 
 def listensumme_multithreaded(liste, t):
     summe = 0
     threads = []
-    results = [0 for i in range(t)]
+    results = []
+    listenlänge = len(liste)
 
-    for index in range(t):
-        x = threading.Thread(target=thread_listensumme, args=[liste, len(liste) // t * index, len(liste) // t * (index + 1), results, index])
+    for index in range(t - 1):
+        x = threading.Thread(target=thread_listensumme, args=[liste[listenlänge // t * index:listenlänge // t * (index + 1)], results])
         threads.append(x)
         x.start()
 
-    for i in range(t):
+    for i in range(t - 1):
         threads[i].join()
         summe += results[i]
 
-    return summe
+    return summe + sum(liste[listenlänge // t * (t - 1):])
 
-test = range(2222222222)
+def thread_max(liste, maxies):
+    maxies.append(max(liste))
+
+def max_multithreaded(liste, t): 
+    threads = []
+    maxies = []
+    listenlänge = len(liste)
+
+    for index in range(t - 1):
+        x = threading.Thread(target=thread_max, args=[liste[listenlänge // t * index:listenlänge // t * (index + 1)], maxies])
+        threads.append(x)
+        x.start()
+
+    for i in range(t - 1):
+        threads[i].join()
+
+    return max([max(maxies), max(liste[listenlänge // t * (t - 1):])])
+
+test = list(range(222222225))
 start1 = time.time()
 
-x = sum(test)          
+x = max(test)          
 
 time1 = time.time() - start1
 start2 = time.time()
 
-y = listensumme_multithreaded(test, 8)
+y = max_multithreaded(test, 12)
 
 time2 = time.time() - start2
 
-print(time1, time2, x, y)
+print(time1, time2, x, y)        
