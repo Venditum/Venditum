@@ -1,6 +1,26 @@
 import threading
 import time
 import math
+import multiprocessing
+
+def listen_teiler(liste, n):
+    if n <= 0:
+        raise ValueError("n nicht positiv")
+    liste_von_teillisten = [[]] * n
+    for i in range(len(liste)):
+        liste_von_teillisten[i % n].append(liste[i])
+    return liste_von_teillisten 
+
+def listen_teiler2(liste, n): 
+    if n <= 0:
+        raise ValueError("n nicht positiv")
+    liste_von_teillisten = [[]] * n
+    list_indizes = [[len(liste) // n * i, len(liste) // n * (i + 1)] for i in range(n)]
+    list_indizes[-1][-1] = -1
+    for i in range(n): 
+        liste_von_teillisten[i] = liste[list_indizes[i][0]:list_indizes[i][1]] 
+    return liste_von_teillisten    
+                
 
 def semifakultät(x, y):
     res = 1
@@ -64,7 +84,7 @@ def max_multithreaded(liste, t):
     listenlänge = len(liste)    
 
     for index in range(t):
-        x = threading.Thread(target=thread_max, args=[liste[listenlänge // t * index:listenlänge // t * (index + 1)], maxies])
+        x = threading.Thread(target=thread_max, args=[liste[len(liste) // t * index:len(liste) // t * (index + 1)], maxies])
         threads.append(x)
         x.start()
 
@@ -101,16 +121,45 @@ def aufsteigendsortiert_multithreaded(liste, t):
 
     return True
 
-test = list(range(22))
-start1 = time.time()
+def max_single(liste):
+    max = -math.inf
+    for i in liste:
+        if i > max:
+            max = i
+    return max
 
-x = sum(test)          
+def maximum_multi(liste, k):
+    list_indizes = [[len(liste) // k * i, len(liste) // k * (i + 1)]for i in range(k)]
+    list_indizes[-1][-1] = -1
 
-time1 = time.time() - start1
-start2 = time.time()
+    with multiprocessing.Pool(k) as pool:
+        liste_geteilt = listen_teiler2(liste, k)    
+        ergebnisse = pool.map(max, liste_geteilt)   
 
-y = aufsteigendsortiert_multithreaded(test, 12)
+    return max_single(ergebnisse)     
 
-time2 = time.time() - start2
+if __name__ == "__main__":
 
-print(time1, time2, x, y)        
+    zufallsliste = [i for i in range(20000000)]
+
+    t1 = time.time()
+    maximum_multi(zufallsliste, 8)
+    print(time.time() - t1)
+
+    t1 = time.time()
+    max(zufallsliste)
+    print(time.time() - t1)
+
+# test = list(range(22))
+# start1 = time.time()
+
+# x = sum(test)          
+
+# time1 = time.time() - start1
+# start2 = time.time()
+
+# y = aufsteigendsortiert_multithreaded(test, 12)
+
+# time2 = time.time() - start2
+
+# print(time1, time2, x, y)        

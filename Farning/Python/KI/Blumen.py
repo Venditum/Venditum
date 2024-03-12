@@ -91,10 +91,10 @@ def gewichtung(datensatz, ks, durchläufe):
                 datensatz[l][2] /= i
                 datensatz[l][3] /= j 
 
-    return max(maxies)
+    return max(maxies, key=lambda x: x[0][1])
 
-for k in range(len(datensatz)):
-    datensatz[k][2] *= 5
-    datensatz[k][3] *= 3
+# for k in range(len(datensatz)):
+#     datensatz[k][2] *= 5
+#     datensatz[k][3] *= 3
 
-print(gewichtung(datensatz, 3, 20))   
+print(gewichtung(datensatz, 10, 25))   
