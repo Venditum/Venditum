@@ -74,7 +74,7 @@ def max_multithreaded(liste, t):
     return max(maxies)
 
 def thread_aufsteigendsortiert(liste, results, fe, le):
-    results.append(liste == liste.sort())
+    results.append(sorted(liste))
     fe.append(liste[0])
     le.append(liste[-1])
 
@@ -96,12 +96,12 @@ def aufsteigendsortiert_multithreaded(liste, t):
 
     for i in range(t):
         threads[i].join()
-        if not results[i] or le[i] != fe[i + 1]:
+        if not results[i] or le[i] > fe[i + 1]:
             return False     
 
     return True
 
-test = list(range(222222225))
+test = list(range(22))
 start1 = time.time()
 
 x = sum(test)          
