@@ -1,5 +1,6 @@
 import threading
 import time
+import math
 
 def semifakultät(x, y):
     res = 1
@@ -16,7 +17,7 @@ def fakultät_multithreaded(n, t):
     results = [1 for i in range(t)]
 
     for index in range(t):
-        x = threading.Thread(target=thread_function, args=[n // t * index + 1, n // t * (index + 1), results, index])
+        x = threading.Thread(target=thread_fakultät, args=[n // t * index + 1, n // t * (index + 1), results, index])
         threads.append(x)
         x.start()
 
@@ -33,18 +34,22 @@ def listensumme_multithreaded(liste, t):
     summe = 0
     threads = []
     results = []
+
+    for i in range(t - (len(liste) % t)):
+        liste.append(0)
+
     listenlänge = len(liste)
 
-    for index in range(t - 1):
+    for index in range(t):
         x = threading.Thread(target=thread_listensumme, args=[liste[listenlänge // t * index:listenlänge // t * (index + 1)], results])
         threads.append(x)
         x.start()
 
-    for i in range(t - 1):
+    for i in range(t):
         threads[i].join()
         summe += results[i]
 
-    return summe + sum(liste[listenlänge // t * (t - 1):])
+    return summe
 
 def thread_max(liste, maxies):
     maxies.append(max(liste))
@@ -52,30 +57,59 @@ def thread_max(liste, maxies):
 def max_multithreaded(liste, t): 
     threads = []
     maxies = []
-    listenlänge = len(liste)
 
-    for index in range(t - 1):
+    for i in range(t - (len(liste) % t)):
+        liste.append(0) 
+
+    listenlänge = len(liste)    
+
+    for index in range(t):
         x = threading.Thread(target=thread_max, args=[liste[listenlänge // t * index:listenlänge // t * (index + 1)], maxies])
         threads.append(x)
         x.start()
 
-    for i in range(t - 1):
+    for i in range(t):
         threads[i].join()
 
-    return max([max(maxies), max(liste[listenlänge // t * (t - 1):])])
+    return max(maxies)
 
-#def mergesort(liste):
+def thread_aufsteigendsortiert(liste, results, fe, le):
+    results.append(liste == liste.sort())
+    fe.append(liste[0])
+    le.append(liste[-1])
 
+def aufsteigendsortiert_multithreaded(liste, t):
+    threads = []
+    results = []
+    fe = []
+    le = []
+
+    for i in range(t - (len(liste) % t)):
+        liste.append(math.inf) 
+    
+    for index in range(t):
+        x = threading.Thread(target=thread_aufsteigendsortiert, args=[liste[len(liste) // t * index:len(liste) // t * (index + 1)], results, fe, le])
+        threads.append(x)
+        x.start()
+
+    fe.append(math.inf)
+
+    for i in range(t):
+        threads[i].join()
+        if not results[i] or le[i] != fe[i + 1]:
+            return False     
+
+    return True
 
 test = list(range(222222225))
 start1 = time.time()
 
-x = max(test)          
+x = sum(test)          
 
 time1 = time.time() - start1
 start2 = time.time()
 
-y = max_multithreaded(test, 12)
+y = aufsteigendsortiert_multithreaded(test, 12)
 
 time2 = time.time() - start2
 
