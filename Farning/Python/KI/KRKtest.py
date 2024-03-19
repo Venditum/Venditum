@@ -60,8 +60,8 @@ def k_optimierung(n: int, gewichte: list):
 def gewichte_optimierung(gewichte_3_4):
     d_s = []
     for g_3, g_4 in gewichte_3_4:
-            d = k_optimierung(25, [1, 1, g_3, g_4])
-            d_s.append([d[0][0], g_3, g_4])
+        d = k_optimierung(25, [1, 1, g_3, g_4])
+        d_s.append([d[0][0], g_3, g_4])
     return max(d_s, key=lambda x:x[0]), d_s
 
 def gewichte_optimierung_multithreaded(gewichte_3, gewichte_4, t):
@@ -80,14 +80,18 @@ def gewichte_optimierung_multithreaded(gewichte_3, gewichte_4, t):
     
     return max(ergebnisse)[0], d_s
 
+x = time.time()
+
 if __name__ == '__main__':
-    anzahl_t = 12
-    d = gewichte_optimierung_multithreaded([i / 4 for i in range(10, 25)], [i / 2 for i in range(10, 25)], anzahl_t)
-    print(f"Beste Genauigkeit: {d[0][0]} bei g_3={d[0][1]} und g_4={d[0][2]}") 
-    fig = plt.figure()
+    anzahl_t = 8
+    d = gewichte_optimierung_multithreaded([i / 4 for i in range(1, 60)], [i / 2 for i in range(1, 60)], anzahl_t)
+    print(f"Beste Genauigkeit: {d[0][0]} bei g_3={d[0][1]} und g_4={d[0][2]}")
+    print(time.time() - x)
+    fig = plt.figure("Genauigkeit")
     ax = fig.add_subplot(projection="3d")
     ax.plot_trisurf(np.array(list(zip(*d[1]))[1]), np.array(list(zip(*d[1]))[2]), np.array(list(zip(*d[1]))[0]), cmap=cm.coolwarm)
-    ax.legend(['Genauigkeit'])
+    ax.scatter(d[0][1], d[0][2], d[0][0], color="green", s=250)
     plt.xlabel("g_3")
     plt.ylabel("g_4")
+    ax.legend(['Genauigkeit'])
     plt.show()
