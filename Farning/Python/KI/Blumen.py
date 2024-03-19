@@ -78,10 +78,10 @@ def findoptimal2(durchläufe, p, kfaktor):
         accuracies.append((ks, superevaluation(int(durchläufe // 2), p, ks)))
     return max(accuracies, key = lambda x: x[1])
 
-def gewichtung(datensatz, ks, durchläufe):
+def gewichtung(datensatz, gewichte, durchläufe):
     maxies = []
-    for i in tqdm(range(1, ks)):
-        for j in range(1, ks):
+    for i in tqdm(range(1, gewichte)):
+        for j in range(1, gewichte):
             for k in range(len(datensatz)):
                 datensatz[k][2] *= i
                 datensatz[k][3] *= j  
@@ -97,4 +97,4 @@ def gewichtung(datensatz, ks, durchläufe):
 #     datensatz[k][2] *= 5
 #     datensatz[k][3] *= 3
 
-print(gewichtung(datensatz, 10, 25))   
+print(gewichtung(datensatz, 3, 25))   

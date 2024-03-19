@@ -140,10 +140,10 @@ def maximum_multi(liste, k):
 
 if __name__ == "__main__":
 
-    zufallsliste = [i for i in range(20000000)]
+    zufallsliste = [i for i in range(200000000)]
 
     t1 = time.time()
-    maximum_multi(zufallsliste, 8)
+    maximum_multi(zufallsliste, 12)
     print(time.time() - t1)
 
     t1 = time.time()

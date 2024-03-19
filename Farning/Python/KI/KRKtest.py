@@ -51,33 +51,18 @@ def validierung(p: float, k: float, h: int, gewichte: list) -> float:
     return treffer / (len(testdaten) * h)
 
 def k_optimierung(n: int, gewichte: list):
-    ks = []
     ergebnisse = []
-    k_opt = 0
-    erg_opt = 0
     for k in range(n):
-        ks.append(k / n)
         erg = validierung(0.2, k / n, n // 2, gewichte)
-        ergebnisse.append(erg)
-        if erg > erg_opt:
-            k_opt = k / n
-            erg_opt = erg
-    return ks, ergebnisse, k_opt, erg_opt
+        ergebnisse.append((erg, k / n))
+    return max(ergebnisse, key=lambda x: x[0]), ergebnisse
 
 def gewichte_optimierung(gewichte_3_4):
     d_s = []
-    d_opt = 0
-    g_3_opt = 0
-    g_4_opt = 0
     for g_3, g_4 in gewichte_3_4:
             d = k_optimierung(25, [1, 1, g_3, g_4])
-            d_s.append([g_3, g_4, d[3]])
-            if d[3] > d_opt:
-                d_opt = d[3]
-                g_3_opt = g_3
-                g_4_opt = g_4
-
-    return d_opt, g_3_opt, g_4_opt, d_s
+            d_s.append([d[0][0], g_3, g_4])
+    return max(d_s, key=lambda x:x[0]), d_s
 
 def gewichte_optimierung_multithreaded(gewichte_3, gewichte_4, t):
 
@@ -90,25 +75,18 @@ def gewichte_optimierung_multithreaded(gewichte_3, gewichte_4, t):
         ergebnisse = pool.map(gewichte_optimierung, gewichte_liste)
 
     d_s = []
-    d_opt = 0
-    g_3_opt = 0
-    g_4_opt = 0
     for ergebnis in ergebnisse:
-        d_s += ergebnis[3]
-        if ergebnis[0] > d_opt:
-            d_opt = ergebnis[0]
-            g_3_opt = ergebnis[1]
-            g_4_opt = ergebnis[2]
+        d_s += ergebnis[1] 
     
-    return d_opt, g_3_opt, g_4_opt, d_s
+    return max(ergebnisse)[0], d_s
 
 if __name__ == '__main__':
     anzahl_t = 12
-    d = gewichte_optimierung_multithreaded([i / 4 for i in range(1, 25)], [i / 2 for i in range(1, 25)], anzahl_t)
-    print(f"Beste Genauigkeit: {d[0]} bei g_3={d[1]} und g_4={d[2]}")
+    d = gewichte_optimierung_multithreaded([i / 4 for i in range(10, 25)], [i / 2 for i in range(10, 25)], anzahl_t)
+    print(f"Beste Genauigkeit: {d[0][0]} bei g_3={d[0][1]} und g_4={d[0][2]}") 
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
-    ax.plot_trisurf(np.array(list(zip(*d[3]))[0]), np.array(list(zip(*d[3]))[1]), np.array(list(zip(*d[3]))[2]), cmap=cm.coolwarm)
+    ax.plot_trisurf(np.array(list(zip(*d[1]))[1]), np.array(list(zip(*d[1]))[2]), np.array(list(zip(*d[1]))[0]), cmap=cm.coolwarm)
     ax.legend(['Genauigkeit'])
     plt.xlabel("g_3")
     plt.ylabel("g_4")
