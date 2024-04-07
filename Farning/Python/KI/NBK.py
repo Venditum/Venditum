@@ -4,90 +4,90 @@ from matplotlib import cm
 def gauss(x, m, s):
     return (1/(s * math.sqrt(2 * math.pi)) * math.e) ** (-0.5 * ((x - m) / s) ** 2)
 
-def m(liste):
-    return sum(liste) / len(liste)
+def m(floatlist):
+    return sum(floatlist) / len(floatlist)
 
-def s(liste):
-    return math.sqrt((sum([(x - m(liste)) ** 2 for x in liste])) / len(liste))
+def s(floatlist):
+    return math.sqrt((sum([(x - m(floatlist)) ** 2 for x in floatlist])) / len(floatlist))
 
-datensatz = []
+dataset = []
 with open("iris.csv") as f:
     csv_reader = csv.reader(f)
-    for zeile in csv_reader:
-        datensatz.append([float(wert) for wert in zeile[:-1]] + [zeile[-1]])
+    for line in csv_reader:
+        dataset.append([float(value) for value in line[:-1]] + [line[-1]])
 
-def predict(testdatenzeile, arten_ms, gewichte):
+def predict(testdataline, trainingsdata_species_ms, importance):
     best = ""
     bestscore = 0
 
-    for art in arten_ms: 
+    for species in trainingsdata_species_ms: 
         totalscore = 0
-        for i in range(len(testdatenzeile)):
-            totalscore += gauss(testdatenzeile[i], arten_ms[art][i][0], arten_ms[art][i][1]) * gewichte[i]  
+        for i in range(len(testdataline)):
+            totalscore += gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1]) * importance[i]  
         if totalscore > bestscore:
             bestscore = totalscore
-            best = art 
+            best = species 
     return best
 
-def validierung(durchläufe, gewichte, p):
-    treffer = 0
-    for _ in range(durchläufe):
-        random.shuffle(datensatz)
-        testdaten = datensatz[:int(len(datensatz) * p)]
-        trainingsdaten = datensatz[int(len(datensatz) * p):]
-        arten = {}
+def evaluate(repetitions, importance, p):
+    right = 0
+    for _ in range(repetitions):
+        random.shuffle(dataset)
+        testdata = dataset[:int(len(dataset) * p)]
+        trainingsdata = dataset[int(len(dataset) * p):]
+        speciesdic = {}
 
-        for i in range(len(trainingsdaten)):
-            if not trainingsdaten[i][-1] in arten:
-                arten[trainingsdaten[i][-1]] = []       
-            arten[trainingsdaten[i][-1]].append(trainingsdaten[i])
+        for i in range(len(trainingsdata)):
+            if not trainingsdata[i][-1] in speciesdic:
+                speciesdic[trainingsdata[i][-1]] = []       
+            speciesdic[trainingsdata[i][-1]].append(trainingsdata[i][:-1])
             
-        arten_ms = {}
+        trainingsdata_species_ms = {}
 
-        for art in arten:
-            arten_ms[art] = []
+        for species in speciesdic:
+            trainingsdata_species_ms[species] = []
             for i in range(4):
-                arten_ms[art].append((m(list(zip(*arten[art]))[i]), s(list(zip(*arten[art]))[i])))
+                trainingsdata_species_ms[species].append((m(list(zip(*speciesdic[species]))[i]), s(list(zip(*speciesdic[species]))[i])))
     
-        for zeile in testdaten:
-            vermutung = predict(zeile[:-1], arten_ms, gewichte)
-            if vermutung == zeile[-1]:
-                treffer += 1
+        for line in testdata:
+            guess = predict(line[:-1], trainingsdata_species_ms, importance)
+            if guess == line[-1]:
+                right += 1
 
-    return treffer / (len(testdaten) * durchläufe)
+    return right / (len(testdata) * repetitions)
 
-def gewichte_optimierung(gewichte_3_4):
-    d_s = []
-    for g_3, g_4 in gewichte_3_4:
-        d = validierung(12, [1, 1, g_3, g_4], 0.2)
-        d_s.append((d, g_3, g_4))
-    return max(d_s), d_s
+def importance_optimisation(importance_3_4):
+    results = []
+    for i_3, i_4 in importance_3_4:
+        result = evaluate(12, [1, 1, i_3, i_4], 0.2)
+        results.append((result, i_3, i_4))
+    return max(results), results
 
-def gewichte_optimierung_multithreaded(gewichte_3, gewichte_4, t):
+def importance_optimisation_multithreaded(importance_3, importance_4, t):
 
-    gewichte = [(i, j) for i in gewichte_3 for j in gewichte_4]
-    trenn_indizes = [i for i in range(0, len(gewichte) + 1, len(gewichte) // t)]
-    trenn_indizes[-1] = len(gewichte)
-    gewichte_liste = [gewichte[trenn_indizes[i]:trenn_indizes[i + 1]] for i in range(t)]
+    importance = [(i, j) for i in importance_3 for j in importance_4]
+    split_indices = [i for i in range(0, len(importance) + 1, len(importance) // t)]
+    split_indices[-1] = len(importance)
+    importance_list = [importance[split_indices[i]:split_indices[i + 1]] for i in range(t)]
 
     with multiprocessing.Pool(t) as pool:
-        ergebnisse = pool.map(gewichte_optimierung, gewichte_liste)
+        results = pool.map(importance_optimisation, importance_list)
     
-    d_s = []
-    for ergebnis in ergebnisse:
-        d_s += ergebnis[1]
+    totalresults = []
+    for result in results:
+        totalresults += result[1]
 
-    return max(ergebnisse)[0], d_s
+    return max(results)[0], totalresults
 
 if __name__ == '__main__':
-    anzahl_t = 8
-    d = gewichte_optimierung_multithreaded([i / 4 for i in range(1, 200)], [i / 4 for i in range(1, 200)], anzahl_t)
-    print(f"Beste Genauigkeit: {d[0][0]} bei g_3={d[0][1]} und g_4={d[0][2]}")
-    fig = plt.figure("Genauigkeit")
+    number_t = 8
+    d = importance_optimisation_multithreaded([i / 4 for i in range(1, 200)], [i / 4 for i in range(1, 200)], number_t)
+    print(f"Best accuracy: {d[0][0]} at i_3={d[0][1]} and i_4={d[0][2]}")
+    fig = plt.figure("accuracy")
     ax = fig.add_subplot(projection="3d")
     ax.plot_trisurf(np.array(list(zip(*d[1]))[1]), np.array(list(zip(*d[1]))[2]), np.array(list(zip(*d[1]))[0]), cmap=cm.coolwarm)
     ax.scatter(d[0][1], d[0][2], d[0][0], color="green", s=250)
-    plt.xlabel("g_3")
-    plt.ylabel("g_4")
-    ax.legend(['Genauigkeit'])
+    plt.xlabel("i_3")
+    plt.ylabel("i_4")
+    ax.legend(['accuracy'])
     plt.show()
