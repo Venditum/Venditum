@@ -4,6 +4,9 @@ from matplotlib import cm
 def gauss(x, m, s):
     return (1/(s * math.sqrt(2 * math.pi)) * math.e) ** (-0.5 * ((x - m) / s) ** 2)
 
+def poisson(x, l):
+    return (math.e ** (-l) * l ** x) / math.factorial(int(x))   
+
 def m(floatlist):
     return sum(floatlist) / len(floatlist)
 
@@ -21,9 +24,10 @@ def predict(testdataline, trainingsdata_species_ms, importance):
     bestscore = 0
 
     for species in trainingsdata_species_ms: 
-        totalscore = 0
+        totalscore = 1
         for i in range(len(testdataline)):
-            totalscore += gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1]) * importance[i]  
+            totalscore += gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1]) * importance[i] 
+            #totalscore *= gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1])
         if totalscore > bestscore:
             bestscore = totalscore
             best = species 
@@ -37,10 +41,10 @@ def evaluate(repetitions, importance, p):
         trainingsdata = dataset[int(len(dataset) * p):]
         speciesdic = {}
 
-        for i in range(len(trainingsdata)):
-            if not trainingsdata[i][-1] in speciesdic:
-                speciesdic[trainingsdata[i][-1]] = []       
-            speciesdic[trainingsdata[i][-1]].append(trainingsdata[i][:-1])
+        for line in trainingsdata:
+            if not line[-1] in speciesdic:
+                speciesdic[line[-1]] = []       
+            speciesdic[line[-1]].append(line[:-1])
             
         trainingsdata_species_ms = {}
 
@@ -79,15 +83,17 @@ def importance_optimisation_multithreaded(importance_3, importance_4, t):
 
     return max(results)[0], totalresults
 
-if __name__ == '__main__':
-    number_t = 8
-    d = importance_optimisation_multithreaded([i / 4 for i in range(1, 200)], [i / 4 for i in range(1, 200)], number_t)
-    print(f"Best accuracy: {d[0][0]} at i_3={d[0][1]} and i_4={d[0][2]}")
-    fig = plt.figure("accuracy")
-    ax = fig.add_subplot(projection="3d")
-    ax.plot_trisurf(np.array(list(zip(*d[1]))[1]), np.array(list(zip(*d[1]))[2]), np.array(list(zip(*d[1]))[0]), cmap=cm.coolwarm)
-    ax.scatter(d[0][1], d[0][2], d[0][0], color="green", s=250)
-    plt.xlabel("i_3")
-    plt.ylabel("i_4")
-    ax.legend(['accuracy'])
-    plt.show()
+# if __name__ == '__main__':
+#     number_t = 8
+#     d = importance_optimisation_multithreaded([i / 2 for i in range(10, 100)], [i / 2 for i in range(10, 100)], number_t)
+#     print(f"Best accuracy: {d[0][0]} at i_3={d[0][1]} and i_4={d[0][2]}")
+#     fig = plt.figure("accuracy")
+#     ax = fig.add_subplot(projection="3d")
+#     ax.plot_trisurf(np.array(list(zip(*d[1]))[1]), np.array(list(zip(*d[1]))[2]), np.array(list(zip(*d[1]))[0]), cmap=cm.coolwarm)
+#     ax.scatter(d[0][1], d[0][2], d[0][0], color="green", s=250)
+#     plt.xlabel("i_3")
+#     plt.ylabel("i_4")
+#     ax.legend(['accuracy'])
+#     plt.show()
+
+print(evaluate(100, [], 0.2))
