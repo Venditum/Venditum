@@ -17,7 +17,6 @@ with open("iris.csv") as f:
 
 datensatz_transponiert = list(zip(*datensatz))
 maxima = [max(datensatz_transponiert[0]), max(datensatz_transponiert[1]), max(datensatz_transponiert[2]), max(datensatz_transponiert[3])]
-minima = [min(datensatz_transponiert[0]), min(datensatz_transponiert[1]), min(datensatz_transponiert[2]), min(datensatz_transponiert[3])]
 for i in range(len(datensatz)):
     for j in range(len(datensatz[i]) - 1):
         datensatz[i][j] /= maxima[j]

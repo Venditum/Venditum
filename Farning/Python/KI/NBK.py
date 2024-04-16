@@ -19,6 +19,28 @@ with open("iris.csv") as f:
     for line in csv_reader:
         dataset.append([float(value) for value in line[:-1]] + [line[-1]])
 
+speciesdic = {}
+
+for line in dataset:
+    if not line[-1] in speciesdic:
+        speciesdic[line[-1]] = []       
+    speciesdic[line[-1]].append(line[:-1])
+    
+dataset_species_ms = {}
+
+for species in speciesdic:
+    dataset_species_ms[species] = []
+    for i in range(4):
+        dataset_species_ms[species].append((m(list(zip(*speciesdic[species]))[i]), s(list(zip(*speciesdic[species]))[i])))
+
+for species in dataset_species_ms:
+    for i in range(len(dataset)):
+        if dataset[i][-1] == species:
+            for j in range(len(dataset[i]) - 1):
+                dataset[i][j] = (dataset[i][j] - dataset_species_ms[species][j][0]) / dataset_species_ms[species][j][1]  
+
+print(dataset)                                                     
+
 def predict(testdataline, trainingsdata_species_ms, importance):
     best = ""
     bestscore = 0
@@ -26,11 +48,12 @@ def predict(testdataline, trainingsdata_species_ms, importance):
     for species in trainingsdata_species_ms: 
         totalscore = 1
         for i in range(len(testdataline)):
-            totalscore += gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1]) * importance[i] 
+            totalscore *= gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1]) * importance[i]
+            #totalscore += gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1]) * importance[i]
             #totalscore *= gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1])
         if totalscore > bestscore:
             bestscore = totalscore
-            best = species 
+            best = species
     return best
 
 def evaluate(repetitions, importance, p):
@@ -85,7 +108,7 @@ def importance_optimisation_multithreaded(importance_3, importance_4, t):
 
 # if __name__ == '__main__':
 #     number_t = 8
-#     d = importance_optimisation_multithreaded([i / 2 for i in range(10, 100)], [i / 2 for i in range(10, 100)], number_t)
+#     d = importance_optimisation_multithreaded([i / 2 for i in range(1, 100)], [i / 2 for i in range(1, 100)], number_t)
 #     print(f"Best accuracy: {d[0][0]} at i_3={d[0][1]} and i_4={d[0][2]}")
 #     fig = plt.figure("accuracy")
 #     ax = fig.add_subplot(projection="3d")
@@ -96,4 +119,4 @@ def importance_optimisation_multithreaded(importance_3, importance_4, t):
 #     ax.legend(['accuracy'])
 #     plt.show()
 
-print(evaluate(100, [], 0.2))
+print(evaluate(1, [1, 1, 1, 1], 0.2))
