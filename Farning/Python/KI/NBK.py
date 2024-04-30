@@ -4,14 +4,30 @@ from matplotlib import cm
 def gauss(x, m, s):
     return (1/(s * math.sqrt(2 * math.pi))) * math.e ** (-0.5 * ((x - m) / s) ** 2)
 
-def poisson(x, l):
-    return (math.e ** (-l) * l ** x) / math.factorial(int(x))   
-
 def m(floatlist):
     return sum(floatlist) / len(floatlist)
 
 def s(floatlist):
     return math.sqrt((sum([(x - m(floatlist)) ** 2 for x in floatlist])) / (len(floatlist) - 1))
+
+def m_multidimensional(multidimensional_floatlist):
+    result = []
+    for dimension in multidimensional_floatlist:
+        result.append([m(dimension)])
+    return result    
+
+def covariance(bifloatlist):
+    return sum([x - m(bifloatlist[0]) for x in bifloatlist[0]][i] * [y - m(bifloatlist[1]) for y in bifloatlist[1]][i] for i in range(len([x - m(bifloatlist[0]) for x in bifloatlist[0]]))) / (len(bifloatlist[0]) - 1)
+
+def s_multidimensional(multidimensional_floatlist):
+    result = [[] for _ in multidimensional_floatlist]
+    for y in range(len(multidimensional_floatlist)):
+        for x in range(len(multidimensional_floatlist)):
+            result[y].append(covariance([multidimensional_floatlist[y], multidimensional_floatlist[x]]))
+    return result
+
+def gauss_multidimensional(x, m, s):
+    return
 
 dataset = []
 with open("iris.csv") as f:
@@ -29,40 +45,38 @@ def m_s(dataset):
         
     dataset_ms = {}
 
-    for column in data:
-        dataset_ms[column] = []
+    for class_ in data:
+        dataset_ms[class_] = []
         for i in range(4):
-            dataset_ms[column].append((m(list(zip(*data[column]))[i]), s(list(zip(*data[column]))[i])))
+            dataset_ms[class_].append((m(list(zip(*data[class_]))[i]), s(list(zip(*data[class_]))[i])))
 
     return dataset_ms        
 
-def normalize():
-    dataset_species_ms = m_s(dataset)
-    for species in dataset_species_ms:
+def normalize(dataset):
+    new = dataset
+    dataset_classes_ms = m_s(dataset)
+    for class_ in dataset_classes_ms:
         for i in range(len(dataset)):
-            if dataset[i][-1] == species:
+            if dataset[i][-1] == class_:
                 for j in range(len(dataset[i]) - 1):
-                    dataset[i][j] = (dataset[i][j] - dataset_species_ms[species][j][0]) / dataset_species_ms[species][j][1]  
+                    dataset[i][j] = (dataset[i][j] - dataset_classes_ms[class_][j][0]) / dataset_classes_ms[class_][j][1]  
+    return new
 
 # for species in dataset_species_ms:
 #     for i in range(len(dataset)):
 #         if dataset[i][-1] == species:
 #             for j in range(len(dataset[i]) - 1):
 #                 dataset[i][j] = (dataset[i][j] - dataset_species_ms[species][j][0]) / dataset_species_ms[species][j][1] 
-normalize()
 
-def predict(testdataline):
-    trainingsdata_species_ms = m_s(dataset)
-    best = ""
+def predict(testdataline, trainingsdata_species_ms):
     species_score = []
 
     for species in trainingsdata_species_ms: 
         totalscore = 1
         for i in range(len(testdataline)):
-            totalscore *= gauss(testdataline[i], 0, 1)
-            #totalscore += gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1]) * importance[i]
-            #totalscore *= gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1])
+            totalscore *= gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1])
         species_score.append((totalscore * ([value[-1] for value in dataset].count(species)) / len(dataset), species))
+        
     return max(species_score)
 
 def evaluate(repetitions, importance, p):
@@ -71,22 +85,10 @@ def evaluate(repetitions, importance, p):
         random.shuffle(dataset)
         testdata = dataset[:int(len(dataset) * p)]
         trainingsdata = dataset[int(len(dataset) * p):]
-        speciesdic = {}
-
-        for line in trainingsdata:
-            if not line[-1] in speciesdic:
-                speciesdic[line[-1]] = []       
-            speciesdic[line[-1]].append(line[:-1])
-            
-        trainingsdata_species_ms = {}
-
-        for species in speciesdic:
-            trainingsdata_species_ms[species] = []
-            for i in range(4):
-                trainingsdata_species_ms[species].append((m(list(zip(*speciesdic[species]))[i]), s(list(zip(*speciesdic[species]))[i])))
+        trainingsdata_ms = m_s(trainingsdata)
     
         for line in testdata:
-            guess = predict(line[:-1])
+            guess = predict(line[:-1], trainingsdata_ms)[1]
             if guess == line[-1]:
                 right += 1
 
@@ -115,17 +117,19 @@ def importance_optimisation_multithreaded(importance_3, importance_4, t):
 
     return max(results)[0], totalresults
 
-if __name__ == '__main__':
-    number_t = 8
-    d = importance_optimisation_multithreaded([i / 2 for i in range(1, 10)], [i / 2 for i in range(1, 10)], number_t)
-    print(f"Best accuracy: {d[0][0]} at i_3={d[0][1]} and i_4={d[0][2]}")
-    fig = plt.figure("accuracy")
-    ax = fig.add_subplot(projection="3d")
-    ax.plot_trisurf(np.array(list(zip(*d[1]))[1]), np.array(list(zip(*d[1]))[2]), np.array(list(zip(*d[1]))[0]), cmap=cm.coolwarm)
-    ax.scatter(d[0][1], d[0][2], d[0][0], color="green", s=250)
-    plt.xlabel("i_3")
-    plt.ylabel("i_4")
-    ax.legend(['accuracy'])
-    plt.show()
+# if __name__ == '__main__':
+#     number_t = 8
+#     d = importance_optimisation_multithreaded([i / 2 for i in range(1, 10)], [i / 2 for i in range(1, 10)], number_t)
+#     print(f"Best accuracy: {d[0][0]} at i_3={d[0][1]} and i_4={d[0][2]}")
+#     fig = plt.figure("accuracy")
+#     ax = fig.add_subplot(projection="3d")
+#     ax.plot_trisurf(np.array(list(zip(*d[1]))[1]), np.array(list(zip(*d[1]))[2]), np.array(list(zip(*d[1]))[0]), cmap=cm.coolwarm)
+#     ax.scatter(d[0][1], d[0][2], d[0][0], color="green", s=250)
+#     plt.xlabel("i_3")
+#     plt.ylabel("i_4")
+#     ax.legend(['accuracy'])
+#     plt.show()
 
-#print(predict(dataset[25][:-1]))
+data = list(zip(*[line[:-1] for line in dataset]))
+print(covariance([(6, 5, 4, 1, 3, 2), (6, 6, 2, 1, 0, 0)]))
+print(s_multidimensional(data))
