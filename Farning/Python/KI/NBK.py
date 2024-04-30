@@ -14,7 +14,7 @@ def m_multidimensional(multidimensional_floatlist):
     result = []
     for dimension in multidimensional_floatlist:
         result.append([m(dimension)])
-    return result    
+    return np.array(result)    
 
 def covariance(bifloatlist):
     return sum([x - m(bifloatlist[0]) for x in bifloatlist[0]][i] * [y - m(bifloatlist[1]) for y in bifloatlist[1]][i] for i in range(len([x - m(bifloatlist[0]) for x in bifloatlist[0]]))) / (len(bifloatlist[0]) - 1)
@@ -24,10 +24,10 @@ def s_multidimensional(multidimensional_floatlist):
     for y in range(len(multidimensional_floatlist)):
         for x in range(len(multidimensional_floatlist)):
             result[y].append(covariance([multidimensional_floatlist[y], multidimensional_floatlist[x]]))
-    return result
+    return np.array(result)
 
 def gauss_multidimensional(x, m, s):
-    return
+    return (1 / (math.sqrt(2 * math.pi * np.linalg.det(s)))) * math.e ** (-0.5 * (x - m).transpose() @ np.linalg.inv(s) @ (x-m))
 
 dataset = []
 with open("iris.csv") as f:
@@ -52,6 +52,22 @@ def m_s(dataset):
 
     return dataset_ms        
 
+def m_s_multidimensional(dataset):
+    data = {}
+
+    for line in dataset:
+        if not line[-1] in data:
+            data[line[-1]] = []       
+        data[line[-1]].append(line[:-1])
+        
+    dataset_ms = {}
+
+    for class_ in data:
+        dataset_ms[class_] = []
+        dataset_ms[class_].append([m_multidimensional(list(zip(*data[class_]))), s_multidimensional(list(zip(*data[class_])))])
+
+    return dataset_ms        
+
 def normalize(dataset):
     new = dataset
     dataset_classes_ms = m_s(dataset)
@@ -72,10 +88,11 @@ def predict(testdataline, trainingsdata_species_ms):
     species_score = []
 
     for species in trainingsdata_species_ms: 
-        totalscore = 1
-        for i in range(len(testdataline)):
-            totalscore *= gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1])
-        species_score.append((totalscore * ([value[-1] for value in dataset].count(species)) / len(dataset), species))
+        # totalscore = 1
+        # for i in range(len(testdataline)):
+        #     totalscore *= gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1])
+        # species_score.append((totalscore * ([value[-1] for value in dataset].count(species)) / len(dataset), species))
+        species_score.append([gauss_multidimensional(np.array([testdataline]).transpose(), trainingsdata_species_ms[species][0][0], trainingsdata_species_ms[species][0][1])[0][0], species])
         
     return max(species_score)
 
@@ -85,7 +102,7 @@ def evaluate(repetitions, importance, p):
         random.shuffle(dataset)
         testdata = dataset[:int(len(dataset) * p)]
         trainingsdata = dataset[int(len(dataset) * p):]
-        trainingsdata_ms = m_s(trainingsdata)
+        trainingsdata_ms = m_s_multidimensional(trainingsdata)
     
         for line in testdata:
             guess = predict(line[:-1], trainingsdata_ms)[1]
@@ -117,19 +134,30 @@ def importance_optimisation_multithreaded(importance_3, importance_4, t):
 
     return max(results)[0], totalresults
 
-# if __name__ == '__main__':
-#     number_t = 8
-#     d = importance_optimisation_multithreaded([i / 2 for i in range(1, 10)], [i / 2 for i in range(1, 10)], number_t)
-#     print(f"Best accuracy: {d[0][0]} at i_3={d[0][1]} and i_4={d[0][2]}")
-#     fig = plt.figure("accuracy")
-#     ax = fig.add_subplot(projection="3d")
-#     ax.plot_trisurf(np.array(list(zip(*d[1]))[1]), np.array(list(zip(*d[1]))[2]), np.array(list(zip(*d[1]))[0]), cmap=cm.coolwarm)
-#     ax.scatter(d[0][1], d[0][2], d[0][0], color="green", s=250)
-#     plt.xlabel("i_3")
-#     plt.ylabel("i_4")
-#     ax.legend(['accuracy'])
-#     plt.show()
+if __name__ == '__main__':
+    number_t = 8
+    d = importance_optimisation_multithreaded([i / 2 for i in range(1, 5)], [i / 2 for i in range(1, 5)], number_t)
+    print(f"Best accuracy: {d[0][0]} at i_3={d[0][1]} and i_4={d[0][2]}")
+    fig = plt.figure("accuracy")
+    ax = fig.add_subplot(projection="3d")
+    ax.plot_trisurf(np.array(list(zip(*d[1]))[1]), np.array(list(zip(*d[1]))[2]), np.array(list(zip(*d[1]))[0]), cmap=cm.coolwarm)
+    ax.scatter(d[0][1], d[0][2], d[0][0], color="green", s=250)
+    plt.xlabel("i_3")
+    plt.ylabel("i_4")
+    ax.legend(['accuracy'])
+    plt.show()
 
-data = list(zip(*[line[:-1] for line in dataset]))
-print(covariance([(6, 5, 4, 1, 3, 2), (6, 6, 2, 1, 0, 0)]))
-print(s_multidimensional(data))
+# data = list(zip(*[line[:-1] for line in dataset]))
+# print(covariance([(6, 5, 4, 1, 3, 2), (6, 6, 2, 1, 0, 0)]))
+# print(s_multidimensional(data))
+# print(gauss_multidimensional([np.array([1, 1, 1, 1]).transpose()], m_multidimensional(data), s_multidimensional(data)))
+# print(s_multidimensional(data))
+# x = np.arange(-5, 5, 0.1)
+# y = np.arange(-5, 5, 0.1)
+# z =[]
+# for i in x:
+#     for j in y:
+#         z.append(gauss_multidimensional(np.array([[i], [j]]), np.array([[2], [2]]), np.diag([1, 1])))
+# z = np.array(z).reshape(len(x), len(y))
+# plt.contourf(x, y, z)
+# plt.show()
