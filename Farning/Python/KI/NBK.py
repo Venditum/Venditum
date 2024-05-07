@@ -66,7 +66,7 @@ def m_s_multidimensional(dataset):
         dataset_ms[class_] = []
         dataset_ms[class_].append([m_multidimensional(list(zip(*data[class_]))), s_multidimensional(list(zip(*data[class_])))])
 
-    return dataset_ms        
+    return dataset_ms         
 
 def normalize(dataset):
     new = dataset
@@ -84,15 +84,17 @@ def normalize(dataset):
 #             for j in range(len(dataset[i]) - 1):
 #                 dataset[i][j] = (dataset[i][j] - dataset_species_ms[species][j][0]) / dataset_species_ms[species][j][1] 
 
-def predict(testdataline, trainingsdata_species_ms):
+dataset_m_s_multidimesional = m_s_multidimensional(dataset)   
+
+def predict(testdataline):
     species_score = []
 
-    for species in trainingsdata_species_ms: 
+    for species in dataset_m_s_multidimesional: 
         # totalscore = 1
         # for i in range(len(testdataline)):
         #     totalscore *= gauss(testdataline[i], trainingsdata_species_ms[species][i][0], trainingsdata_species_ms[species][i][1])
         # species_score.append((totalscore * ([value[-1] for value in dataset].count(species)) / len(dataset), species))
-        species_score.append([gauss_multidimensional(np.array([testdataline]).transpose(), trainingsdata_species_ms[species][0][0], trainingsdata_species_ms[species][0][1])[0][0], species])
+        species_score.append([gauss_multidimensional(np.array([testdataline]).transpose(), dataset_m_s_multidimesional[species][0][0], dataset_m_s_multidimesional[species][0][1])[0][0], species])
         
     return max(species_score)
 
@@ -102,10 +104,9 @@ def evaluate(repetitions, importance, p):
         random.shuffle(dataset)
         testdata = dataset[:int(len(dataset) * p)]
         trainingsdata = dataset[int(len(dataset) * p):]
-        trainingsdata_ms = m_s_multidimensional(trainingsdata)
     
         for line in testdata:
-            guess = predict(line[:-1], trainingsdata_ms)[1]
+            guess = predict(line[:-1])[1]
             if guess == line[-1]:
                 right += 1
 
