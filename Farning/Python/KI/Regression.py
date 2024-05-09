@@ -13,12 +13,12 @@ for zeile in datensatz:
     datensatz_nach_art[zeile[-1]].append(zeile[:-1])  
 
 def regressionsgerade(eingabe, x, y):
-    m = sum(y) / sum(x)
+    m = sum([i * j for i in x for j in y]) / sum([i**2 for i in x]) / len(x)
     return m*eingabe
 
 for art in datensatz_nach_art:
     y = [0, regressionsgerade(max([i[0] for i in datensatz_nach_art[art]]), [i[0] for i in datensatz_nach_art[art]], [i[1] for i in datensatz_nach_art[art]])]
-    x = [0, max([i for i in datensatz_nach_art[art][0]])]
+    x = [0, max([i[0] for i in datensatz_nach_art[art]])]
     x_i = np.array([i[0] for i in datensatz_nach_art[art]])
     y_i = np.array([i[1] for i in datensatz_nach_art[art]])
     plt.plot(x, y)
