@@ -16,21 +16,20 @@ for zeile in datensatz:
 #print(datensatz_nach_art)
 
 def summe_fehlerquadrate(steigung, x_real, y_real):
-    return sum(((steigung * x_real[i]) - y_real[i]) ** 2 for i in range(len(x_real)))
+    return sum((steigung * x_real[i] - y_real[i]) ** 2 for i in range(len(x_real)))
 
 def summe_fehlerquadrate_ableitung(steigung, x_real, y_real):
-    return sum((2*steigung*(x_real[i]**2)) - (2*y_real[i]) for i in range(len(x_real)))
+    return sum(2 * (steigung*x_real[i] - y_real[i]) * x_real[i] for i in range(len(x_real)))
 
 def gradientenverfahren(x, y, repetitions):
     m = y[-1] / x[-1]
-    a = 10
+    a = 2
     for i in range(repetitions):
-        print(abs(summe_fehlerquadrate_ableitung(m, x, y)))
         if abs(summe_fehlerquadrate_ableitung(m-a, x, y)) < abs(summe_fehlerquadrate_ableitung(m, x, y)):
             m -= a
         else:    
             m += a
-            a *= 0.5    
+            a *= 0.5
             a = -a
 
     return m
@@ -39,15 +38,15 @@ def gradientenverfahren(x, y, repetitions):
 x = list(i[0] for i in datensatz)
 y = list(i[2] for i in datensatz)      
 
-m = gradientenverfahren(x, y, 100)
+m = gradientenverfahren(x, y, 15)
 print(summe_fehlerquadrate(m, x, y))
 print(m)
 
 
 y_p = [0, m * (max(x))]
 x_p = [0, max(x)]
-print(x_p)
-print(y_p)
+# print(x_p)
+# print(y_p)
 x_i = np.array(x)
 y_i = np.array(y)
 plt.plot(x_p, y_p)

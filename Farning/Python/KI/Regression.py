@@ -24,14 +24,14 @@ def regressionsgerademultidimensional(eingabe, x, y):
     # print(eingabe.shape())
     # print(w.shape())
     return np.matrix.transpose(eingabe) @ w
+    
 
-for art in datensatz_nach_art:
-    y = [0, regressionsgerade(max([i[0] for i in datensatz_nach_art[art]]), [i[0] for i in datensatz_nach_art[art]], [i[3] for i in datensatz_nach_art[art]])]
-    x = [0, max([i[0] for i in datensatz_nach_art[art]])]
-    x_i = np.array([i[0] for i in datensatz_nach_art[art]])
-    y_i = np.array([i[3] for i in datensatz_nach_art[art]])
-    plt.plot(x, y)
-    plt.scatter(x_i, y_i)
+y = [0, regressionsgerade(max([i[0] for i in datensatz]), [i[0] for i in datensatz], [i[2] for i in datensatz])]
+x = [0, max([i[0] for i in datensatz])]
+x_i = np.array([i[0] for i in datensatz])
+y_i = np.array([i[2] for i in datensatz])
+plt.plot(x, y)
+plt.scatter(x_i, y_i)
 plt.show()
 
 # for art in datensatz_nach_art:
