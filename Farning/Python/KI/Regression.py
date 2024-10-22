@@ -2,7 +2,7 @@ import csv, matplotlib.pyplot as plt, numpy as np
 from mpl_toolkits import mplot3d
 
 datensatz = []
-with open("bmi.csv") as f:
+with open("iris.csv") as f:
     csv_reader = csv.reader(f)
     for zeile in csv_reader:
         datensatz.append([float(wert) for wert in zeile[:-1]] + [zeile[-1]])
@@ -26,24 +26,30 @@ def regressionsgerademultidimensional(eingabe, x, y):
     return np.matrix.transpose(eingabe) @ w
     
 
-y = [0, regressionsgerade(max([i[0] for i in datensatz]), [i[0] for i in datensatz], [i[2] for i in datensatz])]
-x = [0, max([i[0] for i in datensatz])]
-x_i = np.array([i[0] for i in datensatz])
-y_i = np.array([i[2] for i in datensatz])
-plt.plot(x, y)
-plt.scatter(x_i, y_i)
-plt.show()
+# y = [0, regressionsgerade(max([i[0] for i in datensatz]), [i[0] for i in datensatz], [i[2] for i in datensatz])]
+# x = [0, max([i[0] for i in datensatz])]
+# x_i = np.array([i[0] for i in datensatz])
+# y_i = np.array([i[2] for i in datensatz])
+# plt.plot(x, y)
+# plt.scatter(x_i, y_i)
+# plt.show()
 
 # for art in datensatz_nach_art:
 #     xyz = [0, regressionsgerademultidimensional(np.array(max([(sum(i[:-1]), (i[:-1])) for i in datensatz_nach_art[art]])[1]), np.array([i[:-1] for i in datensatz_nach_art[art]]), np.array([i[-1] for i in datensatz_nach_art[art]]))]
+#     print(xyz)
+#     print(np.array([i[:-2] for i in datensatz_nach_art[art]]))
 
-# print(regressionsgerademultidimensional(np.array([5.4,3.9,1.7]), np.array([i[:-1] for i in datensatz_nach_art[art]]), np.array([i[-1] for i in datensatz_nach_art[art]])))
+#     print(regressionsgerademultidimensional(np.array([5.4]), np.array([i[:-3] for i in datensatz_nach_art[art]]), np.array([i[-3] for i in datensatz_nach_art[art]])))
 
-# for art in datensatz_nach_art:
-#     y = [0, regressionsgerademultidimensional(np.array(max([i[0] for i in datensatz_nach_art[art]])), np.array([i[0] for i in datensatz_nach_art[art]]), np.array([i[1] for i in datensatz_nach_art[art]]))]
-#     x = [0, max([i[1] for i in datensatz_nach_art[art]])]
-#     x_i = np.array([i[1] for i in datensatz_nach_art[art]])
-#     y_i = np.array([i[2] for i in datensatz_nach_art[art]])
-#     plt.plot(x, y)
-#     plt.scatter(x_i, y_i)
-# plt.show()
+w_matrix = np.array([[1],[2]])
+
+for art in datensatz_nach_art:
+    x_matrix = np.array([i[:-2] for i in datensatz_nach_art[art]])
+    y_matrix = np.array([i[-2] for i in datensatz_nach_art[art]])
+    x_1 = [i[0] for i in x_matrix]
+    x_2 = [i[1] for i in x_matrix]
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')
+    ax.scatter(x_1, x_2, y_matrix)
+    ax.plot3D([0, max(x_1)],[0, max(x_2)],[0, regressionsgerademultidimensional(x_matrix[5], x_matrix, y_matrix)])
+plt.show()
