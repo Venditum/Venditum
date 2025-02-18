@@ -83,7 +83,7 @@ x = time.time()
 
 if __name__ == '__main__':
     anzahl_t = 8
-    d = gewichte_optimierung_multithreaded([i / 4 for i in range(1, 60)], [i / 2 for i in range(1, 60)], anzahl_t)
+    d = gewichte_optimierung_multithreaded([i / 4 for i in range(1, 10)], [i / 2 for i in range(1, 10)], anzahl_t)
     print(f"Beste Genauigkeit: {d[0][0]} bei g_3={d[0][1]} und g_4={d[0][2]}")
     print(time.time() - x)
     fig = plt.figure("Genauigkeit")

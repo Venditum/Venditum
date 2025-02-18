@@ -23,23 +23,24 @@ def regressionsgerademultidimensional(eingabe, x, y):
     # print(x.shape())
     # print(eingabe.shape())
     # print(w.shape())
+    print(w)
     return np.matrix.transpose(eingabe) @ w
     
 
-# y = [0, regressionsgerade(max([i[0] for i in datensatz]), [i[0] for i in datensatz], [i[2] for i in datensatz])]
-# x = [0, max([i[0] for i in datensatz])]
-# x_i = np.array([i[0] for i in datensatz])
-# y_i = np.array([i[2] for i in datensatz])
-# plt.plot(x, y)
-# plt.scatter(x_i, y_i)
-# plt.show()
+y = [0, regressionsgerade(max([i[0] for i in datensatz]), [i[0] for i in datensatz], [i[2] for i in datensatz])]
+x = [0, max([i[0] for i in datensatz])]
+x_i = np.array([i[0] for i in datensatz])
+y_i = np.array([i[2] for i in datensatz])
+plt.plot(x, y)
+plt.scatter(x_i, y_i)
+plt.show()
 
-# for art in datensatz_nach_art:
-#     xyz = [0, regressionsgerademultidimensional(np.array(max([(sum(i[:-1]), (i[:-1])) for i in datensatz_nach_art[art]])[1]), np.array([i[:-1] for i in datensatz_nach_art[art]]), np.array([i[-1] for i in datensatz_nach_art[art]]))]
-#     print(xyz)
-#     print(np.array([i[:-2] for i in datensatz_nach_art[art]]))
+for art in datensatz_nach_art:
+    xyz = [0, regressionsgerademultidimensional(np.array(max([(sum(i[:-1]), (i[:-1])) for i in datensatz_nach_art[art]])[1]), np.array([i[:-1] for i in datensatz_nach_art[art]]), np.array([i[-1] for i in datensatz_nach_art[art]]))]
+    print(xyz)
+    print(np.array([i[:-2] for i in datensatz_nach_art[art]]))
 
-#     print(regressionsgerademultidimensional(np.array([5.4]), np.array([i[:-3] for i in datensatz_nach_art[art]]), np.array([i[-3] for i in datensatz_nach_art[art]])))
+    print(regressionsgerademultidimensional(np.array([5.4]), np.array([i[:-3] for i in datensatz_nach_art[art]]), np.array([i[-3] for i in datensatz_nach_art[art]])))
 
 w_matrix = np.array([[1],[2]])
 
