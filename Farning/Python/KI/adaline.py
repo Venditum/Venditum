@@ -1,5 +1,4 @@
 import csv
-import random
 
 class adaline:
     def __init__(self, w, b):
@@ -22,8 +21,8 @@ class adaline:
 
     def learn(self, eta, inputs, os, repetitions):
         for i in range(repetitions):
-            j = random.randint(0, len(os) - 1)
-            self.singlelearn(eta, inputs[j], os[j])
+            for j in range(len(inputs)):
+                self.singlelearn(eta, inputs[j], os[j])
 
 a = adaline([0, 0, 0, 0], 0)
 datensatz = []
