@@ -1,6 +1,5 @@
 import csv
 import random
-import matplotlib.pyplot as plt
 
 class adaline:
     def __init__(self, w, b):
@@ -50,4 +49,3 @@ print(a.activate([4.7,1.4])) # no
 print(a.compute([4.7,1.4])) # no
 print(a.activate([6.0,2.5])) # no
 print(a.compute([6.0,2.5])) # no
-print(a.plot(datensatz))
