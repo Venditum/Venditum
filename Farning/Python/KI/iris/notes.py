@@ -1,1 +1,0 @@
-print(list(range(1, 3)) if 1 == 2 else 2)

@@ -1,3 +1,6 @@
+import tkinter as tk
+from PIL import ImageTk,Image
+
 class Hexapawn:
     def __init__(self, player1, player2):
         player1.symbol = 1
@@ -47,8 +50,6 @@ class Hexapawn:
         self.show()
         return currentplayer    
 
-
-
 class Humanplayer():
     def __init__(self):
         self.symbol = 0
@@ -59,6 +60,17 @@ class Humanplayer():
             move = [self.symbol, (int(input("Please enter the row of the piece you want to move:")), int(input("Please enter the column of the piece you want to move:"))), input("Please enter the action you want to perform:")]  
         return move
 
+root = tk.Tk()
+root.title("Hexapawn")
+root.geometry("900x900")
+root.minsize(900, 900)
+root.maxsize(900, 900)
+field = Image.open("Field.png")
+field = ImageTk.PhotoImage(field)
+canvas = tk.Canvas(root, width=900, height=900)
+canvas.pack(pady=20)
+img = canvas.create_image(x=0, y=0, width=900, height=900, image=field)
+root.mainloop()
 
 player1 = Humanplayer()
 player2 = Humanplayer()        
