@@ -1,5 +1,4 @@
-import tkinter as tk
-from PIL import ImageTk,Image
+import random
 
 class Hexapawn:
     def __init__(self, player1, player2):
@@ -41,14 +40,14 @@ class Hexapawn:
         print(str(self.gameboard[0][0]) + "|" + str(self.gameboard[0][1]) + "|" + str(self.gameboard[0][2]))   
 
     def play(self):
-        currentplayer = player1
+        currentplayer = self.player1
         while not self.check_if_game_is_won(-currentplayer.symbol):
             self.show()
             move = currentplayer.move(self)
             self.move(currentplayer, move[1], move[2])
-            currentplayer = player2 if currentplayer == player1 else player1
+            currentplayer = self.player2 if currentplayer == self.player1 else self.player1
         self.show()
-        return currentplayer    
+        return currentplayer        
 
 class Humanplayer():
     def __init__(self):
@@ -60,23 +59,27 @@ class Humanplayer():
             move = [self.symbol, (int(input("Please enter the row of the piece you want to move:")), int(input("Please enter the column of the piece you want to move:"))), input("Please enter the action you want to perform:")]  
         return move
 
-root = tk.Tk()
-root.title("Hexapawn")
-root.geometry("900x900")
-root.minsize(900, 900)
-root.maxsize(900, 900)
-field = Image.open("Field.png")
-field = ImageTk.PhotoImage(field)
-canvas = tk.Canvas(root, width=900, height=900)
-canvas.pack(pady=20)
-img = canvas.create_image(x=0, y=0, width=900, height=900, image=field)
-root.mainloop()
+class AI:
+    def __init__(self):
+        self.symbol = 0
+        self.matchbox = []
+        
+    def train(self, trainingplayer, repetition):
+        for i in range(repetition):
+            game = Hexapawn(trainingplayer, self)
+            game.play()
+
+    def move(self, game):
+        for i in range(len(self.matchbox)):
+            if game.gameboard == self.matchbox[i][0]:
+                print(self.matchbox)
+                return random.choice(self.matchbox[i][1])
+        self.matchbox.append((game.gameboard, game.all_valid_moves_for(self.symbol)))
+        print(80)
+        return self.move(game)     
 
 player1 = Humanplayer()
-player2 = Humanplayer()        
+player2 = Humanplayer()
 Hexa = Hexapawn(player1, player2)
-#Hexa.forward((0, 0))
-#Hexa.takes_A((2, 1))
-#Hexa.move(player1, (0, 0), "forward")
-#Hexa.move(player2, (2, 1), "takes_A")
-Hexa.play()
+AI = AI()
+AI.train(player1, 2)
