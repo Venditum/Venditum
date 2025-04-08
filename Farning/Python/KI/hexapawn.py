@@ -1,4 +1,5 @@
 import random
+import copy
 
 class Hexapawn:
     def __init__(self, player1, player2):
@@ -40,12 +41,13 @@ class Hexapawn:
         print(str(self.gameboard[0][0]) + "|" + str(self.gameboard[0][1]) + "|" + str(self.gameboard[0][2]))   
 
     def play(self):
-        currentplayer = self.player1
-        while not self.check_if_game_is_won(-currentplayer.symbol):
+        self.gameboard = [[1, 1, 1], [0, 0, 0], [-1, -1, -1]]
+        currentplayer = Humanplayer()
+        while not self.check_if_game_is_won(currentplayer.symbol):
+            currentplayer = self.player2 if currentplayer == self.player1 else self.player1
             self.show()
             move = currentplayer.move(self)
             self.move(currentplayer, move[1], move[2])
-            currentplayer = self.player2 if currentplayer == self.player1 else self.player1
         self.show()
         return currentplayer        
 
@@ -63,23 +65,39 @@ class AI:
     def __init__(self):
         self.symbol = 0
         self.matchbox = []
+        self.movespergame = []
         
     def train(self, trainingplayer, repetition):
         for i in range(repetition):
+            self.movespergame = []
             game = Hexapawn(trainingplayer, self)
-            game.play()
+            winner = game.play()
+            if winner == trainingplayer:
+                self.removebadmove(1)
+
+    def removebadmove(self, index):
+        for i in range(len(self.matchbox)):
+            if self.matchbox[i][0] == self.movespergame[-index][0]:
+                self.matchbox[i][1].remove(self.movespergame[-index][1])
+                if self.matchbox[i][1] == []:
+                    del self.matchbox[i]
+                    self.removebadmove(index + 1)
+                return True    
 
     def move(self, game):
         for i in range(len(self.matchbox)):
             if game.gameboard == self.matchbox[i][0]:
-                print(self.matchbox)
-                return random.choice(self.matchbox[i][1])
-        self.matchbox.append((game.gameboard, game.all_valid_moves_for(self.symbol)))
-        print(80)
+                choice = random.choice(self.matchbox[i][1])
+                self.movespergame.append((copy.deepcopy(game.gameboard), choice))
+                return choice
+        self.matchbox.append((copy.deepcopy(game.gameboard), game.all_valid_moves_for(self.symbol)))
         return self.move(game)     
 
-player1 = Humanplayer()
-player2 = Humanplayer()
-Hexa = Hexapawn(player1, player2)
-AI = AI()
-AI.train(player1, 2)
+# player1 = Humanplayer()
+# player2 = Humanplayer()
+# AI1 = AI()
+# AI2 = AI()
+# AI1.train(AI2, 100)
+# Hexa = Hexapawn(player1, AI1)
+# for i in range(5):
+#     Hexa.play()
