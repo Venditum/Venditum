@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexapawn</title>
+    <style>
+        body{
+            font-family: "Helvetica Neue";
+            text-align: center;
+            background-color: rgb(219, 238, 170);
+        }
+        h1 {
+            font-size: 5vw;
+        }
+        #spiel {
+            display: table;
+            margin: auto;
+            border: 1vw solid black
+        }
+        .table-row {
+            display: table-row;
+        }
+        .table-cell{
+            display: table-cell;
+            width: 15vw;
+            height: 15vw;
+            vertical-align: middle;
+        }
+        .table-cell img {
+            height: 80%;
+        }
+        .black {
+            background-color: black;
+        }
+        .white{
+            background-color: white;
+        }
+        .black.blue {
+            background-color: rgb(80, 109, 204);
+        }
+        .white.blue {
+            background-color: rgb(145, 188, 226);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>HexaPawn</h1>
+    <div id="spiel"0>
+        <div class = "table-row">
+            <div id = "00" class = "table-cell white">
+                <img>
+            </div> 
+            <div id = "01" class = "table-cell black"> 
+                <img>
+            </div> 
+            <div id = "02" class = "table-cell white">
+                <img>
+            </div> 
+        </div>   
+        <div class = "table-row">
+            <div id = "10" class = "table-cell black">
+                <img>
+            </div> 
+            <div id = "11" class = "table-cell white">
+                <img>
+            </div> 
+            <div id = "12" class = "table-cell black">
+                <img>
+            </div> 
+        </div>
+        <div class = "table-row">
+            <div id = "20" class = "table-cell white">
+                <img>
+            </div> 
+            <div id = "21" class = "table-cell black">
+                <img>
+            </div> 
+            <div id = "22" class = "table-cell white">
+                <img>
+            </div> 
+        </div>
+    </div>
+    <script>
+        gameboard = [[1, 1, 1], 
+                    [0, 0, 0],   
+                    [-1, -1, -1]]
+        
+        for (i = 0; i < gameboard.length; i++) {
+            for (j = 0; j < gameboard.length; j++) {
+                if (gameboard[i][j])
+                    document.getElementById("" + i + j).children[0].src = gameboard[i][j] + ".png"
+            }
+        }
+
+        document.addEventListener("click", e => {
+            Array.from(document.getElementsByClassName("blue")).forEach(el => el.classList.remove("blue"));
+            for (i = 0; i < gameboard.length; i++) {
+                for (j = 0; j < gameboard.length; j++) {
+                    if (e.target.parentElement.id == "" + i + j)
+                        validmoves(parseInt(i), parseInt(j))
+                }
+            }
+        })
+
+        function validmoves(line, field){
+            currentsymbol = gameboard[line][field]
+            if (currentsymbol == 0)
+                return
+            validmoveslist = []
+            if (field - 1 >= 0 && gameboard[line + currentsymbol][field - 1] == -currentsymbol)
+                validmoveslist.push([line + currentsymbol, field - 1])
+            if (gameboard[line + currentsymbol][field] == 0)
+                validmoveslist.push([line + currentsymbol, field])
+            if (field + 1 <= 2 && gameboard[line + currentsymbol][field + 1] == -currentsymbol)
+                validmoveslist.push([line + currentsymbol, field + 1])
+            validmoveslist.forEach(square => {
+                document.getElementById("" + square[0] + square[1]).classList.add("blue")
+            });
+            document.getElementById("" + line + field).classList.add("blue")       
+        }
+
+        function action(id){
+            //validmoves(parseInt(id[0]), parseInt(id[1]))
+        }
+
+
+        class game{
+            constructor(player1, player2){
+                this.player1 = player1
+                this.player2 = player2
+                player1.symbol = 1
+                player2.symbol = -1
+                this.gameboard = [[1, 1, 1], [0, 0, 0], [-1, -1, -1]]
+            }
+
+            all_valid_moves_for(self, currentsymbol){
+                valid_moves = []
+                for (line = 0 ? currentsymbol == 1: 1; line < 2 ? currentsymbol == 1: 3; line ++)
+                {
+                    for (field = 0; field < 3; field ++)
+                    {
+                        if (this.gameboard[line][field] == currentsymbol){
+                            if (this.gameboard[line + currentsymbol][field] == 0){
+                                valid_moves.append([currentsymbol, (line, field), "forward"])
+                            }
+                        
+                            if (field == 0 || field == 2){
+                                if (this.gameboard[line + currentsymbol][1] == -currentsymbol)
+                                    valid_moves.append([currentsymbol ,(line, field), "takes_B"]) 
+                            }
+                            
+                            if (field == 1){
+                                if (this.gameboard[line + currentsymbol][0] == -currentsymbol)         
+                                    valid_moves.append([currentsymbol, (line, field), "takes_A"]) 
+                                if (this.gameboard[line + currentsymbol][2] == -currentsymbol)          
+                                    valid_moves.append([currentsymbol, (line, field), "takes_C"]) 
+                            }
+                        }
+                    
+                    }
+                }
+            
+            }
+        
+        }
+    </script>
+</body>
+
+</html>

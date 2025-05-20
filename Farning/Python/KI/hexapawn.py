@@ -93,11 +93,11 @@ class AI:
         self.matchbox.append((copy.deepcopy(game.gameboard), game.all_valid_moves_for(self.symbol)))
         return self.move(game)     
 
-# player1 = Humanplayer()
-# player2 = Humanplayer()
-# AI1 = AI()
-# AI2 = AI()
-# AI1.train(AI2, 100)
-# Hexa = Hexapawn(player1, AI1)
-# for i in range(5):
-#     Hexa.play()
+player1 = Humanplayer()
+player2 = Humanplayer()
+AI1 = AI()
+AI2 = AI()
+AI1.train(player1, 100)
+Hexa = Hexapawn(player1, AI1)
+for i in range(5):
+    Hexa.play()
