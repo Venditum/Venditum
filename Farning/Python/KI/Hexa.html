@@ -9,7 +9,7 @@
         body{
             font-family: "Helvetica Neue";
             text-align: center;
-            background-color: rgb(219, 238, 170);
+            background-color: rgb(255, 255, 255);
         }
         h1 {
             font-size: 5vw;
@@ -30,12 +30,13 @@
         }
         .table-cell img {
             height: 80%;
+            pointer-events: none;
         }
         .black {
-            background-color: black;
+            background-color: rgb(0, 0, 0);
         }
         .white{
-            background-color: white;
+            background-color: rgb(255, 255, 255);
         }
         .black.blue {
             background-color: rgb(80, 109, 204);
@@ -83,89 +84,232 @@
             </div> 
         </div>
     </div>
+
+    <div id="text"0></div>
+
     <script>
-        gameboard = [[1, 1, 1], 
-                    [0, 0, 0],   
-                    [-1, -1, -1]]
-        
-        for (i = 0; i < gameboard.length; i++) {
-            for (j = 0; j < gameboard.length; j++) {
-                if (gameboard[i][j])
-                    document.getElementById("" + i + j).children[0].src = gameboard[i][j] + ".png"
+        function stopper(condition){
+            return new Promise((resolve) => {
+                const intervall = setInterval(() => {
+                    if (condition["value"]) {
+                        clearInterval(intervall);
+                        resolve();
+                    }
+                }, 200)
+            })
+        }
+
+        class Player{
+            constructor(name){
+                this.name = name
+                this.symbol
+                this.game
+                this.hasmoved = {"value": false}
+            }
+
+            setsymbol(symbol){
+                this.symbol = symbol
+            }
+
+            setgame(game){
+                this.game = game
+            }
+
+            setHasmoved(hasmoved){
+                this.hasmoved["value"] = hasmoved
             }
         }
 
-        document.addEventListener("click", e => {
-            Array.from(document.getElementsByClassName("blue")).forEach(el => el.classList.remove("blue"));
-            for (i = 0; i < gameboard.length; i++) {
-                for (j = 0; j < gameboard.length; j++) {
-                    if (e.target.parentElement.id == "" + i + j)
-                        validmoves(parseInt(i), parseInt(j))
-                }
-            }
-        })
-
-        function validmoves(line, field){
-            currentsymbol = gameboard[line][field]
-            if (currentsymbol == 0)
-                return
-            validmoveslist = []
-            if (field - 1 >= 0 && gameboard[line + currentsymbol][field - 1] == -currentsymbol)
-                validmoveslist.push([line + currentsymbol, field - 1])
-            if (gameboard[line + currentsymbol][field] == 0)
-                validmoveslist.push([line + currentsymbol, field])
-            if (field + 1 <= 2 && gameboard[line + currentsymbol][field + 1] == -currentsymbol)
-                validmoveslist.push([line + currentsymbol, field + 1])
-            validmoveslist.forEach(square => {
-                document.getElementById("" + square[0] + square[1]).classList.add("blue")
-            });
-            document.getElementById("" + line + field).classList.add("blue")       
-        }
-
-        function action(id){
-            //validmoves(parseInt(id[0]), parseInt(id[1]))
-        }
-
-
-        class game{
-            constructor(player1, player2){
-                this.player1 = player1
-                this.player2 = player2
-                player1.symbol = 1
-                player2.symbol = -1
-                this.gameboard = [[1, 1, 1], [0, 0, 0], [-1, -1, -1]]
+        class Human extends Player{
+            constructor(name){
+                super(name)
+                this.clickchecker = this.clickchecker.bind(this);
             }
 
-            all_valid_moves_for(self, currentsymbol){
-                valid_moves = []
-                for (line = 0 ? currentsymbol == 1: 1; line < 2 ? currentsymbol == 1: 3; line ++)
-                {
-                    for (field = 0; field < 3; field ++)
-                    {
-                        if (this.gameboard[line][field] == currentsymbol){
-                            if (this.gameboard[line + currentsymbol][field] == 0){
-                                valid_moves.append([currentsymbol, (line, field), "forward"])
-                            }
-                        
-                            if (field == 0 || field == 2){
-                                if (this.gameboard[line + currentsymbol][1] == -currentsymbol)
-                                    valid_moves.append([currentsymbol ,(line, field), "takes_B"]) 
-                            }
-                            
-                            if (field == 1){
-                                if (this.gameboard[line + currentsymbol][0] == -currentsymbol)         
-                                    valid_moves.append([currentsymbol, (line, field), "takes_A"]) 
-                                if (this.gameboard[line + currentsymbol][2] == -currentsymbol)          
-                                    valid_moves.append([currentsymbol, (line, field), "takes_C"]) 
-                            }
-                        }
-                    
+            validmoves(id){
+                if (this.game.gameboard[parseInt(id[0])][parseInt(id[1])] != this.symbol)
+                    return;
+                let validmovesforid = []
+                let allvalidmoves = this.game.all_valid_moves_for(this.symbol)
+                allvalidmoves.forEach(e => {
+                    if (e[0] == id)
+                        validmovesforid.push(e.slice(1, 3))
+                })
+                validmovesforid.forEach(e => {
+                    document.getElementById("" + e[0] + e[1]).classList.add("blue");
+                });
+                if (this.game.gameboard[parseInt(id[0])][parseInt(id[1])] == this.symbol)
+                    document.getElementById(id).classList.add("blue");
+            }
+
+            clickchecker(e){
+                let valid = false
+                if (this.zugphase == "select"){
+                    Array.from(document.getElementsByClassName("blue")).forEach(el => el.classList.remove("blue"));  
+                    this.validmoves(e.target.id);
+                    if (Array.from(document.getElementsByClassName("blue")).length > 0){
+                        this.zugphase = "place";
+                        this.currentid = e.target.id
                     }
                 }
-            
+                else if (this.zugphase == "place") {
+                    if (document.getElementById(e.target.id).classList.contains("blue")){
+                        let line = parseInt(e.target.id[0])
+                        let collumn = parseInt(e.target.id[1])
+                        if(this.game.gameboard[line][collumn] != this.symbol){
+                            this.game.gameboard[line][collumn] = this.symbol;
+                            this.game.gameboard[parseInt(this.currentid[0])][parseInt(this.currentid[1])] = 0;
+                            valid = true
+                            super.setHasmoved(true)
+                        }
+                    }
+                    Array.from(document.getElementsByClassName("blue")).forEach(el => el.classList.remove("blue"));
+                    this.zugphase = "select"
+                    if (valid)
+                        document.removeEventListener("click", this.clickchecker)
+                }
             }
-        
+
+            async move(){
+                let valid = false
+                this.zugphase = "select"
+                document.addEventListener("click", this.clickchecker)
+            }
         }
+
+        class AI extends Player{
+            constructor(name){
+                super(name)
+                this.possiblemoves = {}
+                this.choicesPerGame = {}
+            }
+
+            removebadmove() {
+                let gameboardofchoice = Object.keys(this.choicesPerGame)[Object.keys(this.choicesPerGame).length - 1]
+                this.possiblemoves[gameboardofchoice].splice(this.choicesPerGame[gameboardofchoice], 1)
+                if (!this.possiblemoves[gameboardofchoice].length){
+                    delete this.possiblemoves[gameboardofchoice]
+                    delete this.choicesPerGame[gameboardofchoice]
+                    this.removebadmove()
+                }
+            }
+
+            async train(trainingplayer, repetition){
+                const rep = new Game(this, trainingplayer)
+                for (let i = 0; i <= repetition; i++){
+                    this.choicesPerGame = {}
+                    rep.play()
+                    await stopper(rep.hasplayed)
+                    if (rep.winner == trainingplayer.symbol){
+                        this.removebadmove()
+                    }
+                    rep.reset()
+                }
+            }
+
+            async move(){
+                if(!Object.keys(this.possiblemoves).some((element) => element.toString() === this.game.gameboard.toString())){
+                    this.possiblemoves[this.game.gameboard] = this.game.all_valid_moves_for(this.symbol)
+                }
+                let validmoves = this.possiblemoves[this.game.gameboard]
+                let choice = Math.floor(Math.random() * validmoves.length)
+                this.choicesPerGame[this.game.gameboard] = choice
+                this.game.gameboard[parseInt(validmoves[choice][0][0])][parseInt(validmoves[choice][0][1])] = 0
+                this.game.gameboard[validmoves[choice][1]][validmoves[choice][2]] = this.symbol
+                super.setHasmoved(true)
+            }
+        }
+
+        class Game{
+            constructor(blackplayer, whiteplayer){
+                this.blackplayer = blackplayer
+                this.whiteplayer = whiteplayer
+                blackplayer.setsymbol(1)
+                blackplayer.setgame(this)
+                whiteplayer.setsymbol(-1)
+                whiteplayer.setgame(this)
+                this.currentplayer = this.whiteplayer
+                this.gameboard = [[1, 1, 1], [0, 0, 0], [-1, -1, -1]]
+                this.hasplayed = {"value": false}
+                this.winner = null
+                this.whitewins = 0
+                this.blackwins = 0
+            }
+
+            reset(){
+                this.currentplayer = this.whiteplayer
+                this.gameboard = [[1, 1, 1], [0, 0, 0], [-1, -1, -1]]
+                this.winner = null
+                this.hasplayed["value"] = false
+            }
+
+            setHasplayed(hasplayed){
+                this.hasplayed["value"] = hasplayed
+            }
+
+            reload(){
+                for (let i = 0; i < this.gameboard.length; i++) {
+                    for (let j = 0; j < this.gameboard.length; j++) {
+                        if (this.gameboard[i][j] != 0) {
+                            document.getElementById("" + i + j).children[0].style.display = "inline";
+                            document.getElementById("" + i + j).children[0].src = this.gameboard[i][j] + ".png";
+                        }
+                        else
+                            document.getElementById("" + i + j).children[0].style.display = "none";
+                    }
+                }
+            }
+
+            checkifwon(){
+                if (this.all_valid_moves_for(this.currentplayer.symbol).length == 0)
+                    return -this.currentplayer.symbol
+                if (this.gameboard[this.currentplayer.symbol == 1 ? 0: 2].includes(this.currentplayer.symbol == 1 ? -1 : 1))
+                    return this.currentplayer.symbol == 1 ? -1 : 1
+            }
+
+            all_valid_moves_for(currentsymbol) {
+            let validmoveslist = [];
+            for (let line = 0; line < this.gameboard.length; line++){
+                for (let field = 0; field < this.gameboard.length; field++){
+                    if (this.gameboard[line][field] == currentsymbol){
+                        if (line + currentsymbol < 3 && line + currentsymbol >= 0 && field - 1 >= 0 && this.gameboard[line + currentsymbol][field - 1] == -currentsymbol)
+                            validmoveslist.push(["" + line + field, line + currentsymbol, field - 1])
+                        if (line + currentsymbol < 3 && line + currentsymbol >= 0 && this.gameboard[line + currentsymbol][field] == 0)
+                            validmoveslist.push(["" + line + field, line + currentsymbol, field])
+                        if (line + currentsymbol < 3 && line + currentsymbol >= 0 && field + 1 <= 2 && this.gameboard[line + currentsymbol][field + 1] == -currentsymbol)
+                            validmoveslist.push(["" + line + field, line + currentsymbol, field + 1])
+                        }
+                    }
+                }
+            return validmoveslist;
+            }
+
+            async play(){
+                this.reload()     
+                let currentid = null  
+                let winner    
+
+                while(!(winner = this.checkifwon())){
+                    this.currentplayer.move()
+                    await stopper(this.currentplayer.hasmoved)
+                    this.currentplayer.setHasmoved(false)
+                    this.reload()
+                    this.currentplayer = this.currentplayer.symbol == 1 ? this.whiteplayer: this.blackplayer
+                }
+                this.winner = -(this.currentplayer.symbol)
+                this.winner == -1 ? this.whitewins += 1 : this.blackwins += 1
+                document.getElementById("text").textContent = "White has won: " + this.whitewins + " times, Black has won: " + this.blackwins + " times"
+                //alert("White has won: " + this.whitewins + " times, Black has won: " + this.blackwins + " times")
+                this.hasplayed["value"] = true
+                return winner
+            }
+        }
+
+        const h = new Human("jall")
+        const c = new AI("jal")
+        c.train(h, 50000)
+        //const jame = new Game(h, c)
+        //jame.play()
     </script>
 </body>
 
