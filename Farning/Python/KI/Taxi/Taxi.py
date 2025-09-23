@@ -17,3 +17,12 @@ print(e.passengerpositions)
 print(e.position)
 print(e.passengerstart)
 print(e.passengerend)
+
+def zustandskodierung(taxi_zeile: int, taxi_spalte: int, fahrgastposition_index: int, ziel_index: int) -> int:
+    return taxi_zeile + taxi_spalte * 5 + fahrgastposition_index * 25 + ziel_index * 125
+
+for i in range(4):
+    for j in range(5):
+        for k in range(5):
+            for l in range(5):
+                print(zustandskodierung(l, k, j, i))

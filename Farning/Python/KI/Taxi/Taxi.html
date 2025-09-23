@@ -24,15 +24,29 @@
         }
         .table-cell{
             display: table-cell;
-            width: 15vw;
-            height: 15vw;
+            width: 10vw;
+            height: 10vw;
             vertical-align: middle;
             background-color: rgb(255, 255, 255);
             border: 0.3vw solid black
         }
         .table-cell img {
-            height: 80%;
+            width: 9vw;
+            height: 9vw;
+            border: 0;
             pointer-events: none;
+        }
+        .red {
+            background-color: rgb(218, 101, 101);
+        }
+        .green{
+            background-color: rgb(126, 236, 153);
+        }
+        .blue {
+            background-color: rgb(80, 109, 204);
+        }
+        .yellow {
+            background-color: rgb(229, 236, 162);
         }
     </style>
 </head>
@@ -126,21 +140,26 @@
             </div> 
         </div>     
     </div>
+    <div id="text"0></div>
 <script>
     class Umwelt{
-        constructor(größe){
-            this.feld = Array(größe[0]).fill().map(() => Array(größe[1]).fill(0));
+        constructor(){
             this.position = this.generatePosition()
             this.passengerpositions = []
-            while (this.passengerpositions.length < 4) {
+            while (this.passengerpositions.length < 4){
                 let generatedPosition = this.generatePosition()
                 if (!this.passengerpositions.includes(generatedPosition))
                     this.passengerpositions.push(generatedPosition)
             }
+            this.start = this.passengerpositions[Math.floor(Math.random() * this.passengerpositions.length)]
+            this.end = this.passengerpositions[Math.floor(Math.random() * this.passengerpositions.length)]
+            while (this.start === this.end){
+                this.end = this.passengerpositions[Math.floor(Math.random() * this.passengerpositions.length)]
+            }
         }
         
         generatePosition(){
-            return [Math.floor(Math.random() * this.feld.length), Math.floor(Math.random() * this.feld.length)]
+            return "" + Math.floor(Math.random() * 5) + Math.floor(Math.random() * 5)
         }
         
         getFeld(){
@@ -150,10 +169,28 @@
         getPassengerpositions(){
             return this.passengerpositions
         }
+
+        getStart(){
+            return this.start
+        }
+
+        getEnd(){
+            return this.end
+        }
+
+        initialdraw(){
+            let colours = ["red", "green", "blue", "yellow"]
+            for (let i = 0; i < this.passengerpositions.length; i++){
+                document.getElementById(this.passengerpositions[i]).classList.add(colours[i])
+            }
+            document.getElementById("text").textContent = this.passengerpositions.toString()
+            document.getElementById(this.position).children[0].src = "taxi.png"
+            document.getElementById(this.start).children[0].src = "man.png"
+        }
     }
 
-    e = new Umwelt([5, 5])
-    alert(e.getPassengerpositions())
+    e = new Umwelt()
+    e.initialdraw()
 </script>
 </body>
 </html>
