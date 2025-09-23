@@ -32,21 +32,15 @@
         }
         .table-cell img {
             width: 9vw;
-            height: 9vw;
-            border: 0;
-            pointer-events: none;
-        }
-        .red {
-            background-color: rgb(218, 101, 101);
-        }
-        .green{
-            background-color: rgb(126, 236, 153);
         }
         .blue {
             background-color: rgb(80, 109, 204);
         }
-        .yellow {
-            background-color: rgb(229, 236, 162);
+        .start {
+            background-color:  rgb(172, 191, 255);
+        }
+        .goal {
+            background-color: rgb(136, 230, 136);
         }
     </style>
 </head>
@@ -159,11 +153,11 @@
         }
         
         generatePosition(){
-            return "" + Math.floor(Math.random() * 5) + Math.floor(Math.random() * 5)
+            return "" + Math.floor(Math.random() * 5) + Math.floor(Math.random() * 5) 
         }
         
-        getFeld(){
-            return this.feld
+        getPosition(){
+            return this.position
         }
 
         getPassengerpositions(){
@@ -178,19 +172,57 @@
             return this.end
         }
 
+        getListfromIndex(index){
+            return [parseInt(index[0]), parseInt(index[1])]
+        }
+
+        getIndexfromList(list){
+            return "" + list[0] + list[1]
+        }
+
         initialdraw(){
-            let colours = ["red", "green", "blue", "yellow"]
             for (let i = 0; i < this.passengerpositions.length; i++){
-                document.getElementById(this.passengerpositions[i]).classList.add(colours[i])
+                document.getElementById(this.passengerpositions[i]).classList.add("blue")
             }
-            document.getElementById("text").textContent = this.passengerpositions.toString()
+            document.getElementById(this.start).classList.add("start")
+            document.getElementById(this.end).classList.add("goal")
             document.getElementById(this.position).children[0].src = "taxi.png"
-            document.getElementById(this.start).children[0].src = "man.png"
+            document.getElementById("text").textContent = "Passenger: on start"
+        }
+
+        update(){
+            document.getElementById("" + this.position).children[0].src = "taxi.png"
+        }
+
+        move(action){
+            switch(action){
+                case 0:
+                    let currentpos = this.getListfromIndex(this.postion)
+                    if ((currentpos)[0]+ 1 < 5){
+                        this.postion = this.getIndexfromList([currentpos[0] + 1, currentpos[1]])
+                    }
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+            }
         }
     }
 
     e = new Umwelt()
     e.initialdraw()
+    alert(e.getPosition())
+    e.move(0)
+    alert(e.getPosition())
+    e.update()
+    
 </script>
 </body>
 </html>
