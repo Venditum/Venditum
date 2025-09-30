@@ -136,24 +136,41 @@
     </div>
     <div id="text"0></div>
 <script>
+    function stopper(condition){
+        return new Promise((resolve) => {
+            const intervall = setInterval(() => {
+                if (condition["value"]) {
+                    clearInterval(intervall);
+                    resolve();
+                }
+            }, 200)
+        })
+    }
+    
     class Umwelt{
         constructor(){
             this.position = this.generatePosition()
+            this.lastposition = structuredClone(this.position)
             this.passengerpositions = []
             while (this.passengerpositions.length < 4){
-                let generatedPosition = this.generatePosition()
+                let generatedPosition = this.getIndexfromList(this.generatePosition())
                 if (!this.passengerpositions.includes(generatedPosition))
                     this.passengerpositions.push(generatedPosition)
+            }
+            for (let i = 0; i < this.passengerpositions.length; i++){
+                this.passengerpositions[i] = this.getListfromIndex(this.passengerpositions[i])
             }
             this.start = this.passengerpositions[Math.floor(Math.random() * this.passengerpositions.length)]
             this.end = this.passengerpositions[Math.floor(Math.random() * this.passengerpositions.length)]
             while (this.start === this.end){
                 this.end = this.passengerpositions[Math.floor(Math.random() * this.passengerpositions.length)]
             }
+            this.hasupdated = {"value": false}
+            this.hasmoved = {"value": false}
         }
         
         generatePosition(){
-            return "" + Math.floor(Math.random() * 5) + Math.floor(Math.random() * 5) 
+            return [Math.floor(Math.random() * 5), Math.floor(Math.random() * 5)]
         }
         
         getPosition(){
@@ -182,46 +199,101 @@
 
         initialdraw(){
             for (let i = 0; i < this.passengerpositions.length; i++){
-                document.getElementById(this.passengerpositions[i]).classList.add("blue")
+                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.add("blue")
             }
-            document.getElementById(this.start).classList.add("start")
-            document.getElementById(this.end).classList.add("goal")
-            document.getElementById(this.position).children[0].src = "taxi.png"
+            document.getElementById(this.getIndexfromList(this.start)).classList.add("start")
+            document.getElementById(this.getIndexfromList(this.end)).classList.add("goal")
+            document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
             document.getElementById("text").textContent = "Passenger: on start"
         }
 
-        update(){
-            document.getElementById("" + this.position).children[0].src = "taxi.png"
+        sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        move(action){
+        async update(){
+            await stopper(this.hasmoved)
+            document.getElementById(this.getIndexfromList(this.lastposition)).children[0].style.visibility = "hidden"
+            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
+            document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
+            this.hasupdated["value"] = true
+            this.hasmoved["value"] = false
+        }
+
+        async move(action){
+            this.lastposition = structuredClone(this.position)
             switch(action){
                 case 0:
-                    let currentpos = this.getListfromIndex(this.postion)
-                    if ((currentpos)[0]+ 1 < 5){
-                        this.postion = this.getIndexfromList([currentpos[0] + 1, currentpos[1]])
+                    if (this.position[0]+ 1 < 5){
+                        this.position = [this.position[0] + 1, this.position[1]]
                     }
                     break;
                 case 1:
+                    if (this.position[0] - 1 >= 0){
+                        this.position = [this.position[0] - 1, this.position[1]]
+                    }
                     break;
                 case 2:
+                    if (this.position[1] + 1 < 5){
+                        this.position = [this.position[0], this.position[1] + 1]
+                    }
                     break;
                 case 3:
+                    if (this.position[1] - 1 >= 0){
+                        this.position = [this.position[0], this.position[1] - 1]
+                    }
                     break;
                 case 4:
+                    if (this.position[0] - 1 >= 0){
+                        this.position = [this.position[0] - 1, this.position[1]]
+                    }
                     break;
                 case 5:
+                    if (this.position[0] - 1 >= 0){
+                        this.position = [this.position[0] - 1, this.position[1]]
+                    }
                     break;
             }
+            this.update()
+            this.hasmoved["value"] = true
+            await stopper(this.hasupdated)
+            this.hasupdated["value"] = false
+            return
+        }
+    }
+
+    class Agent{
+        constructor(){
+            this.umwelt = new Umwelt()
         }
     }
 
     e = new Umwelt()
     e.initialdraw()
-    alert(e.getPosition())
-    e.move(0)
-    alert(e.getPosition())
-    e.update()
+    async function run() {
+        await e.move(0)
+        await e.move(1)
+        await e.move(2)
+        await e.move(0)
+        await e.move(1)
+        await e.move(0)
+        await e.move(1)
+        await e.move(2)
+        await e.move(0)
+        await e.move(1)
+        await e.move(0)
+        await e.move(1)
+        await e.move(2)
+        await e.move(0)
+        await e.move(1)
+        await e.move(0)
+        await e.move(1)
+        await e.move(2)
+        await e.move(0)
+        await e.move(1)
+    }
+
+    run()
     
 </script>
 </body>
