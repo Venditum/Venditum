@@ -135,6 +135,7 @@
         </div>     
     </div>
     <div id="text"0></div>
+    <div id="text1"0></div>
 <script>
     function stopper(condition){
         return new Promise((resolve) => {
@@ -149,6 +150,7 @@
     
     class Umwelt{
         constructor(){
+            this.won = false
             this.position = this.generatePosition()
             this.lastposition = structuredClone(this.position)
             this.passengerpositions = []
@@ -161,18 +163,23 @@
                 this.passengerpositions[i] = this.getListfromIndex(this.passengerpositions[i])
             }
             this.passangerposition = Math.floor(Math.random() * 4)
+            this.lastpassangerposition = this.passangerposition
             this.end = Math.floor(Math.random() * 4)
             while (this.passangerposition === this.end){
                 this.end = Math.floor(Math.random() * 4)
             }
             this.hasupdated = {"value": false}
             this.hasmoved = {"value": false}
+            this.passengerpositionchange = false
         }
 
         reset(){
+            this.won = false
+            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
             this.position = this.generatePosition()
             this.lastposition = structuredClone(this.position)
             this.passangerposition = Math.floor(Math.random() * 4)
+            this.lastpassangerposition = this.passangerposition
             this.end = Math.floor(Math.random() * 4)
             while (this.passangerposition === this.end){
                 this.end = Math.floor(Math.random() * 4)
@@ -180,6 +187,10 @@
             this.initialdraw()
             this.hasupdated = {"value": false}
             this.hasmoved = {"value": false}
+            this.passengerpositionchange = false
+        }
+        getWon(){
+            return this.won
         }
         
         generatePosition(){
@@ -212,6 +223,8 @@
 
         initialdraw(){
             for (let i = 0; i < this.passengerpositions.length; i++){
+                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("start")
+                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("goal")
                 document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.add("blue")
             }
             document.getElementById(this.getIndexfromList(this.passengerpositions[this.passangerposition])).classList.add("start")
@@ -225,20 +238,26 @@
             document.getElementById(this.getIndexfromList(this.lastposition)).children[0].style.visibility = "hidden"
             document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
             document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
-            if (this.passangerposition < 4){
-                document.getElementById("text").textContent = "Passenger: on start"
+            if (this.passengerpositionchange){
+                if (this.passangerposition < 4){
+                    document.getElementById("text").textContent = "Passenger: stranded"
+                    document.getElementById(this.getIndexfromList(this.passengerpositions[this.passangerposition])).classList.add("start")
+                }
+                if (this.passangerposition === 4){
+                    document.getElementById(this.getIndexfromList(this.passengerpositions[this.lastpassangerposition])).classList.remove("start")
+                    document.getElementById("text").textContent = "Passenger: in Taxi"
+                }
+                if (this.passangerposition === 5){
+                    document.getElementById("text").textContent = "Won!"
+                }
+                this.passengerpositionchange = false
             }
-            if (this.passangerposition === 4){
-                document.getElementById("text").textContent = "Passenger: in Taxi"
-            }
-            if (this.passangerposition === 5)
-                document.getElementById("text").textContent = "Won!"
             this.hasupdated["value"] = true
             this.hasmoved["value"] = false
         }
 
         async move(action){
-            let reward = 0
+            let reward = -1
             this.lastposition = structuredClone(this.position)
             switch(action){
                 case 0:
@@ -262,18 +281,24 @@
                     }
                     break;
                 case 4:
+                    reward = -10
                     if (this.passangerposition < 4 && this.position.toString() === this.passengerpositions[this.passangerposition].toString()){
-                        reward = 10
+                        reward = 1
+                        this.lastpassangerposition = this.passangerposition
                         this.passangerposition = 4
+                        this.passengerpositionchange = true
                     }
                     break;
                 case 5:
+                    reward = -10
                     if (this.passangerposition === 4){
                         if (this.passengerpositions.some(arr => arr.every((val, i) => val === this.position[i]))){
+                            this.lastpassangerposition = this.passangerposition
                             this.passangerposition = this.passengerpositions.findIndex(arr => arr.every((val, i) => val === this.position[i]))
+                            this.passengerpositionchange = true
                             if (this.passangerposition === this.end){
                                 reward = 50
-                                this.passangerposition = 5
+                                this.won = true
                             }
                         }
                     }
@@ -285,19 +310,15 @@
             this.hasupdated["value"] = false
             return reward
         }
-
-        checkifwon(){
-            return this.passangerposition === 5
-        }
     }
 
     class Agent{
         constructor(umwelt){
             this.Umwelt = umwelt
             this.qTabelle = {}
-            this.alpha = 0.05
-            this.lamda = 0.4
-            this.learnprobability = 0.5
+            this.alpha = 0.2
+            this.lamda = 0.6
+            this.learnprobability = 0.9
             for (let i = 0; i < 500; i++){
                 this.qTabelle[i] = [0, 0, 0, 0, 0, 0]
             }
@@ -307,27 +328,32 @@
             let x = Math.random()
             let laststate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
             let newstate
-            if (x < this.learnprobability){
+            if (x > this.learnprobability){
                 let m = this.qTabelle[laststate].reduce((maxIdx, current, i, array) => current > array[maxIdx] ? i : maxIdx, 0)
                 let r = await this.Umwelt.move(m)
                 newstate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
-                this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(this.qTabelle[newstate]))
+                this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(...this.qTabelle[newstate]))
                 return
             }
             else{
                 let m = Math.floor(Math.random() * 6)
                 let r = await this.Umwelt.move(m)
                 newstate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
-                this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(this.qTabelle[newstate]))
+                this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(...this.qTabelle[newstate]))
                 return
             }
         }
 
         async train(repetions){
             for (let i = 0; i < repetions; i++){
-                while(!this.Umwelt.checkifwon()){
+                document.getElementById("text1").textContent = "" + i
+                while(!this.Umwelt.getWon()){
                     await this.move()
                 }
+                for (let i = 0; i < 500; i++){
+                    console.log(this.qTabelle[i].toString())
+                }
+                this.learnprobability *= 0.95
                 this.Umwelt.reset()
             }
         }
@@ -340,6 +366,7 @@
     e = new Umwelt()
     e.initialdraw()
     x = new Agent(e)
+    console.log(x.qTabelle[100][0])
     x.train(1000)
     // async function run() {
     //     await e.move(0)
