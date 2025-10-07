@@ -143,7 +143,7 @@
                     clearInterval(intervall);
                     resolve();
                 }
-            }, 200)
+            }, 2)
         })
     }
     
@@ -160,11 +160,24 @@
             for (let i = 0; i < this.passengerpositions.length; i++){
                 this.passengerpositions[i] = this.getListfromIndex(this.passengerpositions[i])
             }
-            this.start = this.passengerpositions[Math.floor(Math.random() * this.passengerpositions.length)]
-            this.end = this.passengerpositions[Math.floor(Math.random() * this.passengerpositions.length)]
-            while (this.start === this.end){
-                this.end = this.passengerpositions[Math.floor(Math.random() * this.passengerpositions.length)]
+            this.passangerposition = Math.floor(Math.random() * 4)
+            this.end = Math.floor(Math.random() * 4)
+            while (this.passangerposition === this.end){
+                this.end = Math.floor(Math.random() * 4)
             }
+            this.hasupdated = {"value": false}
+            this.hasmoved = {"value": false}
+        }
+
+        reset(){
+            this.position = this.generatePosition()
+            this.lastposition = structuredClone(this.position)
+            this.passangerposition = Math.floor(Math.random() * 4)
+            this.end = Math.floor(Math.random() * 4)
+            while (this.passangerposition === this.end){
+                this.end = Math.floor(Math.random() * 4)
+            }
+            this.initialdraw()
             this.hasupdated = {"value": false}
             this.hasmoved = {"value": false}
         }
@@ -181,8 +194,8 @@
             return this.passengerpositions
         }
 
-        getStart(){
-            return this.start
+        getPassangerposition(){
+            return this.passangerposition
         }
 
         getEnd(){
@@ -201,14 +214,10 @@
             for (let i = 0; i < this.passengerpositions.length; i++){
                 document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.add("blue")
             }
-            document.getElementById(this.getIndexfromList(this.start)).classList.add("start")
-            document.getElementById(this.getIndexfromList(this.end)).classList.add("goal")
+            document.getElementById(this.getIndexfromList(this.passengerpositions[this.passangerposition])).classList.add("start")
+            document.getElementById(this.getIndexfromList(this.passengerpositions[this.end])).classList.add("goal")
             document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
             document.getElementById("text").textContent = "Passenger: on start"
-        }
-
-        sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
         }
 
         async update(){
@@ -216,15 +225,24 @@
             document.getElementById(this.getIndexfromList(this.lastposition)).children[0].style.visibility = "hidden"
             document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
             document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
+            if (this.passangerposition < 4){
+                document.getElementById("text").textContent = "Passenger: on start"
+            }
+            if (this.passangerposition === 4){
+                document.getElementById("text").textContent = "Passenger: in Taxi"
+            }
+            if (this.passangerposition === 5)
+                document.getElementById("text").textContent = "Won!"
             this.hasupdated["value"] = true
             this.hasmoved["value"] = false
         }
 
         async move(action){
+            let reward = 0
             this.lastposition = structuredClone(this.position)
             switch(action){
                 case 0:
-                    if (this.position[0]+ 1 < 5){
+                    if (this.position[0] + 1 < 5){
                         this.position = [this.position[0] + 1, this.position[1]]
                     }
                     break;
@@ -244,13 +262,20 @@
                     }
                     break;
                 case 4:
-                    if (this.position[0] - 1 >= 0){
-                        this.position = [this.position[0] - 1, this.position[1]]
+                    if (this.passangerposition < 4 && this.position.toString() === this.passengerpositions[this.passangerposition].toString()){
+                        reward = 10
+                        this.passangerposition = 4
                     }
                     break;
                 case 5:
-                    if (this.position[0] - 1 >= 0){
-                        this.position = [this.position[0] - 1, this.position[1]]
+                    if (this.passangerposition === 4){
+                        if (this.passengerpositions.some(arr => arr.every((val, i) => val === this.position[i]))){
+                            this.passangerposition = this.passengerpositions.findIndex(arr => arr.every((val, i) => val === this.position[i]))
+                            if (this.passangerposition === this.end){
+                                reward = 50
+                                this.passangerposition = 5
+                            }
+                        }
                     }
                     break;
             }
@@ -258,43 +283,87 @@
             this.hasmoved["value"] = true
             await stopper(this.hasupdated)
             this.hasupdated["value"] = false
-            return
+            return reward
+        }
+
+        checkifwon(){
+            return this.passangerposition === 5
         }
     }
 
     class Agent{
-        constructor(){
-            this.umwelt = new Umwelt()
+        constructor(umwelt){
+            this.Umwelt = umwelt
+            this.qTabelle = {}
+            this.alpha = 0.05
+            this.lamda = 0.4
+            this.learnprobability = 0.5
+            for (let i = 0; i < 500; i++){
+                this.qTabelle[i] = [0, 0, 0, 0, 0, 0]
+            }
+        }
+
+        async move(){
+            let x = Math.random()
+            let laststate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
+            let newstate
+            if (x < this.learnprobability){
+                let m = this.qTabelle[laststate].reduce((maxIdx, current, i, array) => current > array[maxIdx] ? i : maxIdx, 0)
+                let r = await this.Umwelt.move(m)
+                newstate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
+                this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(this.qTabelle[newstate]))
+                return
+            }
+            else{
+                let m = Math.floor(Math.random() * 6)
+                let r = await this.Umwelt.move(m)
+                newstate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
+                this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(this.qTabelle[newstate]))
+                return
+            }
+        }
+
+        async train(repetions){
+            for (let i = 0; i < repetions; i++){
+                while(!this.Umwelt.checkifwon()){
+                    await this.move()
+                }
+                this.Umwelt.reset()
+            }
+        }
+
+        iToValue(taxirow, taxicolumn, passangerposition, endpostion){
+            return taxirow + 5 * taxicolumn + passangerposition * 25 + endpostion * 125
         }
     }
 
     e = new Umwelt()
     e.initialdraw()
-    async function run() {
-        await e.move(0)
-        await e.move(1)
-        await e.move(2)
-        await e.move(0)
-        await e.move(1)
-        await e.move(0)
-        await e.move(1)
-        await e.move(2)
-        await e.move(0)
-        await e.move(1)
-        await e.move(0)
-        await e.move(1)
-        await e.move(2)
-        await e.move(0)
-        await e.move(1)
-        await e.move(0)
-        await e.move(1)
-        await e.move(2)
-        await e.move(0)
-        await e.move(1)
-    }
-
-    run()
-    
+    x = new Agent(e)
+    x.train(1000)
+    // async function run() {
+    //     await e.move(0)
+    //     await e.move(0)
+    //     await e.move(0)
+    //     await e.move(0)
+    //     await e.move(0)
+    //     await e.move(2)
+    //     await e.move(2)
+    //     await e.move(2)
+    //     await e.move(2)
+    //     await e.move(2)
+    //     await e.move(3)
+    //     await e.move(4)
+    //     await e.move(3)
+    //     await e.move(4)
+    //     await e.move(3)
+    //     await e.move(4)
+    //     await e.move(3)
+    //     await e.move(4)
+    //     await e.move(3)
+    //     await e.move(4)
+    // }
+    // run()
 </script>
 </body>
 </html>
