@@ -17,21 +17,32 @@
         #spiel {
             display: table;
             margin: auto;
-            border: 1vw solid black
+            border: 0.7vw solid black
         }
         .table-row {
             display: table-row;
         }
-        .table-cell{
+        .table-cell-computer{
             display: table-cell;
-            width: 10vw;
-            height: 10vw;
+            width: 6.5vw;
+            height: 6.5vw;
             vertical-align: middle;
             background-color: rgb(255, 255, 255);
             border: 0.3vw solid black
         }
-        .table-cell img {
-            width: 9vw;
+        .table-cell-mobile{
+            display: table-cell;
+            width: 18vw;
+            height: 18vw;
+            vertical-align: middle;
+            background-color: rgb(255, 255, 255);
+            border: 0.7vw solid black
+        }
+        .table-cell-computer img {
+            width: 6vw;
+        }
+        .table-cell-mobile img {
+            width: 16vw;
         }
         .blue {
             background-color: rgb(80, 109, 204);
@@ -42,101 +53,135 @@
         .goal {
             background-color: rgb(136, 230, 136);
         }
+        .grid-parent {
+            display: flex;
+            justify-content: center; 
+        }
+        .no-select {
+            user-select: none;         
+            -webkit-user-select: none;  
+            -moz-user-select: none;     
+            -ms-user-select: none;      
+        }
+        .button-computer {
+            border: 0.3vw solid black;
+            width: 20vw;
+            height: 2vw;
+            font-size: 2vw;
+        }
+        .button-mobile {
+            border: 0.6vw solid black;
+            width: 40vw;
+            height: 7vw;
+            font-size: 5vw;
+        }
     </style>
 </head>
 
 <body>
-    <h1>Taxi</h1>
-    <div id="spiel"0>
+    <div id="spiel">
         <div class = "table-row">
-            <div id = "00" class = "table-cell">
+            <div id = "00">
                 <img>
             </div> 
-            <div id = "01" class = "table-cell">
+            <div id = "01">
                 <img>
             </div> 
-            <div id = "02" class = "table-cell">
+            <div id = "02">
                 <img>
             </div> 
-            <div id = "03" class = "table-cell">
+            <div id = "03">
                 <img>
             </div> 
-            <div id = "04" class = "table-cell">
+            <div id = "04">
                 <img>
             </div> 
         </div>   
         <div class = "table-row">
-            <div id = "10" class = "table-cell">
+            <div id = "10">
                 <img>
             </div> 
-            <div id = "11" class = "table-cell">
+            <div id = "11">
                 <img>
             </div> 
-            <div id = "12" class = "table-cell">
+            <div id = "12">
                 <img>
             </div> 
-            <div id = "13" class = "table-cell">
+            <div id = "13">
                 <img>
             </div> 
-            <div id = "14" class = "table-cell">
+            <div id = "14">
                 <img>
             </div> 
         </div>   
         <div class = "table-row">
-            <div id = "20" class = "table-cell">
+            <div id = "20">
                 <img>
             </div> 
-            <div id = "21" class = "table-cell">
+            <div id = "21">
                 <img>
             </div> 
-            <div id = "22" class = "table-cell">
+            <div id = "22">
                 <img>
             </div> 
-            <div id = "23" class = "table-cell">
+            <div id = "23">
                 <img>
             </div> 
-            <div id = "24" class = "table-cell">
+            <div id = "24">
                 <img>
             </div> 
         </div> 
         <div class = "table-row">
-            <div id = "30" class = "table-cell">
+            <div id = "30">
                 <img>
             </div> 
-            <div id = "31" class = "table-cell">
+            <div id = "31">
                 <img>
             </div> 
-            <div id = "32" class = "table-cell">
+            <div id = "32">
                 <img>
             </div> 
-            <div id = "33" class = "table-cell">
+            <div id = "33">
                 <img>
             </div> 
-            <div id = "34" class = "table-cell">
+            <div id = "34">
                 <img>
             </div> 
         </div>   
         <div class = "table-row">
-            <div id = "40" class = "table-cell">
+            <div id = "40">
                 <img>
             </div> 
-            <div id = "41" class = "table-cell">
+            <div id = "41">
                 <img>
             </div> 
-            <div id = "42" class = "table-cell">
+            <div id = "42">
                 <img>
             </div> 
-            <div id = "43" class = "table-cell">
+            <div id = "43">
                 <img>
             </div> 
-            <div id = "44" class = "table-cell">
+            <div id = "44">
                 <img>
             </div> 
         </div>     
     </div>
-    <div id="text"0></div>
-    <div id="text1"0></div>
+    <div id="text">Won: False</div>
+    <div id="text1">0</div>
+    <input type="range" id="slider" min="1" max="400" value="200" style="width: 40vw;">
+    <div class='parent grid-parent'>
+        <div id = "train" class="child no-select">click start</div>
+        <div id = "single" class="child no-select">click start</div>
+    </div>
+    <div class='parent grid-parent'>
+        <div id = "start" class="child no-select">start</div>
+        <div id = "reset" class="child no-select">click start</div>
+    </div>
 <script>
+    const slider = document.getElementById("slider");
+    let Cd = 200.01
+    slider.addEventListener("input", () => {Cd = 400.01 - slider.value})
+
     function stopper(condition){
         return new Promise((resolve) => {
             const intervall = setInterval(() => {
@@ -144,15 +189,26 @@
                     clearInterval(intervall);
                     resolve();
                 }
-            }, 2)
+            }, Cd)
         })
     }
     
     class Umwelt{
         constructor(){
-            this.won = false
+            this.position = [0, 0]
+            this.truereset()
+        }
+
+        truereset(){
+            for (let i = 0; i < 5; i++){
+                for (let j = 0; j < 5; j++){
+                    document.getElementById("" + i + j).classList.remove("blue")
+                    document.getElementById("" + i + j).classList.remove("start")
+                    document.getElementById("" + i + j).classList.remove("goal")
+                }
+            }
+            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
             this.position = this.generatePosition()
-            this.lastposition = structuredClone(this.position)
             this.passengerpositions = []
             while (this.passengerpositions.length < 4){
                 let generatedPosition = this.getIndexfromList(this.generatePosition())
@@ -162,19 +218,11 @@
             for (let i = 0; i < this.passengerpositions.length; i++){
                 this.passengerpositions[i] = this.getListfromIndex(this.passengerpositions[i])
             }
-            this.passangerposition = Math.floor(Math.random() * 4)
-            this.lastpassangerposition = this.passangerposition
-            this.end = Math.floor(Math.random() * 4)
-            while (this.passangerposition === this.end){
-                this.end = Math.floor(Math.random() * 4)
-            }
-            this.hasupdated = {"value": false}
-            this.hasmoved = {"value": false}
-            this.passengerpositionchange = false
         }
 
         reset(){
             this.won = false
+            document.getElementById("text").textContent = "Won: False"
             document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
             this.position = this.generatePosition()
             this.lastposition = structuredClone(this.position)
@@ -184,7 +232,13 @@
             while (this.passangerposition === this.end){
                 this.end = Math.floor(Math.random() * 4)
             }
-            this.initialdraw()
+            for (let i = 0; i < this.passengerpositions.length; i++){
+                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("start")
+                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("goal")
+            }
+            document.getElementById(this.getIndexfromList(this.passengerpositions[this.passangerposition])).classList.add("start")
+            document.getElementById(this.getIndexfromList(this.passengerpositions[this.end])).classList.add("goal")
+            document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
             this.hasupdated = {"value": false}
             this.hasmoved = {"value": false}
             this.passengerpositionchange = false
@@ -223,32 +277,26 @@
 
         initialdraw(){
             for (let i = 0; i < this.passengerpositions.length; i++){
-                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("start")
-                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("goal")
                 document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.add("blue")
             }
-            document.getElementById(this.getIndexfromList(this.passengerpositions[this.passangerposition])).classList.add("start")
-            document.getElementById(this.getIndexfromList(this.passengerpositions[this.end])).classList.add("goal")
-            document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
-            document.getElementById("text").textContent = "Passenger: on start"
         }
 
         async update(){
-            await stopper(this.hasmoved)
-            document.getElementById(this.getIndexfromList(this.lastposition)).children[0].style.visibility = "hidden"
-            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
-            document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
+            if (this.lastposition.toString() != this.position.toString()){
+                document.getElementById(this.getIndexfromList(this.lastposition)).children[0].style.visibility = "hidden"
+                document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
+                document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
+                console.log("hello")
+            }
             if (this.passengerpositionchange){
                 if (this.passangerposition < 4){
-                    document.getElementById("text").textContent = "Passenger: stranded"
                     document.getElementById(this.getIndexfromList(this.passengerpositions[this.passangerposition])).classList.add("start")
                 }
                 if (this.passangerposition === 4){
                     document.getElementById(this.getIndexfromList(this.passengerpositions[this.lastpassangerposition])).classList.remove("start")
-                    document.getElementById("text").textContent = "Passenger: in Taxi"
                 }
-                if (this.passangerposition === 5){
-                    document.getElementById("text").textContent = "Won!"
+                if (this.won){
+                    document.getElementById("text").textContent = "Won: True"
                 }
                 this.passengerpositionchange = false
             }
@@ -324,6 +372,12 @@
             }
         }
 
+        reset(){
+            for (let i = 0; i < 500; i++){
+                this.qTabelle[i] = [0, 0, 0, 0, 0, 0]
+            }
+        }
+
         async move(){
             let x = Math.random()
             let laststate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
@@ -346,16 +400,14 @@
 
         async train(repetions){
             for (let i = 0; i < repetions; i++){
-                document.getElementById("text1").textContent = "" + i
+                this.Umwelt.reset()
+                document.getElementById("text1").textContent = "" + (i + 1)
                 while(!this.Umwelt.getWon()){
                     await this.move()
                 }
-                for (let i = 0; i < 500; i++){
-                    console.log(this.qTabelle[i].toString())
-                }
                 this.learnprobability *= 0.95
-                this.Umwelt.reset()
             }
+            return
         }
 
         iToValue(taxirow, taxicolumn, passangerposition, endpostion){
@@ -363,34 +415,97 @@
         }
     }
 
-    e = new Umwelt()
-    e.initialdraw()
-    x = new Agent(e)
-    console.log(x.qTabelle[100][0])
-    x.train(1000)
-    // async function run() {
-    //     await e.move(0)
-    //     await e.move(0)
-    //     await e.move(0)
-    //     await e.move(0)
-    //     await e.move(0)
-    //     await e.move(2)
-    //     await e.move(2)
-    //     await e.move(2)
-    //     await e.move(2)
-    //     await e.move(2)
-    //     await e.move(3)
-    //     await e.move(4)
-    //     await e.move(3)
-    //     await e.move(4)
-    //     await e.move(3)
-    //     await e.move(4)
-    //     await e.move(3)
-    //     await e.move(4)
-    //     await e.move(3)
-    //     await e.move(4)
-    // }
-    // run()
+    function isMobile() {
+        return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+
+    if(isMobile()){
+        for (let i = 0; i < 5; i++){
+            for (let j = 0; j < 5; j++){
+                document.getElementById("" + i + j).classList.add("table-cell-mobile")
+            }
+        }
+        document.getElementById("start").classList.add("button-mobile")
+        document.getElementById("train").classList.add("button-mobile")
+        document.getElementById("single").classList.add("button-mobile")
+        document.getElementById("reset").classList.add("button-mobile")
+        document.getElementById("slider").style.width = `80vw`
+        document.getElementById("slider").style.height = `5vw`
+    }
+    else{
+        for (let i = 0; i < 5; i++){
+            for (let j = 0; j < 5; j++){
+                document.getElementById("" + i + j).classList.add("table-cell-computer")
+            }
+        }
+        document.getElementById("start").classList.add("button-computer")
+        document.getElementById("train").classList.add("button-computer")
+        document.getElementById("single").classList.add("button-computer")
+        document.getElementById("reset").classList.add("button-computer")
+    }
+
+    let e = new Umwelt()
+    let x = new Agent(e)
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function removeAll(){
+        document.getElementById("train").removeEventListener("click", train)
+        document.getElementById("single").removeEventListener("click", single)
+        document.getElementById("start").removeEventListener("click", start)
+        document.getElementById("reset").removeEventListener("click", reset)
+    }
+
+    function addAll(){
+        document.getElementById("train").addEventListener("click", train)
+        document.getElementById("single").addEventListener("click", single)
+        document.getElementById("start").addEventListener("click", start)
+        document.getElementById("reset").addEventListener("click", reset)
+    }
+
+    async function buttoncolour(id){
+        document.getElementById(id).style.backgroundColor = "black"
+        await sleep(60)
+        document.getElementById(id).style.backgroundColor = "white"
+    }
+
+    async function train(){
+        //Cd = 1  
+        buttoncolour("train")
+        removeAll()
+        await x.train(20)
+        addAll()
+    }
+
+    async function single() {
+        //Cd = 1001
+        buttoncolour("single")
+        removeAll()
+        await x.train(1)
+        addAll()
+    }
+
+    function reset(){
+        buttoncolour("reset")
+        x.reset()
+    }
+
+    function start(){
+        buttoncolour("start")
+        e.truereset()
+        e.initialdraw()
+        document.getElementById("start").textContent = "new positions"
+        document.getElementById("train").textContent = "train"
+        document.getElementById("single").textContent = "single"
+        document.getElementById("reset").textContent = "reset q-Table"
+        document.getElementById("train").addEventListener("click", train)
+        document.getElementById("single").addEventListener("click", single)
+        document.getElementById("reset").addEventListener("click", reset)
+    }
+
+    document.getElementById("start").addEventListener("click", start)
 </script>
 </body>
 </html>
