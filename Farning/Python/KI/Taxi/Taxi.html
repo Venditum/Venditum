@@ -53,9 +53,17 @@
         .goal {
             background-color: rgb(136, 230, 136);
         }
+        .won {
+            background-color: rgb(7, 102, 7);
+        }
         .grid-parent {
             display: flex;
             justify-content: center; 
+        }
+        .grid-parent1{
+            display: flex;
+            justify-content: center; 
+            column-gap: 50px;
         }
         .no-select {
             user-select: none;         
@@ -66,8 +74,8 @@
         .button-computer {
             border: 0.3vw solid black;
             width: 20vw;
-            height: 2vw;
-            font-size: 2vw;
+            height: 1.7vw;
+            font-size: 1.5vw;
         }
         .button-mobile {
             border: 0.6vw solid black;
@@ -166,16 +174,23 @@
             </div> 
         </div>     
     </div>
-    <div id="text">Won: False</div>
-    <div id="text1">0</div>
+    <div class='parent grid-parent1'>
+        <div id="text">total training: 0</div>
+        <div id="moves">current moves: 0</div>
+        <div id="average">Ao100 moves Index: 0</div>
+    </div>
     <input type="range" id="slider" min="1" max="400" value="200" style="width: 40vw;">
     <div class='parent grid-parent'>
-        <div id = "train" class="child no-select">click start</div>
-        <div id = "single" class="child no-select">click start</div>
+        <div id = "train" class="child no-select">start</div>
+        <div id = "single" class="child no-select">start</div>
     </div>
     <div class='parent grid-parent'>
-        <div id = "start" class="child no-select">start</div>
-        <div id = "reset" class="child no-select">click start</div>
+        <div id = "autotrain" class="child no-select">start</div>
+        <div id = "stop" class="child no-select">start</div>
+    </div>
+    <div class='parent grid-parent'>
+        <div id = "newpos" class="child no-select">start</div>
+        <div id = "reset" class="child no-select">start</div>
     </div>
 <script>
     const slider = document.getElementById("slider");
@@ -196,53 +211,14 @@
     class Umwelt{
         constructor(){
             this.position = [0, 0]
+            this.Agent
             this.truereset()
         }
 
-        truereset(){
-            for (let i = 0; i < 5; i++){
-                for (let j = 0; j < 5; j++){
-                    document.getElementById("" + i + j).classList.remove("blue")
-                    document.getElementById("" + i + j).classList.remove("start")
-                    document.getElementById("" + i + j).classList.remove("goal")
-                }
-            }
-            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
-            this.position = this.generatePosition()
-            this.passengerpositions = []
-            while (this.passengerpositions.length < 4){
-                let generatedPosition = this.getIndexfromList(this.generatePosition())
-                if (!this.passengerpositions.includes(generatedPosition))
-                    this.passengerpositions.push(generatedPosition)
-            }
-            for (let i = 0; i < this.passengerpositions.length; i++){
-                this.passengerpositions[i] = this.getListfromIndex(this.passengerpositions[i])
-            }
+        setAgent(a){
+            this.Agent = a
         }
 
-        reset(){
-            this.won = false
-            document.getElementById("text").textContent = "Won: False"
-            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
-            this.position = this.generatePosition()
-            this.lastposition = structuredClone(this.position)
-            this.passangerposition = Math.floor(Math.random() * 4)
-            this.lastpassangerposition = this.passangerposition
-            this.end = Math.floor(Math.random() * 4)
-            while (this.passangerposition === this.end){
-                this.end = Math.floor(Math.random() * 4)
-            }
-            for (let i = 0; i < this.passengerpositions.length; i++){
-                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("start")
-                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("goal")
-            }
-            document.getElementById(this.getIndexfromList(this.passengerpositions[this.passangerposition])).classList.add("start")
-            document.getElementById(this.getIndexfromList(this.passengerpositions[this.end])).classList.add("goal")
-            document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
-            this.hasupdated = {"value": false}
-            this.hasmoved = {"value": false}
-            this.passengerpositionchange = false
-        }
         getWon(){
             return this.won
         }
@@ -275,18 +251,64 @@
             return "" + list[0] + list[1]
         }
 
+        truereset(){
+            for (let i = 0; i < 5; i++){
+                for (let j = 0; j < 5; j++){
+                    document.getElementById("" + i + j).classList.remove("blue")
+                    document.getElementById("" + i + j).classList.remove("start")
+                    document.getElementById("" + i + j).classList.remove("goal")
+                    document.getElementById("" + i + j).classList.remove("won")
+                }
+            }
+            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
+            this.position = this.generatePosition()
+            this.passengerpositions = []
+            while (this.passengerpositions.length < 4){
+                let generatedPosition = this.getIndexfromList(this.generatePosition())
+                if (!this.passengerpositions.includes(generatedPosition))
+                    this.passengerpositions.push(generatedPosition)
+            }
+            for (let i = 0; i < this.passengerpositions.length; i++){
+                this.passengerpositions[i] = this.getListfromIndex(this.passengerpositions[i])
+            }
+        }
+
+        reset(){
+            this.won = false
+            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
+            this.position = this.generatePosition()
+            this.lastposition = structuredClone(this.position)
+            this.passangerposition = Math.floor(Math.random() * 4)
+            this.lastpassangerposition = this.passangerposition
+            this.end = Math.floor(Math.random() * 4)
+            while (this.passangerposition === this.end){
+                this.end = Math.floor(Math.random() * 4)
+            }
+            for (let i = 0; i < this.passengerpositions.length; i++){
+                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("start")
+                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("goal")
+                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("won")
+            }
+            document.getElementById(this.getIndexfromList(this.passengerpositions[this.passangerposition])).classList.add("start")
+            document.getElementById(this.getIndexfromList(this.passengerpositions[this.end])).classList.add("goal")
+            document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
+            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
+            this.hasupdated = {"value": false}
+            this.hasmoved = {"value": false}
+            this.passengerpositionchange = false
+        }
+
         initialdraw(){
             for (let i = 0; i < this.passengerpositions.length; i++){
                 document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.add("blue")
             }
         }
 
-        async update(){
+        update(){
             if (this.lastposition.toString() != this.position.toString()){
                 document.getElementById(this.getIndexfromList(this.lastposition)).children[0].style.visibility = "hidden"
                 document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
                 document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
-                console.log("hello")
             }
             if (this.passengerpositionchange){
                 if (this.passangerposition < 4){
@@ -296,12 +318,14 @@
                     document.getElementById(this.getIndexfromList(this.passengerpositions[this.lastpassangerposition])).classList.remove("start")
                 }
                 if (this.won){
-                    document.getElementById("text").textContent = "Won: True"
+                    document.getElementById(this.getIndexfromList(this.passengerpositions[this.end])).classList.add("won")
+                    document.getElementById("text").textContent = "total training: " + this.Agent.getTotalTraining()
                 }
                 this.passengerpositionchange = false
             }
+            document.getElementById("moves").textContent = "current moves: " + this.Agent.getCurrentMoves()
+            document.getElementById("average").textContent = "Ao100 moves Index: " + this.Agent.getAverageMoves()
             this.hasupdated["value"] = true
-            this.hasmoved["value"] = false
         }
 
         async move(action){
@@ -353,7 +377,6 @@
                     break;
             }
             this.update()
-            this.hasmoved["value"] = true
             await stopper(this.hasupdated)
             this.hasupdated["value"] = false
             return reward
@@ -363,19 +386,41 @@
     class Agent{
         constructor(umwelt){
             this.Umwelt = umwelt
+            this.Umwelt.setAgent(this)
             this.qTabelle = {}
             this.alpha = 0.2
             this.lamda = 0.6
-            this.learnprobability = 0.9
-            for (let i = 0; i < 500; i++){
-                this.qTabelle[i] = [0, 0, 0, 0, 0, 0]
+            this.learnprobability = 1
+            this.moves = []
+            this.reset()
+        }
+
+        getTotalTraining(){
+            return this.totaltraining
+        }
+
+        getCurrentMoves(){
+            return this.currentmoves
+        }
+
+        getAverageMoves(){
+            let total = 0
+            for (let i = 0; i < 100; i++){
+                total += this.moves[i]
             }
+            return Math.round(total / (this.movesindex > 100 ? 100: this.movesindex + 1))
         }
 
         reset(){
             for (let i = 0; i < 500; i++){
                 this.qTabelle[i] = [0, 0, 0, 0, 0, 0]
             }
+            for (let i = 0; i < 100; i++){
+                this.moves[i] = 0
+            }
+            this.movesindex = 0
+            this.totaltraining = 0
+            this.currentmoves = 0
         }
 
         async move(){
@@ -401,11 +446,16 @@
         async train(repetions){
             for (let i = 0; i < repetions; i++){
                 this.Umwelt.reset()
-                document.getElementById("text1").textContent = "" + (i + 1)
+                this.totaltraining += 1
+                this.currentmoves = 0
                 while(!this.Umwelt.getWon()){
+                    this.currentmoves += 1
+                    this.moves[this.movesindex % 100] = this.currentmoves
+                    this.getAverageMoves()
                     await this.move()
                 }
                 this.learnprobability *= 0.95
+                this.movesindex += 1
             }
             return
         }
@@ -425,8 +475,10 @@
                 document.getElementById("" + i + j).classList.add("table-cell-mobile")
             }
         }
-        document.getElementById("start").classList.add("button-mobile")
+        document.getElementById("newpos").classList.add("button-mobile")
         document.getElementById("train").classList.add("button-mobile")
+        document.getElementById("autotrain").classList.add("button-mobile")
+        document.getElementById("stop").classList.add("button-mobile")
         document.getElementById("single").classList.add("button-mobile")
         document.getElementById("reset").classList.add("button-mobile")
         document.getElementById("slider").style.width = `80vw`
@@ -438,14 +490,17 @@
                 document.getElementById("" + i + j).classList.add("table-cell-computer")
             }
         }
-        document.getElementById("start").classList.add("button-computer")
+        document.getElementById("newpos").classList.add("button-computer")
         document.getElementById("train").classList.add("button-computer")
+        document.getElementById("autotrain").classList.add("button-computer")
+        document.getElementById("stop").classList.add("button-computer")
         document.getElementById("single").classList.add("button-computer")
         document.getElementById("reset").classList.add("button-computer")
     }
 
     let e = new Umwelt()
     let x = new Agent(e)
+    let autotrainx = false
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -454,14 +509,16 @@
     function removeAll(){
         document.getElementById("train").removeEventListener("click", train)
         document.getElementById("single").removeEventListener("click", single)
-        document.getElementById("start").removeEventListener("click", start)
+        document.getElementById("autotrain").removeEventListener("click", autotrain)
+        document.getElementById("newpos").removeEventListener("click", newpos)
         document.getElementById("reset").removeEventListener("click", reset)
     }
 
     function addAll(){
         document.getElementById("train").addEventListener("click", train)
         document.getElementById("single").addEventListener("click", single)
-        document.getElementById("start").addEventListener("click", start)
+        document.getElementById("autotrain").addEventListener("click", autotrain)
+        document.getElementById("newpos").addEventListener("click", newpos)
         document.getElementById("reset").addEventListener("click", reset)
     }
 
@@ -471,41 +528,80 @@
         document.getElementById(id).style.backgroundColor = "white"
     }
 
-    async function train(){
-        //Cd = 1  
+    async function train(){  
         buttoncolour("train")
         removeAll()
         await x.train(20)
         addAll()
     }
 
-    async function single() {
-        //Cd = 1001
+    async function single() { 
         buttoncolour("single")
         removeAll()
         await x.train(1)
         addAll()
     }
 
+    async function autotrain() {
+        buttoncolour("autotrain")
+        removeAll()
+        autotrainx = true
+        while (autotrainx){
+            await x.train(1)
+        }
+        addAll()
+    }
+
+    function stop(){
+        buttoncolour("stop")
+        autotrainx = false
+    }
+
     function reset(){
         buttoncolour("reset")
+        document.getElementById("text").textContent = "total training: 0"
+        document.getElementById("moves").textContent = "current moves: 0"
+        document.getElementById("average").textContent = "Ao100 moves Index: 0"
         x.reset()
     }
 
-    function start(){
-        buttoncolour("start")
+    function newpos(){
+        buttoncolour("newpos")
         e.truereset()
         e.initialdraw()
-        document.getElementById("start").textContent = "new positions"
-        document.getElementById("train").textContent = "train"
-        document.getElementById("single").textContent = "single"
-        document.getElementById("reset").textContent = "reset q-Table"
-        document.getElementById("train").addEventListener("click", train)
-        document.getElementById("single").addEventListener("click", single)
-        document.getElementById("reset").addEventListener("click", reset)
+        reset()
     }
 
-    document.getElementById("start").addEventListener("click", start)
+    function start(){
+        buttoncolour("train")
+        buttoncolour("single")
+        buttoncolour("autotrain")
+        buttoncolour("stop")
+        buttoncolour("newpos")
+        buttoncolour("reset")
+        document.getElementById("newpos").textContent = "new positions"
+        document.getElementById("train").textContent = "train(20)"
+        document.getElementById("autotrain").textContent = "autotrain"
+        document.getElementById("stop").textContent = "stop autotrain"
+        document.getElementById("single").textContent = "single"
+        document.getElementById("reset").textContent = "reset q-Table"
+        document.getElementById("train").removeEventListener("click", start)
+        document.getElementById("single").removeEventListener("click", start)
+        document.getElementById("autotrain").removeEventListener("click", start)
+        document.getElementById("newpos").removeEventListener("click", start)
+        document.getElementById("reset").removeEventListener("click", start)
+        document.getElementById("stop").removeEventListener("click", start)
+        document.getElementById("stop").addEventListener("click", stop)
+        addAll()
+        e.initialdraw()
+    }
+
+    document.getElementById("newpos").addEventListener("click", start)
+    document.getElementById("train").addEventListener("click", start)
+    document.getElementById("autotrain").addEventListener("click", start)
+    document.getElementById("stop").addEventListener("click", start)
+    document.getElementById("single").addEventListener("click", start)
+    document.getElementById("reset").addEventListener("click", start)
 </script>
 </body>
 </html>
