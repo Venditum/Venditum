@@ -44,9 +44,6 @@
         .table-cell-mobile img {
             width: 16vw;
         }
-        .blue {
-            background-color: rgb(80, 109, 204);
-        }
         .start {
             background-color:  rgb(172, 191, 255);
         }
@@ -84,6 +81,7 @@
             font-size: 5vw;
         }
     </style>
+    <link rel="preload" href="taxi.png" as="image">
 </head>
 
 <body>
@@ -179,7 +177,7 @@
         <div id="moves">current moves: 0</div>
         <div id="average">Ao100 moves Index: 0</div>
     </div>
-    <input type="range" id="slider" min="1" max="400" value="200" style="width: 40vw;">
+    <input type="range" id="slider" min="0" max="500" value="250" style="width: 40vw;">
     <div class='parent grid-parent'>
         <div id = "train" class="child no-select">start</div>
         <div id = "single" class="child no-select">start</div>
@@ -189,13 +187,13 @@
         <div id = "stop" class="child no-select">start</div>
     </div>
     <div class='parent grid-parent'>
-        <div id = "newpos" class="child no-select">start</div>
         <div id = "reset" class="child no-select">start</div>
+        <div id = "gui" class="child no-select">toggle GUI (on)</div>
     </div>
 <script>
     const slider = document.getElementById("slider");
     let Cd = slider.value
-    slider.addEventListener("input", () => {Cd = 400 - slider.value})
+    slider.addEventListener("input", () => {Cd = 600 - slider.value})
 
     function stopper(condition){
         return new Promise((resolve) => {
@@ -212,7 +210,18 @@
         constructor(){
             this.position = [0, 0]
             this.Agent
-            this.truereset()
+            this.initialload()
+            this.end = 0
+            this.passengerposition = 0
+            this.gui = true
+        }
+
+        setGui(a){
+            this.gui = a
+        }
+
+        getGui(){
+            return this.gui
         }
 
         setAgent(a){
@@ -222,21 +231,27 @@
         getWon(){
             return this.won
         }
-        
-        generatePosition(){
-            return [Math.floor(Math.random() * 5), Math.floor(Math.random() * 5)]
-        }
-        
+
         getPosition(){
             return this.position
         }
 
-        getPassengerpositions(){
-            return this.passengerpositions
+        getPositionFromXY([x, y]){
+            return x + 5 * y
         }
 
-        getPassangerposition(){
-            return this.passangerposition
+        getXyFromPosition(pos){
+            let x = pos % 5
+            let y = Math.floor(pos / 5)
+            return [x, y] 
+        }
+
+        getPassengerposition(){
+            return this.passengerposition
+        }
+
+        generatePosition(){
+            return [Math.floor(Math.random() * 5), Math.floor(Math.random() * 5)]
         }
 
         getEnd(){
@@ -251,83 +266,67 @@
             return "" + list[0] + list[1]
         }
 
-        truereset(){
-            for (let i = 0; i < 5; i++){
-                for (let j = 0; j < 5; j++){
-                    document.getElementById("" + i + j).classList.remove("blue")
-                    document.getElementById("" + i + j).classList.remove("start")
-                    document.getElementById("" + i + j).classList.remove("goal")
-                    document.getElementById("" + i + j).classList.remove("won")
-                }
-            }
-            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
-            this.position = this.generatePosition()
-            this.passengerpositions = []
-            while (this.passengerpositions.length < 4){
-                let generatedPosition = this.getIndexfromList(this.generatePosition())
-                if (!this.passengerpositions.includes(generatedPosition))
-                    this.passengerpositions.push(generatedPosition)
-            }
-            for (let i = 0; i < this.passengerpositions.length; i++){
-                this.passengerpositions[i] = this.getListfromIndex(this.passengerpositions[i])
-            }
-        }
-
         reset(){
             this.won = false
-            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
+            if (this.gui){
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.passengerposition))).classList.remove("start")
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.remove("goal")
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.remove("won")
+                document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
+            }
             this.position = this.generatePosition()
             this.lastposition = structuredClone(this.position)
-            this.passangerposition = Math.floor(Math.random() * 4)
-            this.lastpassangerposition = this.passangerposition
-            this.end = Math.floor(Math.random() * 4)
-            while (this.passangerposition === this.end){
-                this.end = Math.floor(Math.random() * 4)
+            this.passengerposition = Math.floor(Math.random() * 25)
+            this.lastpassangerposition = this.passengerposition
+            this.end = this.passengerposition
+            while (this.passengerposition === this.end){
+                this.end = Math.floor(Math.random() * 25)
             }
-            for (let i = 0; i < this.passengerpositions.length; i++){
-                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("start")
-                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("goal")
-                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.remove("won")
+            if (this.gui){
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.passengerposition))).classList.add("start")
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.add("goal")
+                document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
             }
-            document.getElementById(this.getIndexfromList(this.passengerpositions[this.passangerposition])).classList.add("start")
-            document.getElementById(this.getIndexfromList(this.passengerpositions[this.end])).classList.add("goal")
-            document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
-            document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
             this.hasupdated = {"value": false}
-            this.hasmoved = {"value": false}
             this.passengerpositionchange = false
-            return
         }
 
-        initialdraw(){
-            for (let i = 0; i < this.passengerpositions.length; i++){
-                document.getElementById(this.getIndexfromList(this.passengerpositions[i])).classList.add("blue")
-            }
-            return
-        }
-
-        update(){
+        GuiUpdate(){
             if (this.lastposition.toString() != this.position.toString()){
                 document.getElementById(this.getIndexfromList(this.lastposition)).children[0].style.visibility = "hidden"
                 document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
-                document.getElementById(this.getIndexfromList(this.position)).children[0].src = "taxi.png"
             }
             if (this.passengerpositionchange){
-                if (this.passangerposition < 4){
-                    document.getElementById(this.getIndexfromList(this.passengerpositions[this.passangerposition])).classList.add("start")
+                if (this.passengerposition < 25){
+                    document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.passengerposition))).classList.add("start")
                 }
-                if (this.passangerposition === 4){
-                    document.getElementById(this.getIndexfromList(this.passengerpositions[this.lastpassangerposition])).classList.remove("start")
+                if (this.passengerposition === 25){
+                    document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.lastpassangerposition))).classList.remove("start")
                 }
                 if (this.won){
-                    document.getElementById(this.getIndexfromList(this.passengerpositions[this.end])).classList.add("won")
-                    document.getElementById("text").textContent = "total training: " + this.Agent.getTotalTraining()
+                    document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.add("won")
                 }
                 this.passengerpositionchange = false
             }
             document.getElementById("moves").textContent = "current moves: " + this.Agent.getCurrentMoves()
-            document.getElementById("average").textContent = "Ao100 moves Index: " + this.Agent.getAverageMoves()
             this.hasupdated["value"] = true
+        }
+
+        toggleGui(value){
+            if (value){
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.passengerposition))).classList.add("start")
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.add("goal")
+                if (this.won)
+                    document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.add("won")
+                document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
+            }
+            else{
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.passengerposition))).classList.remove("start")
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.remove("goal")
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.remove("won")
+                document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
+                document.getElementById("moves").textContent = "current moves: -"
+            }
         }
 
         async move(action){
@@ -355,33 +354,42 @@
                     }
                     break;
                 case 4:
-                    reward = -10
-                    if (this.passangerposition < 4 && this.position.toString() === this.passengerpositions[this.passangerposition].toString()){
-                        reward = 1
-                        this.lastpassangerposition = this.passangerposition
-                        this.passangerposition = 4
+                    if (this.passengerposition < 25 && this.position.toString() === this.getXyFromPosition(this.passengerposition).toString()){
+                        this.lastpassangerposition = this.passengerposition
+                        this.passengerposition = 25
                         this.passengerpositionchange = true
                     }
                     break;
                 case 5:
-                    reward = -10
-                    if (this.passangerposition === 4){
-                        if (this.passengerpositions.some(arr => arr.every((val, i) => val === this.position[i]))){
-                            this.lastpassangerposition = this.passangerposition
-                            this.passangerposition = this.passengerpositions.findIndex(arr => arr.every((val, i) => val === this.position[i]))
-                            this.passengerpositionchange = true
-                            if (this.passangerposition === this.end){
-                                reward = 50
-                                this.won = true
-                            }
+                    if (this.passengerposition === 25){
+                        this.lastpassangerposition = this.passengerposition
+                        this.passengerposition = this.getPositionFromXY(this.position)
+                        this.passengerpositionchange = true
+                        if (this.passengerposition === this.end){
+                            reward = 50
+                            this.won = true
+                            document.getElementById("text").textContent = "total training: " + this.Agent.getTotalTraining()
+                            if (this.Agent.getTotalTraining() % slide.value === 0)
+                                await sleep(1)
                         }
                     }
                     break;
             }
-            this.update()
-            await stopper(this.hasupdated)
+            if (this.gui){
+                this.GuiUpdate()
+                await stopper(this.hasupdated)
+            }
             this.hasupdated["value"] = false
             return reward
+        }
+
+        initialload(){
+            for (let i = 0; i < 5; i++){
+                for (let j = 0; j < 5; j++){
+                    document.getElementById("" + i + j).children[0].style.visibility = "hidden"
+                    document.getElementById("" + i + j).children[0].src = "taxi.png"
+                }
+            }
         }
     }
 
@@ -414,7 +422,7 @@
         }
 
         reset(){
-            for (let i = 0; i < 500; i++){
+            for (let i = 0; i < 16250; i++){
                 this.qTabelle[i] = [0, 0, 0, 0, 0, 0]
             }
             for (let i = 0; i < 100; i++){
@@ -427,19 +435,19 @@
 
         async move(){
             let x = Math.random()
-            let laststate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
+            let laststate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassengerposition(), this.Umwelt.getEnd())
             let newstate
             if (x > this.learnprobability){
                 let m = this.qTabelle[laststate].reduce((maxIdx, current, i, array) => current > array[maxIdx] ? i : maxIdx, 0)
                 let r = await this.Umwelt.move(m)
-                newstate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
+                newstate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassengerposition(), this.Umwelt.getEnd())
                 this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(...this.qTabelle[newstate]))
                 return
             }
             else{
                 let m = Math.floor(Math.random() * 6)
                 let r = await this.Umwelt.move(m)
-                newstate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
+                newstate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassengerposition(), this.Umwelt.getEnd())
                 this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(...this.qTabelle[newstate]))
                 return
             }
@@ -452,10 +460,10 @@
                 this.currentmoves = 0
                 while(!this.Umwelt.getWon()){
                     this.currentmoves += 1
-                    this.moves[this.movesindex % 100] = this.currentmoves
-                    this.getAverageMoves()
                     await this.move()
                 }
+                this.moves[this.movesindex % 100] = this.currentmoves
+                document.getElementById("average").textContent = "Ao100 moves Index: " + this.getAverageMoves()
                 this.learnprobability *= 0.95
                 this.movesindex += 1
             }
@@ -463,7 +471,7 @@
         }
 
         iToValue(taxirow, taxicolumn, passangerposition, endpostion){
-            return taxirow + 5 * taxicolumn + passangerposition * 25 + endpostion * 125
+            return taxirow + 5 * taxicolumn + passangerposition * 25 + endpostion * 650
         }
     }
 
@@ -477,12 +485,12 @@
                 document.getElementById("" + i + j).classList.add("table-cell-mobile")
             }
         }
-        document.getElementById("newpos").classList.add("button-mobile")
         document.getElementById("train").classList.add("button-mobile")
         document.getElementById("autotrain").classList.add("button-mobile")
         document.getElementById("stop").classList.add("button-mobile")
         document.getElementById("single").classList.add("button-mobile")
         document.getElementById("reset").classList.add("button-mobile")
+        document.getElementById("gui").classList.add("button-mobile")
         document.getElementById("slider").style.width = `80vw`
         document.getElementById("slider").style.height = `5vw`
     }
@@ -492,12 +500,12 @@
                 document.getElementById("" + i + j).classList.add("table-cell-computer")
             }
         }
-        document.getElementById("newpos").classList.add("button-computer")
         document.getElementById("train").classList.add("button-computer")
         document.getElementById("autotrain").classList.add("button-computer")
         document.getElementById("stop").classList.add("button-computer")
         document.getElementById("single").classList.add("button-computer")
         document.getElementById("reset").classList.add("button-computer")
+        document.getElementById("gui").classList.add("button-computer")
     }
 
     let e = new Umwelt()
@@ -512,7 +520,6 @@
         document.getElementById("train").removeEventListener("click", train)
         document.getElementById("single").removeEventListener("click", single)
         document.getElementById("autotrain").removeEventListener("click", autotrain)
-        document.getElementById("newpos").removeEventListener("click", newpos)
         document.getElementById("reset").removeEventListener("click", reset)
     }
 
@@ -520,7 +527,6 @@
         document.getElementById("train").addEventListener("click", train)
         document.getElementById("single").addEventListener("click", single)
         document.getElementById("autotrain").addEventListener("click", autotrain)
-        document.getElementById("newpos").addEventListener("click", newpos)
         document.getElementById("reset").addEventListener("click", reset)
     }
 
@@ -528,6 +534,7 @@
         document.getElementById(id).style.backgroundColor = "black"
         await sleep(60)
         document.getElementById(id).style.backgroundColor = "white"
+        return
     }
 
     async function train(){  
@@ -567,11 +574,12 @@
         x.reset()
     }
 
-    function newpos(){
-        buttoncolour("newpos")
-        e.truereset()
-        e.initialdraw()
-        reset()
+    function togglegui(){
+        buttoncolour("gui")
+        let x = e.getGui() ? false: true
+        e.setGui(x)
+        e.toggleGui(x)
+        document.getElementById("gui").textContent = "toggle GUI " + (x ? "(on)": "(off)")
     }
 
     function start(){
@@ -579,10 +587,7 @@
         buttoncolour("single")
         buttoncolour("autotrain")
         buttoncolour("stop")
-        buttoncolour("newpos")
         buttoncolour("reset")
-        e.initialdraw()
-        document.getElementById("newpos").textContent = "new positions"
         document.getElementById("train").textContent = "train(20)"
         document.getElementById("autotrain").textContent = "autotrain"
         document.getElementById("stop").textContent = "stop autotrain"
@@ -591,19 +596,18 @@
         document.getElementById("train").removeEventListener("click", start)
         document.getElementById("single").removeEventListener("click", start)
         document.getElementById("autotrain").removeEventListener("click", start)
-        document.getElementById("newpos").removeEventListener("click", start)
         document.getElementById("reset").removeEventListener("click", start)
         document.getElementById("stop").removeEventListener("click", start)
         document.getElementById("stop").addEventListener("click", stop)
         addAll()
     }
 
-    document.getElementById("newpos").addEventListener("click", start)
     document.getElementById("train").addEventListener("click", start)
     document.getElementById("autotrain").addEventListener("click", start)
     document.getElementById("stop").addEventListener("click", start)
     document.getElementById("single").addEventListener("click", start)
     document.getElementById("reset").addEventListener("click", start)
+    document.getElementById("gui").addEventListener("click", togglegui)
 </script>
 </body>
 </html>

@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxi</title>
+    <style>
+        body{
+            font-family: "Helvetica Neue";
+            text-align: center;
+            background-color: rgb(255, 255, 255);
+        }
+        h1 {
+            font-size: 5vw;
+        }
+        #spiel {
+            display: table;
+            margin: auto;
+            border: 0.7vw solid black
+        }
+        .table-row {
+            display: table-row;
+        }
+        .table-cell-computer{
+            display: table-cell;
+            width: 3.25vw;
+            height: 3.25vw;
+            vertical-align: middle;
+            background-color: rgb(255, 255, 255);
+            border: 0.15vw solid black;
+        }
+        .table-cell-mobile{
+            display: table-cell;
+            width: 9vw;
+            height: 9vw;
+            vertical-align: middle;
+            background-color: rgb(255, 255, 255);
+            border: 0.35vw solid black;
+        }
+        .table-cell-computer img {
+            width: 3vw;
+        }
+        .table-cell-mobile img {
+            width: 8vw;
+        }
+        .start {
+            background-color:  rgb(172, 191, 255);
+        }
+        .goal {
+            background-color: rgb(136, 230, 136);
+        }
+        .won {
+            background-color: rgb(7, 102, 7);
+        }
+        .grid-parent {
+            display: flex;
+            justify-content: center; 
+        }
+        .grid-parent1{
+            display: flex;
+            justify-content: center; 
+            column-gap: 50px;
+        }
+        .no-select {
+            user-select: none;         
+            -webkit-user-select: none;  
+            -moz-user-select: none;     
+            -ms-user-select: none;      
+        }
+        .button-computer {
+            border: 0.3vw solid black;
+            width: 20vw;
+            height: 1.7vw;
+            font-size: 1.5vw;
+            visibility: hidden;
+        }
+        .button-mobile {
+            border: 0.6vw solid black;
+            width: 40vw;
+            height: 7vw;
+            font-size: 5vw;
+            visibility: hidden;
+        }
+    </style>
+    <link rel="preload" href="taxi.png" as="image">
+</head>
+
+<body>
+    <div id="spiel">
+        <div class="table-row">
+            <div id="00"><img></div>
+            <div id="01"><img></div>
+            <div id="02"><img></div>
+            <div id="03"><img></div>
+            <div id="04"><img></div>
+            <div id="05"><img></div>
+            <div id="06"><img></div>
+            <div id="07"><img></div>
+            <div id="08"><img></div>
+            <div id="09"><img></div>
+        </div>
+        <div class="table-row">
+            <div id="10"><img></div>
+            <div id="11"><img></div>
+            <div id="12"><img></div>
+            <div id="13"><img></div>
+            <div id="14"><img></div>
+            <div id="15"><img></div>
+            <div id="16"><img></div>
+            <div id="17"><img></div>
+            <div id="18"><img></div>
+            <div id="19"><img></div>
+        </div>
+        <div class="table-row">
+            <div id="20"><img></div>
+            <div id="21"><img></div>
+            <div id="22"><img></div>
+            <div id="23"><img></div>
+            <div id="24"><img></div>
+            <div id="25"><img></div>
+            <div id="26"><img></div>
+            <div id="27"><img></div>
+            <div id="28"><img></div>
+            <div id="29"><img></div>
+        </div>
+        <div class="table-row">
+            <div id="30"><img></div>
+            <div id="31"><img></div>
+            <div id="32"><img></div>
+            <div id="33"><img></div>
+            <div id="34"><img></div>
+            <div id="35"><img></div>
+            <div id="36"><img></div>
+            <div id="37"><img></div>
+            <div id="38"><img></div>
+            <div id="39"><img></div>
+        </div>
+        <div class="table-row">
+            <div id="40"><img></div>
+            <div id="41"><img></div>
+            <div id="42"><img></div>
+            <div id="43"><img></div>
+            <div id="44"><img></div>
+            <div id="45"><img></div>
+            <div id="46"><img></div>
+            <div id="47"><img></div>
+            <div id="48"><img></div>
+            <div id="49"><img></div>
+        </div>
+        <div class="table-row">
+            <div id="50"><img></div>
+            <div id="51"><img></div>
+            <div id="52"><img></div>
+            <div id="53"><img></div>
+            <div id="54"><img></div>
+            <div id="55"><img></div>
+            <div id="56"><img></div>
+            <div id="57"><img></div>
+            <div id="58"><img></div>
+            <div id="59"><img></div>
+        </div>
+        <div class="table-row">
+            <div id="60"><img></div>
+            <div id="61"><img></div>
+            <div id="62"><img></div>
+            <div id="63"><img></div>
+            <div id="64"><img></div>
+            <div id="65"><img></div>
+            <div id="66"><img></div>
+            <div id="67"><img></div>
+            <div id="68"><img></div>
+            <div id="69"><img></div>
+        </div>
+        <div class="table-row">
+            <div id="70"><img></div>
+            <div id="71"><img></div>
+            <div id="72"><img></div>
+            <div id="73"><img></div>
+            <div id="74"><img></div>
+            <div id="75"><img></div>
+            <div id="76"><img></div>
+            <div id="77"><img></div>
+            <div id="78"><img></div>
+            <div id="79"><img></div>
+        </div>
+        <div class="table-row">
+            <div id="80"><img></div>
+            <div id="81"><img></div>
+            <div id="82"><img></div>
+            <div id="83"><img></div>
+            <div id="84"><img></div>
+            <div id="85"><img></div>
+            <div id="86"><img></div>
+            <div id="87"><img></div>
+            <div id="88"><img></div>
+            <div id="89"><img></div>
+        </div>
+        <div class="table-row">
+            <div id="90"><img></div>
+            <div id="91"><img></div>
+            <div id="92"><img></div>
+            <div id="93"><img></div>
+            <div id="94"><img></div>
+            <div id="95"><img></div>
+            <div id="96"><img></div>
+            <div id="97"><img></div>
+            <div id="98"><img></div>
+            <div id="99"><img></div>
+        </div>
+    </div>    
+    <div class='parent grid-parent1'>
+        <div id="text">total training: 0</div>
+        <div id="moves">current moves: 0</div>
+        <div id="average">Ao100 moves Index: 0</div>
+    </div>
+    <input type="range" id="slider" min="1" max="500" value="250" style="width: 40vw;">
+    <div class='parent grid-parent'>
+        <div id = "train" class="child no-select">start</div>
+        <div id = "single" class="child no-select">single</div>
+    </div>
+    <div class='parent grid-parent'>
+        <div id = "autotrain" class="child no-select">autotrain</div>
+        <div id = "stop" class="child no-select">stop autotrain</div>
+    </div>
+    <div class='parent grid-parent'>
+        <div id = "reset" class="child no-select">reset Q-Table</div>
+        <div id = "gui" class="child no-select">toggle GUI (on)</div>
+    </div>
+<script>
+    function isMobile() {
+        return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    
+    let mode = isMobile() ? "mobile" : "computer"
+    for (let i = 0; i < 10; i++){
+        for (let j = 0; j < 10; j++){
+            document.getElementById("" + i + j).classList.add("table-cell-" + mode)
+        }
+    }
+    document.getElementById("train").classList.add("button-" + mode)
+    document.getElementById("autotrain").classList.add("button-" + mode)
+    document.getElementById("stop").classList.add("button-" + mode)
+    document.getElementById("single").classList.add("button-" + mode)
+    document.getElementById("reset").classList.add("button-" + mode)
+    document.getElementById("gui").classList.add("button-" + mode)
+    if (isMobile()){
+        document.getElementById("slider").style.width = `80vw`
+        document.getElementById("slider").style.height = `5vw`
+    }
+
+    const slider = document.getElementById("slider");
+    let Cd = slider.value
+    slider.addEventListener("input", () => {Cd = 600 - slider.value})
+
+    document.getElementById("train").style.visibility = "visible"
+    document.getElementById("train").addEventListener("click", start)
+
+    async function buttoncolour(id){
+        document.getElementById(id).style.backgroundColor = "blue"
+        await sleep(40)
+        document.getElementById(id).style.backgroundColor = "white"
+        return
+    }
+
+    function removeAll(){
+        document.getElementById("train").removeEventListener("click", train)
+        document.getElementById("single").removeEventListener("click", single)
+        document.getElementById("autotrain").removeEventListener("click", autotrain)
+        document.getElementById("reset").removeEventListener("click", reset)
+    }
+
+    function addAll(){
+        document.getElementById("train").addEventListener("click", train)
+        document.getElementById("single").addEventListener("click", single)
+        document.getElementById("autotrain").addEventListener("click", autotrain)
+        document.getElementById("reset").addEventListener("click", reset)
+    }
+    
+    function start(){
+        buttoncolour("train")
+        document.getElementById("train").textContent = "train(20)"
+        document.getElementById("single").style.visibility = "visible"
+        document.getElementById("autotrain").style.visibility = "visible"
+        document.getElementById("stop").style.visibility = "visible"
+        document.getElementById("reset").style.visibility = "visible"
+        document.getElementById("gui").style.visibility = "visible"
+        document.getElementById("train").removeEventListener("click", start)
+        document.getElementById("stop").addEventListener("click", stop)
+        document.getElementById("gui").addEventListener("click", togglegui)
+        addAll()
+    }
+
+    async function train(){  
+        buttoncolour("train")
+        removeAll()
+        await x.train(20)
+        addAll()
+    }
+
+    async function single() { 
+        buttoncolour("single")
+        removeAll()
+        await x.train(1)
+        addAll()
+    }
+
+    async function autotrain() {
+        buttoncolour("autotrain")
+        removeAll()
+        autotrainx = true
+        while (autotrainx){
+            await x.train(1)
+        }
+        addAll()
+    }
+
+    function stop(){
+        buttoncolour("stop")
+        autotrainx = false
+    }
+
+    function reset(){
+        buttoncolour("reset")
+        document.getElementById("text").textContent = "total training: 0"
+        document.getElementById("moves").textContent = "current moves: 0"
+        document.getElementById("average").textContent = "Ao100 moves Index: 0"
+        x.reset()
+    }
+
+    function togglegui(){
+        buttoncolour("gui")
+        let x = e.getGui() ? false: true
+        e.setGui(x)
+        e.toggleGui(x)
+        document.getElementById("gui").textContent = "toggle GUI " + (x ? "(on)": "(off)")
+    }
+    
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    function stopper(condition){
+        return new Promise((resolve) => {
+            const intervall = setInterval(() => {
+                if (condition["value"]) {
+                    clearInterval(intervall);
+                    resolve();
+                }
+            }, Cd)
+        })
+    }
+    
+    class Umwelt{
+        constructor(){
+            this.position = [0, 0]
+            this.Agent
+            this.initialload()
+            this.end = 0
+            this.passengerposition = 0
+            this.gui = true
+        }
+
+        setGui(a){
+            this.gui = a
+        }
+
+        getGui(){
+            return this.gui
+        }
+
+        setAgent(a){
+            this.Agent = a
+        }
+
+        getWon(){
+            return this.won
+        }
+
+        getPosition(){
+            return this.position
+        }
+
+        getPositionFromXY([x, y]){
+            return x + 10 * y
+        }
+
+        getXyFromPosition(pos){
+            let x = pos % 10
+            let y = Math.floor(pos / 10)
+            return [x, y] 
+        }
+
+        getPassengerposition(){
+            return this.passengerposition
+        }
+
+        generatePosition(){
+            return [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)]
+        }
+
+        getEnd(){
+            return this.end
+        }
+
+        getListfromIndex(index){
+            return [parseInt(index[0]), parseInt(index[1])]
+        }
+
+        getIndexfromList(list){
+            return "" + list[0] + list[1]
+        }
+
+        reset(){
+            this.won = false
+            if (this.gui){
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.passengerposition))).classList.remove("start")
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.remove("goal")
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.remove("won")
+                document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "hidden"
+            }
+            this.position = this.generatePosition()
+            this.lastposition = structuredClone(this.position)
+            this.passengerposition = Math.floor(Math.random() * 100)
+            this.lastpassangerposition = this.passengerposition
+            this.end = this.passengerposition
+            while (this.passengerposition === this.end){
+                this.end = Math.floor(Math.random() * 100)
+            }
+            if (this.gui){
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.passengerposition))).classList.add("start")
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.add("goal")
+                document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
+            }
+            this.hasupdated = {"value": false}
+            this.passengerpositionchange = false
+        }
+
+        GuiUpdate(){
+            if (this.lastposition.toString() != this.position.toString()){
+                document.getElementById(this.getIndexfromList(this.lastposition)).children[0].style.visibility = "hidden"
+                document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
+            }
+            if (this.passengerpositionchange){
+                if (this.passengerposition < 100){
+                    document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.passengerposition))).classList.add("start")
+                }
+                if (this.passengerposition === 100){
+                    document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.lastpassangerposition))).classList.remove("start")
+                }
+                if (this.won){
+                    document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.add("won")
+                }
+                this.passengerpositionchange = false
+            }
+            document.getElementById("moves").textContent = "current moves: " + this.Agent.getCurrentMoves()
+            this.hasupdated["value"] = true
+        }
+
+        toggleGui(value){
+            if (value){
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.passengerposition))).classList.add("start")
+                document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.add("goal")
+                if (this.won)
+                    document.getElementById(this.getIndexfromList(this.getXyFromPosition(this.end))).classList.add("won")
+                document.getElementById(this.getIndexfromList(this.position)).children[0].style.visibility = "visible"
+            }
+            else{
+                for (let i = 0; i < 10; i++){
+                    for (let j = 0; j < 10; j++){
+                        document.getElementById("" + i + j).classList.remove("start")
+                        document.getElementById("" + i + j).classList.remove("goal")
+                        document.getElementById("" + i + j).classList.remove("won")
+                        document.getElementById("" + i + j).children[0].style.visibility = "hidden"
+                        document.getElementById("moves").textContent = "current moves: -"
+                    }
+                }
+            }
+        }
+
+        async move(action){
+            let reward = -1
+            this.lastposition = structuredClone(this.position)
+            switch(action){
+                case 0:
+                    if (this.position[0] + 1 < 10){
+                        this.position = [this.position[0] + 1, this.position[1]]
+                    }
+                    break;
+                case 1:
+                    if (this.position[0] - 1 >= 0){
+                        this.position = [this.position[0] - 1, this.position[1]]
+                    }
+                    break;
+                case 2:
+                    if (this.position[1] + 1 < 10){
+                        this.position = [this.position[0], this.position[1] + 1]
+                    }
+                    break;
+                case 3:
+                    if (this.position[1] - 1 >= 0){
+                        this.position = [this.position[0], this.position[1] - 1]
+                    }
+                    break;
+                case 4:
+                    if (this.passengerposition < 100 && this.position.toString() === this.getXyFromPosition(this.passengerposition).toString()){
+                        this.lastpassangerposition = this.passengerposition
+                        this.passengerposition = 100
+                        this.passengerpositionchange = true
+                    }
+                    break;
+                case 5:
+                    if (this.passengerposition === 100){
+                        this.lastpassangerposition = this.passengerposition
+                        this.passengerposition = this.getPositionFromXY(this.position)
+                        this.passengerpositionchange = true
+                        if (this.passengerposition === this.end){
+                            reward = 50
+                            this.won = true
+                            document.getElementById("text").textContent = "total training: " + this.Agent.getTotalTraining()
+                            if (this.Agent.getTotalTraining() % Math.ceil(slider.value) === 0)
+                                await sleep(1)
+                        }
+                    }
+                    break;
+            }
+            if (this.gui){
+                this.GuiUpdate()
+                await stopper(this.hasupdated)
+            }
+            this.hasupdated["value"] = false
+            return reward
+        }
+
+        initialload(){
+            for (let i = 0; i < 10; i++){
+                for (let j = 0; j < 10; j++){
+                    document.getElementById("" + i + j).children[0].style.visibility = "hidden"
+                    document.getElementById("" + i + j).children[0].src = "taxi.png"
+                }
+            }
+        }
+    }
+
+    class Agent{
+        constructor(umwelt){
+            this.Umwelt = umwelt
+            this.Umwelt.setAgent(this)
+            this.qTabelle = {}
+            this.alpha = 0.2
+            this.lamda = 0.6
+            this.learnprobability = 1
+            this.moves = []
+            this.reset()
+        }
+
+        getTotalTraining(){
+            return this.totaltraining
+        }
+
+        getCurrentMoves(){
+            return this.currentmoves
+        }
+
+        getAverageMoves(){
+            let total = 0
+            for (let i = 0; i < 100; i++){
+                total += this.moves[i]
+            }
+            return Math.round(total / (this.movesindex > 100 ? 100: this.movesindex + 1))
+        }
+
+        reset(){
+            for (let i = 0; i < (100 * 100 * 101); i++){
+                this.qTabelle[i] = [0, 0, 0, 0, 0, 0]
+            }
+            for (let i = 0; i < 100; i++){
+                this.moves[i] = 0
+            }
+            this.movesindex = 0
+            this.totaltraining = 0
+            this.currentmoves = 0
+        }
+
+        async move(){
+            let x = Math.random()
+            let laststate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassengerposition(), this.Umwelt.getEnd())
+            let newstate
+            if (x > this.learnprobability){
+                let m = this.qTabelle[laststate].reduce((maxIdx, current, i, array) => current > array[maxIdx] ? i : maxIdx, 0)
+                let r = await this.Umwelt.move(m)
+                newstate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassengerposition(), this.Umwelt.getEnd())
+                this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(...this.qTabelle[newstate]))
+                return
+            }
+            else{
+                let m = Math.floor(Math.random() * 6)
+                let r = await this.Umwelt.move(m)
+                newstate = this.iToValue(this.Umwelt.getPosition()[0], this.Umwelt.getPosition()[1], this.Umwelt.getPassengerposition(), this.Umwelt.getEnd())
+                this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(...this.qTabelle[newstate]))
+                return
+            }
+        }
+
+        async train(repetions){
+            for (let i = 0; i < repetions; i++){
+                this.Umwelt.reset()
+                this.totaltraining += 1
+                this.currentmoves = 0
+                while(!this.Umwelt.getWon()){
+                    this.currentmoves += 1
+                    await this.move()
+                }
+                this.moves[this.movesindex % 100] = this.currentmoves
+                document.getElementById("average").textContent = "Ao100 moves Index: " + this.getAverageMoves()
+                this.learnprobability *= 0.95
+                this.movesindex += 1
+            }
+            return
+        }
+
+        iToValue(taxirow, taxicolumn, passangerposition, endpostion){
+            return taxirow + 10 * taxicolumn + passangerposition * 100 + endpostion * 10100
+        }
+    }
+
+    let e = new Umwelt()
+    let x = new Agent(e)
+    let autotrainx = false
+</script>
+</body>
+</html>
