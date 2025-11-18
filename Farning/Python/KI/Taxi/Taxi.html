@@ -392,9 +392,30 @@
             this.qTabelle = {}
             this.alpha = 0.2
             this.lamda = 0.6
-            this.learnprobability = 1
+            this.initialq = 0
+            this.Abnahme = 0.95
             this.moves = []
             this.reset()
+        }
+
+        setInitialq(q){
+            this.initialq = q
+        }
+
+        setLearningrate(a){
+            this.alpha = a
+        }
+
+        setDiscountfactor(l){
+            this.lamda = l
+        }
+
+        setEpsilon(e){
+            this.learnprobability = e
+        }
+
+        setAbnahmeEpsilon(x){
+            this.Abnahme = x
         }
 
         getTotalTraining(){
@@ -415,7 +436,7 @@
 
         reset(){
             for (let i = 0; i < 500; i++){
-                this.qTabelle[i] = [0, 0, 0, 0, 0, 0]
+                this.qTabelle[i] = [this.initialq, this.initialq, this.initialq, this.initialq, this.initialq, this.initialq]
             }
             for (let i = 0; i < 100; i++){
                 this.moves[i] = 0
@@ -423,6 +444,7 @@
             this.movesindex = 0
             this.totaltraining = 0
             this.currentmoves = 0
+            this.learnprobability = 1
         }
 
         async move(){
@@ -456,7 +478,7 @@
                     this.getAverageMoves()
                     await this.move()
                 }
-                this.learnprobability *= 0.95
+                this.learnprobability *= this.Abnahme
                 this.movesindex += 1
             }
             return
@@ -500,9 +522,9 @@
         document.getElementById("reset").classList.add("button-computer")
     }
 
-    let e = new Umwelt()
-    let x = new Agent(e)
-    let autotrainx = false
+    let e
+    let x
+    let autotrainx
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
@@ -581,7 +603,10 @@
         buttoncolour("stop")
         buttoncolour("newpos")
         buttoncolour("reset")
+        e = new Umwelt()
+        x = new Agent(e)
         e.initialdraw()
+        autotrainx = false
         document.getElementById("newpos").textContent = "new positions"
         document.getElementById("train").textContent = "train(20)"
         document.getElementById("autotrain").textContent = "autotrain"
