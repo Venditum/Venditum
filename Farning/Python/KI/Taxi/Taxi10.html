@@ -446,12 +446,12 @@
                 document.getElementById(this.position + "").children[0].style.visibility = "visible"
             }
             else{
+                document.getElementById("moves").textContent = "current moves: -"
                 for (let i = 0; i < 100; i++){
                     document.getElementById("" + i).classList.remove("start")
                     document.getElementById("" + i).classList.remove("goal")
                     document.getElementById("" + i).classList.remove("won")
                     document.getElementById("" + i).children[0].style.visibility = "hidden"
-                    document.getElementById("moves").textContent = "current moves: -"
                 }
             }
         }

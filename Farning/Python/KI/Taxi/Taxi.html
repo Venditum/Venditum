@@ -181,6 +181,8 @@
         <div id="moves">current moves: 0</div>
         <div id="average">Ao100 moves Index: 0</div>
     </div>
+    <div id="success">sucess rate: -%</div>
+    <div id="crash">passenger alive</div>
     <input type="range" id="slider" min="1" max="400" value="200" style="width: 40vw;">
     <div class='parent grid-parent'>
         <div id = "train" class="child no-select">start</div>
@@ -193,6 +195,9 @@
     <div class='parent grid-parent'>
         <div id = "newpos" class="child no-select">new positions</div>
         <div id = "reset" class="child no-select">reset q-table</div>
+    </div>
+    <div class='parent grid-parent'>
+        <div id = "gui" class="child no-select">toggle GUI (on)</div>
     </div>
 <script>
     function isMobile() {
@@ -209,6 +214,7 @@
     document.getElementById("single").classList.add("button-" + mode)
     document.getElementById("reset").classList.add("button-" + mode)
     document.getElementById("newpos").classList.add("button-" + mode)
+    document.getElementById("gui").classList.add("button-" + mode)
     if (isMobile()){
         document.getElementById("slider").style.width = `80vw`
         document.getElementById("slider").style.height = `5vw`
@@ -216,7 +222,7 @@
 
     const slider = document.getElementById("slider");
     let Cd = slider.value
-    slider.addEventListener("input", () => {Cd = 400 - slider.value})
+    slider.addEventListener("input", () => {Cd = 500 - slider.value})
 
     document.getElementById("train").style.visibility = "visible"
     document.getElementById("train").addEventListener("click", start)
@@ -251,8 +257,10 @@
         document.getElementById("stop").style.visibility = "visible"
         document.getElementById("reset").style.visibility = "visible"
         document.getElementById("newpos").style.visibility = "visible"
+        document.getElementById("gui").style.visibility = "visible"
         document.getElementById("train").removeEventListener("click", start)
         document.getElementById("stop").addEventListener("click", stop)
+        document.getElementById("gui").addEventListener("click", togglegui)
         addAll()
         e.initialdraw()
     }
@@ -291,6 +299,7 @@
         document.getElementById("text").textContent = "total training: 0"
         document.getElementById("moves").textContent = "current moves: 0"
         document.getElementById("average").textContent = "Ao100 moves Index: 0"
+        document.getElementById("success").textContent = "success rate: -%"
         x.reset()
     }
 
@@ -299,6 +308,14 @@
         e.truereset()
         e.initialdraw()
         reset()
+    }
+
+    function togglegui(){
+        buttoncolour("gui")
+        let value = e.getGui() ? false: true
+        document.getElementById("gui").textContent = "toggle GUI " + (value ? "(on)": "(off)")
+        e.setGui(value)
+        e.toggleGui(value)
     }
 
     function sleep(ms) {
@@ -322,6 +339,14 @@
             this.Agent
             this.truereset()
             this.initialload()
+            this.gui = true
+        }
+        setGui(value){
+            this.gui = value
+        }
+
+        getGui(){
+            return this.gui
         }
 
         setAgent(a){
@@ -352,35 +377,59 @@
             return this.end
         }
 
-        truereset(){
-            for (let i = 0; i < 5; i++){
+        getAverageSuccessRate(){
+            return Math.round(this.successlog.reduce((acc, current) => acc + current, 0) / (this.total > 100 ? 100: this.total) * 10000) / 100
+        }
+
+        removegui(){
+            for (let i = 0; i < 25; i++){
                 document.getElementById("" + i).classList.remove("blue")
                 document.getElementById("" + i).classList.remove("start")
                 document.getElementById("" + i).classList.remove("goal")
                 document.getElementById("" + i).classList.remove("won")
+                document.getElementById("" + i).style.borderColor = "black"
+                document.getElementById("" + i).children[0].style.visibility = "hidden"
             }
-            document.getElementById(this.position + "").children[0].style.visibility = "hidden"
-            this.position = this.generatePosition()
+        }
+
+        addPassengerGui(){
+            if (this.gui){
+                document.getElementById(this.passengerpositions[this.passangerposition] + "").classList.add("start")
+                document.getElementById(this.passengerpositions[this.end] + "").classList.add("goal")
+                document.getElementById(this.position + "").children[0].style.visibility = "visible"
+            }
+        }
+
+        truereset(){
+            this.successlog = []
+            this.success = 0
+            this.total = 0
+            this.removegui()
+            this.position = 0
             this.passengerpositions = []
+            this.passangerposition = 0
+            this.end = 0
             while (this.passengerpositions.length < 4){
                 let generatedPosition = this.generatePosition()
                 if (!this.passengerpositions.includes(generatedPosition))
                     this.passengerpositions.push(generatedPosition)
             }
             this.wallpositions = []
-            while (this.wallpositions.length < 4){
+            this.walllist = []
+            while (this.wallpositions.length < 6){
                 let generatedPosition = this.generatePosition()
-                if (!this.passengerpositions.includes(generatedPosition))
-                    this.passengerpositions.push(generatedPosition)
+                if (!this.wallpositions.includes(generatedPosition))
+                    this.wallpositions.push(generatedPosition)
             }
-
-            for (let i = 0; i < wallpositions.lenght; i++){
-                let walls = Math.floor(Math.random() * 3)
-                for (j = 0; j < walls; j++){
-                    let dir = [5, -5, 1, -1]
-                    let item = dir.splice(Math.floor(Math.random() * dir.length), 1)[0]
-                    if (wallpositions[i] + item < 25 && wallpositions[i] + item >= 0 && Math.floor((twallpositions[i] + item) / 5) == Math.floor(this.position / 5)) {
-                        
+            for (let i = 0; i < this.wallpositions.length; i++){
+                let dir = [5, -5, 1, -1]
+                let item = dir.splice(Math.floor(Math.random() * dir.length), 1)[0]
+                if (this.wallpositions[i] + item < 25 && this.wallpositions[i] + item >= 0) {
+                    if (Math.floor((this.wallpositions[i] + item) / 5) == Math.floor(this.wallpositions[i] / 5) && Math.abs(item) == 1){
+                        this.walllist.push([this.wallpositions[i], this.wallpositions[i] + item])
+                    }
+                    if (Math.abs(item) == 5){
+                        this.walllist.push([this.wallpositions[i], this.wallpositions[i] + item])
                     }
                 }
             }
@@ -388,6 +437,7 @@
 
         reset(){
             this.won = false
+            document.getElementById("crash").textContent = "passenger alive"
             document.getElementById(this.position + "").children[0].style.visibility = "hidden"
             this.position = this.generatePosition()
             this.lastposition = this.position
@@ -402,18 +452,36 @@
                 document.getElementById(this.passengerpositions[i] + "").classList.remove("goal")
                 document.getElementById(this.passengerpositions[i] + "").classList.remove("won")
             }
-            document.getElementById(this.passengerpositions[this.passangerposition] + "").classList.add("start")
-            document.getElementById(this.passengerpositions[this.end] + "").classList.add("goal")
-            document.getElementById(this.position + "").children[0].src = "taxi.png"
-            document.getElementById(this.position + "").children[0].style.visibility = "visible"
+            this.addPassengerGui()
             this.hasupdated = {"value": false}
             this.passengerpositionchange = false
             return
         }
 
         initialdraw(){
-            for (let i = 0; i < this.passengerpositions.length; i++){
-                document.getElementById(this.passengerpositions[i]+ "").classList.add("blue")
+            if (this.gui){
+                for (let i = 0; i < this.passengerpositions.length; i++){
+                    document.getElementById(this.passengerpositions[i]+ "").classList.add("blue")
+                }
+                for (let i = 0; i < this.walllist.length; i++){
+                    let item = this.walllist[i][1] - this.walllist[i][0]
+                    if (item == 5){
+                        document.getElementById(this.walllist[i][0] + "").style.borderBottomColor = "red"
+                        document.getElementById(this.walllist[i][1] + "").style.borderTopColor = "red" 
+                    }
+                    if (item == -5){
+                        document.getElementById(this.walllist[i][0] + "").style.borderTopColor = "red"
+                        document.getElementById(this.walllist[i][1] + "").style.borderBottomColor = "red"
+                    }
+                    if (item == 1){
+                        document.getElementById(this.walllist[i][0] + "").style.borderRightColor = "red"
+                        document.getElementById(this.walllist[i][1] + "").style.borderLeftColor = "red" 
+                    }
+                    if (item == -1){
+                        document.getElementById(this.walllist[i][0] + "").style.borderLeftColor = "red"
+                        document.getElementById(this.walllist[i][1] + "").style.borderRightColor = "red"
+                    }
+                }
             }
             return
         }
@@ -444,6 +512,17 @@
             }
             document.getElementById("moves").textContent = "current moves: " + this.Agent.getCurrentMoves()
             this.hasupdated["value"] = true
+        }
+
+        toggleGui(value){
+            if (value){
+                this.initialdraw()
+                this.addPassengerGui()
+            }
+            else{
+                document.getElementById("moves").textContent = "current moves: -"
+                this.removegui()
+            }
         }
 
         async move(action){
@@ -487,15 +566,33 @@
                             if (this.passangerposition === this.end){
                                 reward = 50
                                 this.won = true
+                                this.successlog[this.total % 100] = 1
+                                this.total += 1
                                 document.getElementById("text").textContent = "total training: " + this.Agent.getTotalTraining()
                                 document.getElementById("average").textContent = "Ao100 moves Index: " + this.Agent.getAverageMoves()
+                                document.getElementById("success").textContent = "success rate: " + this.getAverageSuccessRate() + "%"
                             }
                         }
                     }
                     break;
             }
-            this.GuiUpdate()
-            await stopper(this.hasupdated)
+            for (let i = 0; i < this.walllist.length; i++){
+                if ([...this.walllist[i]].sort().toString() === [...[this.position, this.lastposition]].sort().toString()){
+                    reward = -50
+                    this.won = true
+                    this.successlog[this.total % 100] = 0
+                    this.total += 1
+                    document.getElementById("text").textContent = "total training: " + this.Agent.getTotalTraining()
+                    document.getElementById("average").textContent = "Ao100 moves Index: " + this.Agent.getAverageMoves()
+                    document.getElementById("success").textContent = "success rate: " + this.getAverageSuccessRate() + "%"
+                    document.getElementById("crash").textContent = "car crashed..."
+                    this.position = this.lastposition
+                }
+            }
+            if (this.gui){
+                this.GuiUpdate()
+                await stopper(this.hasupdated)
+            }
             return reward
         }
     }
@@ -566,31 +663,28 @@
             let x = Math.random()
             let laststate = this.iToValue(this.Umwelt.getPosition(), this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
             let newstate
+            let m
             if (x > this.learnprobability){
-                let m = this.qTabelle[laststate].reduce((maxIdx, current, i, array) => current > array[maxIdx] ? i : maxIdx, 0)
-                let r = await this.Umwelt.move(m)
-                newstate = this.iToValue(this.Umwelt.getPosition(), this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
-                this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(...this.qTabelle[newstate]))
-                return
+                m = this.qTabelle[laststate].reduce((maxIdx, current, i, array) => current > array[maxIdx] ? i : maxIdx, 0)
             }
             else{
-                let m = Math.floor(Math.random() * 6)
-                let r = await this.Umwelt.move(m)
-                newstate = this.iToValue(this.Umwelt.getPosition(), this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
-                this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(...this.qTabelle[newstate]))
-                return
+                m = Math.floor(Math.random() * 6)
             }
+            let r = await this.Umwelt.move(m)
+            newstate = this.iToValue(this.Umwelt.getPosition(), this.Umwelt.getPassangerposition(), this.Umwelt.getEnd())
+            this.qTabelle[laststate][m] = (1 - this.alpha) * this.qTabelle[laststate][m] + this.alpha * (r + this.lamda * Math.max(...this.qTabelle[newstate]))
+            return
         }
 
         async train(repetions){
             for (let i = 0; i < repetions; i++){
+                await sleep(Cd - 100)
                 this.Umwelt.reset()
                 this.totaltraining += 1
                 this.currentmoves = 0
                 while(!this.Umwelt.getWon()){
                     this.currentmoves += 1
                     this.moves[this.movesindex % 100] = this.currentmoves
-                    this.getAverageMoves()
                     await this.move()
                 }
                 this.learnprobability *= this.Abnahme
