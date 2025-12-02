@@ -400,6 +400,38 @@
             }
         }
 
+        countwalls(field){
+            let count = 0
+            for (let i = 0; i < this.walllist.length; i++){
+                for (let j = 0; j < 2; j++){
+                    if (this.walllist[i][j] === field){
+                        count++
+                    }
+                }
+            }
+            return count
+        }
+
+        validwall(field1, field2){
+            let infield = field1 < 25 && field2 < 25 && field1 >= 0 && field2 >= 0
+            let neighbour = (Math.abs(field1 - field2) === 1) ? (Math.floor(field1 / 5) === Math.floor(field2 / 5)): (field1 % 5 === field2 % 5)
+            let open1 = (this.countwalls(field1) < 3)
+            let open2 = (this.countwalls(field2) < 3)
+            if (Math.floor(field1 / 5) === 0 | Math.floor(field1 / 5) === 4 | field1 % 5 === 0 | field1 % 5 === 4){
+                open1 = (this.countwalls(field1) < 2)
+                if (field1 === 0 | field1 === 4 | field1 === 20 | field1 === 2){
+                    open1 = (this.countwalls(field1) < 1)
+                }
+            }
+            if (Math.floor(field2 / 5) === 0 | Math.floor(field2 / 5) === 4 | field2 % 5 === 0 | field2 % 5 === 4){
+                open1 = (this.countwalls(field2) < 2)
+                if (field2 === 0 | field2 === 4 | field2 === 20 | field2 === 2){
+                    open1 = (this.countwalls(field2) < 1)
+                }
+            }
+            return infield && neighbour && open1 && open2
+        }
+
         truereset(){
             this.successlog = []
             this.success = 0
@@ -416,7 +448,7 @@
             }
             this.wallpositions = []
             this.walllist = []
-            while (this.wallpositions.length < 6){
+            while (this.wallpositions.length < 8){
                 let generatedPosition = this.generatePosition()
                 if (!this.wallpositions.includes(generatedPosition))
                     this.wallpositions.push(generatedPosition)
@@ -424,13 +456,8 @@
             for (let i = 0; i < this.wallpositions.length; i++){
                 let dir = [5, -5, 1, -1]
                 let item = dir.splice(Math.floor(Math.random() * dir.length), 1)[0]
-                if (this.wallpositions[i] + item < 25 && this.wallpositions[i] + item >= 0) {
-                    if (Math.floor((this.wallpositions[i] + item) / 5) == Math.floor(this.wallpositions[i] / 5) && Math.abs(item) == 1){
-                        this.walllist.push([this.wallpositions[i], this.wallpositions[i] + item])
-                    }
-                    if (Math.abs(item) == 5){
-                        this.walllist.push([this.wallpositions[i], this.wallpositions[i] + item])
-                    }
+                if (this.validwall(this.wallpositions[i], this.wallpositions[i] + item)) {
+                    this.walllist.push([this.wallpositions[i], this.wallpositions[i] + item])
                 }
             }
         }
