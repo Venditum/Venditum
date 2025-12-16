@@ -1,215 +1,260 @@
 import tkinter as tk
-import random
 import math
+import random
 
-# --- Fenster ---
-root = tk.Tk()
-root.title("Pong – Complete Logic")
-
+# --- Konfiguration ---
 WIDTH = 800
-HEIGHT = 400
+HEIGHT = 500
+BG_COLOR = "black"
+FG_COLOR = "white"
 
-canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg="black")
-canvas.pack()
+# Paddle Einstellungen
+PADDLE_WIDTH = 15
+PADDLE_HEIGHT = 90
+PADDLE_OFFSET = 30
+PADDLE_SPEED = 12.0 # Geschwindigkeit, mit der die Paddles sich pro Frame bewegen
 
-# --- Paddles ---
-PADDLE_WIDTH = 10
-PADDLE_HEIGHT = 80
-SPEED = 10
-MAX_SPEED = 12       # Maximum speed limit
-START_SPEED = 7      # Initial speed
-BOUNCE_RANDOMNESS = 1.5  # Random jitter pixels added to dy
+# Ball Einstellungen
+BALL_SIZE = 15
+START_SPEED = 6.0
+MAX_SPEED = 18.0
+SPEED_INCREMENT = 1.05
 
-# Current velocity variables
-ball_speed = START_SPEED
-ball_dx = START_SPEED
-ball_dy = START_SPEED
-
-left_paddle = canvas.create_rectangle(
-    30, HEIGHT//2 - PADDLE_HEIGHT//2,
-    30 + PADDLE_WIDTH, HEIGHT//2 + PADDLE_HEIGHT//2,
-    fill="white"
-)
-
-right_paddle = canvas.create_rectangle(
-    WIDTH - 30 - PADDLE_WIDTH, HEIGHT//2 - PADDLE_HEIGHT//2,
-    WIDTH - 30, HEIGHT//2 + PADDLE_HEIGHT//2,
-    fill="white"
-)
-
-# --- Ball & Game State ---
-BALL_SIZE = 20
-ball = canvas.create_oval(
-    WIDTH//2 - BALL_SIZE//2, HEIGHT//2 - BALL_SIZE//2,
-    WIDTH//2 + BALL_SIZE//2, HEIGHT//2 + BALL_SIZE//2,
-    fill="white"
-)
-
-# Scores
-score_left = 0
-score_right = 0
-
-# Score Display
-score_display = canvas.create_text(
-    WIDTH//2, 40,
-    text="0 : 0",
-    fill="white",
-    font=("Courier New", 30, "bold")
-)
-
-# --- Tastenstatus ---
-keys = {
-    "w": False, "s": False,
-    "Up": False, "Down": False
-}
-
-def on_key_press(event):
-    if event.keysym in keys:
-        keys[event.keysym] = True
-
-def on_key_release(event):
-    if event.keysym in keys:
-        keys[event.keysym] = False
-
-root.bind("<KeyPress>", on_key_press)
-root.bind("<KeyRelease>", on_key_release)
-
-# --- Helper Functions ---
-
-def move_paddle(paddle, dy):
-    canvas.move(paddle, 0, dy)
-    x1, y1, x2, y2 = canvas.coords(paddle)
-    # Wall collision for paddles
-    if y1 < 0:
-        canvas.move(paddle, 0, -y1)
-    elif y2 > HEIGHT:
-        canvas.move(paddle, 0, HEIGHT - y2)
-
-def reset_ball():
-    global ball_dx, ball_dy, ball_speed
-    
-    # 1. Reset Position
-    canvas.coords(ball, 
-                  WIDTH//2 - BALL_SIZE//2, HEIGHT//2 - BALL_SIZE//2,
-                  WIDTH//2 + BALL_SIZE//2, HEIGHT//2 + BALL_SIZE//2)
-    
-    # 2. Reset Speed
-    ball_speed = START_SPEED
-    
-    # 3. Randomize Serve Direction (Left or Right)
-    dir_x = random.choice([-1, 1])
-    # Randomize start angle slightly so it's not always perfectly straight
-    angle = random.uniform(-math.radians(30), math.radians(30))
-    
-    ball_dx = ball_speed * math.cos(angle) * dir_x
-    ball_dy = ball_speed * math.sin(angle)
-
-def update_score_display():
-    canvas.itemconfig(score_display, text=f"{score_left} : {score_right}")
-
-def check_collision(ball_pos, paddle_pos):
-    # Axis-Aligned Bounding Box (AABB) collision detection
-    # ball_pos = [x1, y1, x2, y2]
-    # paddle_pos = [x1, y1, x2, y2]
-    
-    return (ball_pos[2] >= paddle_pos[0] and ball_pos[0] <= paddle_pos[2] and
-            ball_pos[3] >= paddle_pos[1] and ball_pos[1] <= paddle_pos[3])
-
-def handle_paddle_collision(ball_pos, paddle_pos, paddle_side):
-    global ball_dx, ball_dy, ball_speed
-
-    # 1. Calculate the center Y of the ball and the paddle
-    ball_center_y = (ball_pos[1] + ball_pos[3]) / 2
-    paddle_center_y = (paddle_pos[1] + paddle_pos[3]) / 2
-
-    # 2. Calculate offset (how far from the center did we hit?)
-    # Value ranges roughly from -1.0 (top edge) to 1.0 (bottom edge)
-    offset = (ball_center_y - paddle_center_y) / (PADDLE_HEIGHT / 2)
-
-    # 3. Calculate bounce angle (Max 60 degrees to prevent vertical infinite loops)
-    # We invert the sign because in computer graphics, Y goes down.
-    bounce_angle = offset * math.radians(60) 
-
-    # 4. Increase speed slightly (Gameplay progression)
-    if ball_speed < MAX_SPEED:
-        ball_speed += 0.5
-
-    # 5. Calculate new velocity vector based on angle
-    # direction (1 for left paddle hitting right, -1 for right paddle hitting left)
-    direction = 1 if paddle_side == "left" else -1
-    
-    new_dx = ball_speed * math.cos(bounce_angle) * direction
-    new_dy = ball_speed * math.sin(bounce_angle)
-
-    # 6. Add the "Random" factor user requested
-    new_dy += random.uniform(-BOUNCE_RANDOMNESS, BOUNCE_RANDOMNESS)
-
-    return round(new_dx), round(new_dy)
-
-class agent:
-    def __init__(self, paddle):
-        self.paddle = paddle
-        self.qTable = []
+class PongGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Pong – Keyboard Control & Original Physics")
+        self.root.resizable(False, False)
+        self.qtable = {}
+        self.laststate = []
+        self.reward = 0
+        self.move = 0
         
+        # Cursor wieder sichtbar machen (optional, aber nützlich)
+        self.root.config(cursor="") 
 
-# --- Game Loop ---
-def game_loop():
-    global ball_dx, ball_dy, score_left, score_right
+        self.canvas = tk.Canvas(root, width=WIDTH, height=HEIGHT, bg=BG_COLOR)
+        self.canvas.pack()
 
-    # --- 1. Move Paddles ---
-    if keys["w"]: move_paddle(left_paddle, -SPEED)
-    if keys["s"]: move_paddle(left_paddle, SPEED)
-    if keys["Up"]: move_paddle(right_paddle, -SPEED)
-    if keys["Down"]: move_paddle(right_paddle, SPEED)
+        # --- Grafikelemente ---
+        self.draw_court()
+        
+        # Linkes Paddle (Spieler 1 - WASD)
+        self.left_paddle = self.canvas.create_rectangle(
+            PADDLE_OFFSET, HEIGHT//2 - PADDLE_HEIGHT//2,
+            PADDLE_OFFSET + PADDLE_WIDTH, HEIGHT//2 + PADDLE_HEIGHT//2,
+            fill=FG_COLOR
+        )
 
-    # --- 2. Move Ball ---
-    canvas.move(ball, ball_dx, ball_dy)
-    ball_pos = canvas.coords(ball)      # [x1, y1, x2, y2]
-    
-    # --- 3. Physically Correct Wall Collision ---
-    # Top Wall
-    if ball_pos[1] <= 0:
-        # Snap ball to edge (Position Correction) to prevent sticking
-        overlap = 0 - ball_pos[1]
-        canvas.move(ball, 0, overlap) 
-        ball_dy = abs(ball_dy) # Force direction DOWN
+        # Rechtes Paddle (Spieler 2 - Pfeiltasten)
+        self.right_paddle = self.canvas.create_rectangle(
+            WIDTH - PADDLE_OFFSET - PADDLE_WIDTH, HEIGHT//2 - PADDLE_HEIGHT//2,
+            WIDTH - PADDLE_OFFSET, HEIGHT//2 + PADDLE_HEIGHT//2,
+            fill=FG_COLOR
+        )
 
-    # Bottom Wall
-    elif ball_pos[3] >= HEIGHT:
-        # Snap ball to edge
-        overlap = ball_pos[3] - HEIGHT
-        canvas.move(ball, 0, -overlap)
-        ball_dy = -abs(ball_dy) # Force direction UP
+        # Ball
+        self.ball = self.canvas.create_oval(
+            WIDTH//2 - BALL_SIZE//2, HEIGHT//2 - BALL_SIZE//2,
+            WIDTH//2 + BALL_SIZE//2, HEIGHT//2 + BALL_SIZE//2,
+            fill=FG_COLOR
+        )
 
-    # --- 4. Advanced Paddle Collision ---
-    left_pad_pos = canvas.coords(left_paddle)
-    right_pad_pos = canvas.coords(right_paddle)
+        # Score
+        self.score_left = 0
+        self.score_right = 0
+        self.score_display = self.canvas.create_text(
+            WIDTH//2, 50, text="0  0", fill=FG_COLOR,
+            font=("Courier New", 40, "bold")
+        )
 
-    # Check Left Paddle
-    if check_collision(ball_pos, left_pad_pos):
-        ball_dx, ball_dy = handle_paddle_collision(ball_pos, left_pad_pos, "left")
-        # Safety: Push ball out of paddle to prevent 'gluing'
-        canvas.move(ball, (left_pad_pos[2] - ball_pos[0]) + 2, 0)
+        # --- Variablen ---
+        self.ball_pos = [WIDTH/2, HEIGHT/2] 
+        self.ball_vel = [0, 0]
+        self.current_speed = START_SPEED
+        self.game_running = True
+        
+        # Tasten-Status-Dictionary für gleichzeitiges Drücken
+        self.keys = {"w": False, "s": False, "Up": False, "Down": False}
 
-    # Check Right Paddle
-    elif check_collision(ball_pos, right_pad_pos):
-        ball_dx, ball_dy = handle_paddle_collision(ball_pos, right_pad_pos, "right")
-        # Safety: Push ball out of paddle
-        canvas.move(ball, (right_pad_pos[0] - ball_pos[2]) - 2, 0)
+        # --- Bindings ---
+        self.root.bind("<KeyPress>", self.on_key_press)
+        self.root.bind("<KeyRelease>", self.on_key_release)
+        
+        # Sauberes Beenden
+        self.root.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.root.bind("<Escape>", lambda e: self.on_close())
 
-    # --- 5. Scoring ---
-    if ball_pos[0] <= 0:
-        score_right += 1
-        update_score_display()
-        reset_ball()
-    elif ball_pos[2] >= WIDTH:
-        score_left += 1
-        update_score_display()
-        reset_ball()
+        self.reset_ball()
+        self.animate()
 
-    root.after(16, game_loop)
+    # --- Input-Handling ---
+    def on_key_press(self, event):
+        if event.keysym in self.keys:
+            self.keys[event.keysym] = True
 
-# Ensure reset_ball is called once to start
-reset_ball()
-game_loop()
-root.mainloop()
+    def on_key_release(self, event):
+        if event.keysym in self.keys:
+            self.keys[event.keysym] = False
+            
+    # --- Steuerungs-Logik ---
+    def move_paddle(self, paddle, dy):
+        """Bewegt das Paddle und prüft die Wände."""
+        self.canvas.move(paddle, 0, dy)
+        coords = self.canvas.coords(paddle)
+        
+        # Wand-Begrenzung
+        if coords[1] < 0:
+            self.canvas.move(paddle, 0, -coords[1])
+        elif coords[3] > HEIGHT:
+            self.canvas.move(paddle, 0, HEIGHT - coords[3])
+
+    def aimove(self):
+        state = [self.canvas.coords(self.ball), self.canvas.coords(self.left_paddle), self.ball_vel]
+        self.laststate = [self.canvas.coords(self.ball), self.canvas.coords(self.left_paddle), self.ball_vel]
+        stateinlist = False
+        for key in self.qtable.keys():
+            if key == str(state):
+                stateinlist = True
+        if stateinlist:
+            return max(range(len(self.qtable[str(state)])), key= self.qtable[str(state)].__getitem__)
+        else:
+            self.qtable[str(state)] = [0, 0, 0]
+            return random.randint(0, 2)
+    def update_paddles(self):
+        self.move = self.aimove()
+        if self.move == 1:
+            self.move_paddle(self.left_paddle, -PADDLE_SPEED)
+        if self.move == 2:
+            self.move_paddle(self.left_paddle, PADDLE_SPEED)      
+        # Rechtes Paddle (Pfeiltasten)
+        if self.keys["Up"]: 
+            self.move_paddle(self.right_paddle, -PADDLE_SPEED)
+        if self.keys["Down"]: 
+            self.move_paddle(self.right_paddle, PADDLE_SPEED)
+
+    # --- Spiel-Logik (unverändert) ---
+    def on_close(self):
+        self.game_running = False
+        try:
+            self.root.destroy()
+        except tk.TclError:
+            pass
+
+    def draw_court(self):
+        self.canvas.create_line(WIDTH//2, 0, WIDTH//2, HEIGHT, fill=FG_COLOR, dash=(15, 25))
+
+    def reset_ball(self):
+        if not self.game_running: return
+        self.reward = 0
+        
+        self.ball_pos = [WIDTH/2, HEIGHT/2]
+        self.ball_vel = [0, 0]
+        self.current_speed = START_SPEED
+        
+        r = BALL_SIZE / 2
+        self.canvas.coords(self.ball, 
+                           self.ball_pos[0]-r, self.ball_pos[1]-r,
+                           self.ball_pos[0]+r, self.ball_pos[1]+r)
+        
+        if self.game_running:
+            self.root.after(1000, self.serve_ball)
+
+    def serve_ball(self):
+        if not self.game_running: return
+        
+        direction_x = random.choice([-1, 1])
+        angle = random.uniform(-math.radians(30), math.radians(30))
+        
+        self.ball_vel[0] = self.current_speed * math.cos(angle) * direction_x
+        self.ball_vel[1] = self.current_speed * math.sin(angle)
+
+    def update_physics(self):
+        if self.ball_vel == [0, 0]: return
+
+        self.ball_pos[0] += self.ball_vel[0]
+        self.ball_pos[1] += self.ball_vel[1]
+        r = BALL_SIZE / 2
+
+        if self.ball_pos[0] < 0:
+            self.score_right += 1
+            self.reward = -50
+            self.update_score()
+            self.reset_ball()
+        elif self.ball_pos[0] > WIDTH:
+            self.score_left += 1
+            self.reward = 50
+            self.update_score()
+            self.reset_ball()
+
+        state = [self.canvas.coords(self.ball), self.canvas.coords(self.left_paddle), self.ball_vel] 
+        self.qtable[str(state)] = [0, 0, 0]
+        self.qtable[str(self.laststate)][self.move] = (1 - 0.1) * self.qtable[str(self.laststate)][self.move] + 0.1 * (self.reward + 0.6 * max(self.qtable[str(state)]))
+
+        # Wände (Oben/Unten)
+        if self.ball_pos[1] - r <= 0:
+            self.ball_pos[1] = r
+            self.ball_vel[1] *= -1
+        elif self.ball_pos[1] + r >= HEIGHT:
+            self.ball_pos[1] = HEIGHT - r
+            self.ball_vel[1] *= -1
+
+        # Paddle Kollisionen
+        l_pad = self.canvas.coords(self.left_paddle)
+        r_pad = self.canvas.coords(self.right_paddle)
+
+        # Linkes Paddle
+        if (self.ball_vel[0] < 0 and 
+            self.ball_pos[1] >= l_pad[1] and self.ball_pos[1] <= l_pad[3] and
+            self.ball_pos[0] - r <= l_pad[2] and self.ball_pos[0] - r >= l_pad[0] - 10):
+            self.handle_paddle_bounce(l_pad, 1)
+
+        # Rechtes Paddle
+        elif (self.ball_vel[0] > 0 and 
+              self.ball_pos[1] >= r_pad[1] and self.ball_pos[1] <= r_pad[3] and
+              self.ball_pos[0] + r >= r_pad[0] and self.ball_pos[0] + r <= r_pad[2] + 10):
+            self.handle_paddle_bounce(r_pad, -1)
+
+        self.canvas.coords(self.ball, 
+                           self.ball_pos[0]-r, self.ball_pos[1]-r,
+                           self.ball_pos[0]+r, self.ball_pos[1]+r)
+
+
+    def handle_paddle_bounce(self, paddle_coords, direction_x):
+        paddle_center_y = (paddle_coords[1] + paddle_coords[3]) / 2
+        diff = self.ball_pos[1] - paddle_center_y
+        normalized_diff = diff / (PADDLE_HEIGHT / 2)
+        normalized_diff = max(-1.0, min(1.0, normalized_diff))
+        
+        # Max 45 Grad Abprallwinkel (Pong Klassiker)
+        bounce_angle = normalized_diff * (math.pi / 4)
+        
+        if self.current_speed < MAX_SPEED:
+            self.current_speed *= SPEED_INCREMENT
+            
+        self.ball_vel[0] = self.current_speed * math.cos(bounce_angle) * direction_x
+        self.ball_vel[1] = self.current_speed * math.sin(bounce_angle)
+
+    def update_score(self):
+        if not self.game_running: return
+        self.canvas.itemconfig(self.score_display, 
+                               text=f"{self.score_left}  {self.score_right}")
+
+    def animate(self):
+        if not self.game_running:
+            return
+
+        try:
+            self.update_paddles() # NEU: Tasten-Paddles bewegen
+            self.update_physics()
+            
+            self.root.after(16, self.animate)
+            
+        except tk.TclError:
+            print("Spiel beendet.")
+            self.game_running = False
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = PongGame(root)
+    root.mainloop()
