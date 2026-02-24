@@ -107,7 +107,7 @@ class PongGame:
     def returnstatel(self):
         return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.left_paddle)[1]) / 100)]
     def returnstater(self):
-        return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.right_paddle)[1]) / 50), self.ball_vel[0] < 0, self.ball_vel[1] < 0]
+        return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.right_paddle)[1]) / 80)]
     # --- Steuerungs-Logik ---
     def move_paddle(self, paddle, dy):
         """Bewegt das Paddle und prüft die Wände."""
@@ -167,7 +167,7 @@ class PongGame:
         if self.mover == 2:
             self.move_paddle(self.right_paddle, PADDLE_SPEED) 
         if self.mover == 0:
-            self.rewardr = 1
+            self.rewardr = 4
 
     # --- Spiel-Logik (unverändert) ---
     def on_close(self):
@@ -193,7 +193,7 @@ class PongGame:
                            self.ball_pos[0]+r, self.ball_pos[1]+r)
         
         if self.game_running:
-            self.root.after(10, self.serve_ball)
+            self.root.after(0, self.serve_ball)
 
     def serve_ball(self):
         if not self.game_running: return
@@ -243,15 +243,15 @@ class PongGame:
                 self.rewardl = 300
             self.rewardl = 10
             self.expl -= 0.02
-            print(self.qtablel)
 
         # Rechtes Paddle
         elif (self.ball_vel[0] > 0 and 
             self.ball_pos[1] >= r_pad[1] and self.ball_pos[1] <= r_pad[3] and
             self.ball_pos[0] + r >= r_pad[0] and self.ball_pos[0] + r <= r_pad[2] + 10):
             self.handle_paddle_bounce(r_pad, -1)
-            self.rewardr = 30
-            self.expr -= 0.01
+            self.rewardr = 200
+            self.expr *= 0.995
+            print(self.expr)
 
 
         statel = self.returnstatel()
@@ -269,7 +269,7 @@ class PongGame:
                 stateinlist = True
         if not stateinlist:
             self.qtabler[str(stater)] = [0, 0, 0]
-        self.qtabler[str(self.laststater)][self.mover] = (1 - 0.1) * self.qtabler[str(self.laststater)][self.mover] + 0.1 * (self.rewardr + 0.8 * max(self.qtabler[str(stater)]))
+        self.qtabler[str(self.laststater)][self.mover] = (1 - 0.01) * self.qtabler[str(self.laststater)][self.mover] + 0.01 * (self.rewardr + 0.8 * max(self.qtabler[str(stater)]))
 
         self.canvas.coords(self.ball, 
                            self.ball_pos[0]-r, self.ball_pos[1]-r,
@@ -295,6 +295,7 @@ class PongGame:
         if not self.game_running: return
         self.canvas.itemconfig(self.score_display, 
                                text=f"{self.score_left}  {self.score_right}")
+        print(self.score_left, self.score_right)
 
     def animate(self):
         if not self.game_running:
@@ -303,7 +304,6 @@ class PongGame:
         try:
             self.update_paddles() # NEU: Tasten-Paddles bewegen
             self.update_physics()
-            
             self.root.after(1, self.animate)
             
         except tk.TclError:
