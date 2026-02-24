@@ -25,10 +25,17 @@ class PongGame:
         self.root = root
         self.root.title("Pong – Keyboard Control & Original Physics")
         self.root.resizable(False, False)
-        self.qtable = {}
-        self.laststate = []
-        self.reward = 0
-        self.move = 0
+        self.qtablel = {}
+        self.laststatel = []
+        self.rewardl = 0
+        self.movel = 0
+        self.expl = 1
+        self.qtabler = {}
+        self.laststater = []
+        self.rewardr = 0
+        self.mover = 0
+        self.expr = 1
+
         
         # Cursor wieder sichtbar machen (optional, aber nützlich)
         self.root.config(cursor="") 
@@ -96,7 +103,11 @@ class PongGame:
     def on_key_release(self, event):
         if event.keysym in self.keys:
             self.keys[event.keysym] = False
-            
+
+    def returnstatel(self):
+        return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.left_paddle)[1]) / 100)]
+    def returnstater(self):
+        return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.right_paddle)[1]) / 50), self.ball_vel[0] < 0, self.ball_vel[1] < 0]
     # --- Steuerungs-Logik ---
     def move_paddle(self, paddle, dy):
         """Bewegt das Paddle und prüft die Wände."""
@@ -109,29 +120,54 @@ class PongGame:
         elif coords[3] > HEIGHT:
             self.canvas.move(paddle, 0, HEIGHT - coords[3])
 
-    def aimove(self):
-        state = [self.canvas.coords(self.ball), self.canvas.coords(self.left_paddle), self.ball_vel]
-        self.laststate = [self.canvas.coords(self.ball), self.canvas.coords(self.left_paddle), self.ball_vel]
+    def aimovel(self):
+        state = self.returnstatel()
+        self.laststatel = self.returnstatel()
         stateinlist = False
-        for key in self.qtable.keys():
+        for key in self.qtablel.keys():
             if key == str(state):
                 stateinlist = True
         if stateinlist:
-            return max(range(len(self.qtable[str(state)])), key= self.qtable[str(state)].__getitem__)
+            if random.random() > self.expl:
+                return max(range(len(self.qtablel[str(state)])), key= self.qtablel[str(state)].__getitem__)
+            else:
+                return random.randint(0, 2)
         else:
-            self.qtable[str(state)] = [0, 0, 0]
+            self.qtablel[str(state)] = [0, 0, 0]
             return random.randint(0, 2)
+        
+    def aimover(self):
+        state = self.returnstater()
+        self.laststater = self.returnstater()
+        stateinlist = False
+        for key in self.qtabler.keys():
+            if key == str(state):
+                stateinlist = True
+        if stateinlist:
+            if random.random() > self.expr:
+                return max(range(len(self.qtabler[str(state)])), key= self.qtabler[str(state)].__getitem__)
+            else:
+                return random.randint(0, 2)
+        else:
+            self.qtabler[str(state)] = [0, 0, 0]
+            return random.randint(0, 2)  
     def update_paddles(self):
-        self.move = self.aimove()
-        if self.move == 1:
+        self.movel = self.aimovel()
+        self.rewardl = -5
+        if self.movel == 1:
             self.move_paddle(self.left_paddle, -PADDLE_SPEED)
-        if self.move == 2:
-            self.move_paddle(self.left_paddle, PADDLE_SPEED)      
+        if self.movel == 2:
+            self.move_paddle(self.left_paddle, PADDLE_SPEED)     
+        if self.movel == 0:
+            self.rewardl = 2 
         # Rechtes Paddle (Pfeiltasten)
-        if self.keys["Up"]: 
+        self.mover = self.aimover()
+        if self.mover == 1:
             self.move_paddle(self.right_paddle, -PADDLE_SPEED)
-        if self.keys["Down"]: 
-            self.move_paddle(self.right_paddle, PADDLE_SPEED)
+        if self.mover == 2:
+            self.move_paddle(self.right_paddle, PADDLE_SPEED) 
+        if self.mover == 0:
+            self.rewardr = 1
 
     # --- Spiel-Logik (unverändert) ---
     def on_close(self):
@@ -146,7 +182,6 @@ class PongGame:
 
     def reset_ball(self):
         if not self.game_running: return
-        self.reward = 0
         
         self.ball_pos = [WIDTH/2, HEIGHT/2]
         self.ball_vel = [0, 0]
@@ -158,7 +193,7 @@ class PongGame:
                            self.ball_pos[0]+r, self.ball_pos[1]+r)
         
         if self.game_running:
-            self.root.after(1000, self.serve_ball)
+            self.root.after(10, self.serve_ball)
 
     def serve_ball(self):
         if not self.game_running: return
@@ -175,21 +210,17 @@ class PongGame:
         self.ball_pos[0] += self.ball_vel[0]
         self.ball_pos[1] += self.ball_vel[1]
         r = BALL_SIZE / 2
+        self.rewardr = 0
+        self.rewardl = 0
 
         if self.ball_pos[0] < 0:
             self.score_right += 1
-            self.reward = -50
             self.update_score()
             self.reset_ball()
         elif self.ball_pos[0] > WIDTH:
             self.score_left += 1
-            self.reward = 50
             self.update_score()
             self.reset_ball()
-
-        state = [self.canvas.coords(self.ball), self.canvas.coords(self.left_paddle), self.ball_vel] 
-        self.qtable[str(state)] = [0, 0, 0]
-        self.qtable[str(self.laststate)][self.move] = (1 - 0.1) * self.qtable[str(self.laststate)][self.move] + 0.1 * (self.reward + 0.6 * max(self.qtable[str(state)]))
 
         # Wände (Oben/Unten)
         if self.ball_pos[1] - r <= 0:
@@ -208,12 +239,37 @@ class PongGame:
             self.ball_pos[1] >= l_pad[1] and self.ball_pos[1] <= l_pad[3] and
             self.ball_pos[0] - r <= l_pad[2] and self.ball_pos[0] - r >= l_pad[0] - 10):
             self.handle_paddle_bounce(l_pad, 1)
+            if self.movel == 0:
+                self.rewardl = 300
+            self.rewardl = 10
+            self.expl -= 0.02
+            print(self.qtablel)
 
         # Rechtes Paddle
         elif (self.ball_vel[0] > 0 and 
-              self.ball_pos[1] >= r_pad[1] and self.ball_pos[1] <= r_pad[3] and
-              self.ball_pos[0] + r >= r_pad[0] and self.ball_pos[0] + r <= r_pad[2] + 10):
+            self.ball_pos[1] >= r_pad[1] and self.ball_pos[1] <= r_pad[3] and
+            self.ball_pos[0] + r >= r_pad[0] and self.ball_pos[0] + r <= r_pad[2] + 10):
             self.handle_paddle_bounce(r_pad, -1)
+            self.rewardr = 30
+            self.expr -= 0.01
+
+
+        statel = self.returnstatel()
+        stateinlist = False
+        for key in self.qtablel.keys():
+            if key == str(statel):
+                stateinlist = True
+        if not stateinlist:
+            self.qtablel[str(statel)] = [0, 0, 0]
+        self.qtablel[str(self.laststatel)][self.movel] = (1 - 0.1) * self.qtablel[str(self.laststatel)][self.movel] + 0.1 * (self.rewardl + 0.8 * max(self.qtablel[str(statel)]))
+        stater = self.returnstater()
+        stateinlist = False
+        for key in self.qtabler.keys():
+            if key == str(stater):
+                stateinlist = True
+        if not stateinlist:
+            self.qtabler[str(stater)] = [0, 0, 0]
+        self.qtabler[str(self.laststater)][self.mover] = (1 - 0.1) * self.qtabler[str(self.laststater)][self.mover] + 0.1 * (self.rewardr + 0.8 * max(self.qtabler[str(stater)]))
 
         self.canvas.coords(self.ball, 
                            self.ball_pos[0]-r, self.ball_pos[1]-r,
@@ -229,8 +285,8 @@ class PongGame:
         # Max 45 Grad Abprallwinkel (Pong Klassiker)
         bounce_angle = normalized_diff * (math.pi / 4)
         
-        if self.current_speed < MAX_SPEED:
-            self.current_speed *= SPEED_INCREMENT
+        #if self.current_speed < MAX_SPEED:
+        self.current_speed *= SPEED_INCREMENT
             
         self.ball_vel[0] = self.current_speed * math.cos(bounce_angle) * direction_x
         self.ball_vel[1] = self.current_speed * math.sin(bounce_angle)
@@ -248,7 +304,7 @@ class PongGame:
             self.update_paddles() # NEU: Tasten-Paddles bewegen
             self.update_physics()
             
-            self.root.after(16, self.animate)
+            self.root.after(1, self.animate)
             
         except tk.TclError:
             print("Spiel beendet.")
