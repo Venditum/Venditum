@@ -1,12 +1,15 @@
 import tkinter as tk
 import math
 import random
+import json 
+import os
 
 # --- Konfiguration ---
 WIDTH = 800
 HEIGHT = 500
 BG_COLOR = "black"
 FG_COLOR = "white"
+QTABLE_FILE = "pong_qtables.json"
 
 # Paddle Einstellungen
 PADDLE_WIDTH = 15
@@ -36,7 +39,8 @@ class PongGame:
         self.mover = 0
         self.expr = 1
 
-        
+        self.load_qtables()
+
         # Cursor wieder sichtbar machen (optional, aber nützlich)
         self.root.config(cursor="") 
 
@@ -95,6 +99,37 @@ class PongGame:
         self.reset_ball()
         self.animate()
 
+    def load_qtables(self):
+        """Lädt die Q-Tabellen und die Exploration-Rates aus der JSON-Datei."""
+        if os.path.exists(QTABLE_FILE):
+            try:
+                with open(QTABLE_FILE, "r") as f:
+                    data = json.load(f)
+                    self.qtablel = data.get("qtablel", {})
+                    self.qtabler = data.get("qtabler", {})
+                    self.expl = data.get("expl", 1.0)
+                    self.expr = data.get("expr", 1.0)
+                print(f"Q-Tables erfolgreich geladen! (expl: {self.expl:.3f}, expr: {self.expr:.3f})")
+            except Exception as e:
+                print(f"Fehler beim Laden der Q-Tables: {e}")
+        else:
+            print("Keine existierende JSON gefunden. Starte mit leeren Q-Tabellen.")
+
+    def save_qtables(self):
+        """Speichert die Q-Tabellen und die Exploration-Rates in eine JSON-Datei."""
+        data = {
+            "qtablel": self.qtablel,
+            "qtabler": self.qtabler,
+            "expl": self.expl,
+            "expr": self.expr
+        }
+        try:
+            with open(QTABLE_FILE, "w") as f:
+                json.dump(data, f, indent=4)
+            print("Q-Tables erfolgreich gespeichert!")
+        except Exception as e:
+            print(f"Fehler beim Speichern der Q-Tables: {e}")
+
     # --- Input-Handling ---
     def on_key_press(self, event):
         if event.keysym in self.keys:
@@ -107,7 +142,7 @@ class PongGame:
     def returnstatel(self):
         return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.left_paddle)[1]) / 100)]
     def returnstater(self):
-        return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.right_paddle)[1]) / 80)]
+        return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.right_paddle)[1]) / 30)]
     # --- Steuerungs-Logik ---
     def move_paddle(self, paddle, dy):
         """Bewegt das Paddle und prüft die Wände."""
@@ -152,26 +187,21 @@ class PongGame:
             self.qtabler[str(state)] = [0, 0, 0]
             return random.randint(0, 2)  
     def update_paddles(self):
-        self.movel = self.aimovel()
-        self.rewardl = -5
-        if self.movel == 1:
+        if self.keys["w"]:
             self.move_paddle(self.left_paddle, -PADDLE_SPEED)
-        if self.movel == 2:
-            self.move_paddle(self.left_paddle, PADDLE_SPEED)     
-        if self.movel == 0:
-            self.rewardl = 2 
+        if self.keys["s"]:
+            self.move_paddle(self.left_paddle, PADDLE_SPEED)  
         # Rechtes Paddle (Pfeiltasten)
         self.mover = self.aimover()
         if self.mover == 1:
             self.move_paddle(self.right_paddle, -PADDLE_SPEED)
         if self.mover == 2:
             self.move_paddle(self.right_paddle, PADDLE_SPEED) 
-        if self.mover == 0:
-            self.rewardr = 4
 
     # --- Spiel-Logik (unverändert) ---
     def on_close(self):
         self.game_running = False
+        self.save_qtables()
         try:
             self.root.destroy()
         except tk.TclError:
@@ -239,29 +269,32 @@ class PongGame:
             self.ball_pos[1] >= l_pad[1] and self.ball_pos[1] <= l_pad[3] and
             self.ball_pos[0] - r <= l_pad[2] and self.ball_pos[0] - r >= l_pad[0] - 10):
             self.handle_paddle_bounce(l_pad, 1)
-            if self.movel == 0:
-                self.rewardl = 300
-            self.rewardl = 10
-            self.expl -= 0.02
+            # self.rewardl = 20
+            # if self.movel == 0:
+            #     self.rewardl *= 30
+            # self.rewardl *= 1.5**(8 - abs(round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.left_paddle)[1]) / 10)))
+            # self.expl *= 0.999
 
         # Rechtes Paddle
         elif (self.ball_vel[0] > 0 and 
             self.ball_pos[1] >= r_pad[1] and self.ball_pos[1] <= r_pad[3] and
             self.ball_pos[0] + r >= r_pad[0] and self.ball_pos[0] + r <= r_pad[2] + 10):
             self.handle_paddle_bounce(r_pad, -1)
-            self.rewardr = 200
-            self.expr *= 0.995
-            print(self.expr)
+            self.rewardr = 20
+            if self.mover == 0:
+                self.rewardr *= 30
+            self.rewardr *= 1.5**(8 - abs(round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.right_paddle)[1]) / 10)))
+            self.expr *= 0.999
 
 
-        statel = self.returnstatel()
-        stateinlist = False
-        for key in self.qtablel.keys():
-            if key == str(statel):
-                stateinlist = True
-        if not stateinlist:
-            self.qtablel[str(statel)] = [0, 0, 0]
-        self.qtablel[str(self.laststatel)][self.movel] = (1 - 0.1) * self.qtablel[str(self.laststatel)][self.movel] + 0.1 * (self.rewardl + 0.8 * max(self.qtablel[str(statel)]))
+        # statel = self.returnstatel()
+        # stateinlist = False
+        # for key in self.qtablel.keys():
+        #     if key == str(statel):
+        #         stateinlist = True
+        # if not stateinlist:
+        #     self.qtablel[str(statel)] = [0, 0, 0]
+        # self.qtablel[str(self.laststatel)][self.movel] = (1 - 0.01) * self.qtablel[str(self.laststatel)][self.movel] + 0.01 * (self.rewardl + 0.8 * max(self.qtablel[str(statel)]))
         stater = self.returnstater()
         stateinlist = False
         for key in self.qtabler.keys():
@@ -295,6 +328,7 @@ class PongGame:
         if not self.game_running: return
         self.canvas.itemconfig(self.score_display, 
                                text=f"{self.score_left}  {self.score_right}")
+        self.save_qtables()
         print(self.score_left, self.score_right)
 
     def animate(self):
@@ -304,7 +338,7 @@ class PongGame:
         try:
             self.update_paddles() # NEU: Tasten-Paddles bewegen
             self.update_physics()
-            self.root.after(1, self.animate)
+            self.root.after(16, self.animate)
             
         except tk.TclError:
             print("Spiel beendet.")
