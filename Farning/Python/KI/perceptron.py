@@ -57,15 +57,15 @@ for i in range(4):
     for j in range(150):   
         datensatz[j][i] = round(datensatz_transposed[i][j], 4)           
 
-expected = []
+expectedvalues = []
 for i in range(50):
-    expected.append([1, 0, 0])   
+    expectedvalues.append([1, 0, 0])   
 
 for i in range(50):
-    expected.append([0, 1, 0])   
+    expectedvalues.append([0, 1, 0])   
 
 for i in range(50):
-    expected.append([0, 0, 1])      
+    expectedvalues.append([0, 0, 1])      
 
 class Neuron:
     def __init__(self, weights: list, bias: float):
@@ -74,11 +74,7 @@ class Neuron:
         self.value = 0
 
     def normalize(self, n: float) -> float:
-        if n <= 0:
-            return 0
-        if n >= 1:
-            return 1
-        return n    
+        return 1 / (1 + math.e ** (-n))
 
     def compute(self, inputs):
         output = 0
@@ -91,7 +87,7 @@ class Neuron:
 
     def learn(self, expected):
         for i in range(len(self.weights)):
-            self.weights[i] += self.weights[i] * self.cost(expected) * 0.1
+            self.weights[i] += self.cost(expected) * 0.1
 
 class Layer:
     def __init__(self, neurons: list):
@@ -130,15 +126,16 @@ class Network:
             self.compute(trainingsdata[i][:-1])
             exp = expected[i]
             for j in range(1, len(self.layers)):
-                print(exp)
                 self.layers[-j].learn(exp)
                 exp = self.layers[-j].values
 
-
-layer0 = Layer([])
-layer1 = Layer([Neuron([0.1, 0.1, 0.1, 0.1], 0), Neuron([0.1, 0.1, 0.1, 0.1], 0), Neuron([0.1, 0.1, 0.1, 0.1], 0), Neuron([0.1, 0.1, 0.1, 0.1], 0)])
-endlayer = Layer([Neuron([0.1, 0.1, 0.1, 0.1], 0), Neuron([0.1, 0.1, 0.1, 0.1], 0), Neuron([0.1, 0.1, 0.1, 0.1], 0)])          
-network = Network([layer0, layer1, endlayer])
-network.compute([0.6456, 0.7955, 0.2029, 0.08])
-network.learn(datensatz, expected)
-print(network.endvalues)
+testneuron = Neuron([0, 0], 0)
+for i in range(10):
+    testneuron.compute([0, 0])
+    testneuron.learn(0)
+    testneuron.compute([1, 1])
+    testneuron.learn(1)
+testneuron.compute([0, 0])
+print(testneuron.value)
+testneuron.compute([1, 1])
+print(testneuron.value)

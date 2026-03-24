@@ -109,7 +109,7 @@ class PongGame:
                     self.qtabler = data.get("qtabler", {})
                     self.expl = data.get("expl", 1.0)
                     self.expr = data.get("expr", 1.0)
-                print(f"Q-Tables erfolgreich geladen! (expl: {self.expl:.3f}, expr: {self.expr:.3f})")
+                #print(f"Q-Tables erfolgreich geladen! (expl: {self.expl:.3f}, expr: {self.expr:.3f})")
             except Exception as e:
                 print(f"Fehler beim Laden der Q-Tables: {e}")
         else:
@@ -126,7 +126,7 @@ class PongGame:
         try:
             with open(QTABLE_FILE, "w") as f:
                 json.dump(data, f, indent=4)
-            print("Q-Tables erfolgreich gespeichert!")
+            #print("Q-Tables erfolgreich gespeichert!")
         except Exception as e:
             print(f"Fehler beim Speichern der Q-Tables: {e}")
 
@@ -140,7 +140,7 @@ class PongGame:
             self.keys[event.keysym] = False
 
     def returnstatel(self):
-        return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.left_paddle)[1]) / 100)]
+        return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.left_paddle)[1]) / 30)]
     def returnstater(self):
         return [round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.right_paddle)[1]) / 30)]
     # --- Steuerungs-Logik ---
@@ -187,10 +187,15 @@ class PongGame:
             self.qtabler[str(state)] = [0, 0, 0]
             return random.randint(0, 2)  
     def update_paddles(self):
-        if self.keys["w"]:
+        # if self.keys["w"]:
+        #     self.move_paddle(self.left_paddle, -PADDLE_SPEED)
+        # if self.keys["s"]:
+        #     self.move_paddle(self.left_paddle, PADDLE_SPEED)  
+        self.movel = self.aimovel()
+        if self.movel == 1:
             self.move_paddle(self.left_paddle, -PADDLE_SPEED)
-        if self.keys["s"]:
-            self.move_paddle(self.left_paddle, PADDLE_SPEED)  
+        if self.movel == 2:
+            self.move_paddle(self.left_paddle, PADDLE_SPEED) 
         # Rechtes Paddle (Pfeiltasten)
         self.mover = self.aimover()
         if self.mover == 1:
@@ -269,11 +274,11 @@ class PongGame:
             self.ball_pos[1] >= l_pad[1] and self.ball_pos[1] <= l_pad[3] and
             self.ball_pos[0] - r <= l_pad[2] and self.ball_pos[0] - r >= l_pad[0] - 10):
             self.handle_paddle_bounce(l_pad, 1)
-            # self.rewardl = 20
-            # if self.movel == 0:
-            #     self.rewardl *= 30
-            # self.rewardl *= 1.5**(8 - abs(round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.left_paddle)[1]) / 10)))
-            # self.expl *= 0.999
+            self.rewardl = 20
+            if self.movel == 0:
+                self.rewardl *= 30
+            self.rewardl *= 1.5**(8 - abs(round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.left_paddle)[1]) / 10)))
+            self.expl *= 0.999
 
         # Rechtes Paddle
         elif (self.ball_vel[0] > 0 and 
@@ -285,16 +290,17 @@ class PongGame:
                 self.rewardr *= 30
             self.rewardr *= 1.5**(8 - abs(round((self.canvas.coords(self.ball)[1] - self.canvas.coords(self.right_paddle)[1]) / 10)))
             self.expr *= 0.999
+            print(1)
 
 
-        # statel = self.returnstatel()
-        # stateinlist = False
-        # for key in self.qtablel.keys():
-        #     if key == str(statel):
-        #         stateinlist = True
-        # if not stateinlist:
-        #     self.qtablel[str(statel)] = [0, 0, 0]
-        # self.qtablel[str(self.laststatel)][self.movel] = (1 - 0.01) * self.qtablel[str(self.laststatel)][self.movel] + 0.01 * (self.rewardl + 0.8 * max(self.qtablel[str(statel)]))
+        statel = self.returnstatel()
+        stateinlist = False
+        for key in self.qtablel.keys():
+            if key == str(statel):
+                stateinlist = True
+        if not stateinlist:
+            self.qtablel[str(statel)] = [0, 0, 0]
+        self.qtablel[str(self.laststatel)][self.movel] = (1 - 0.01) * self.qtablel[str(self.laststatel)][self.movel] + 0.01 * (self.rewardl + 0.8 * max(self.qtablel[str(statel)]))
         stater = self.returnstater()
         stateinlist = False
         for key in self.qtabler.keys():
