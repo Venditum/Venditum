@@ -1,4 +1,5 @@
 import math
+import random
 
 def add(A, B):
     result = []
@@ -19,6 +20,10 @@ def scale(A, scalar):
     return result  
 
 def mult(A, B):
+    if len(B) == 1 and len(B[0]) == 1:
+        return scale(A, B[0][0])
+    if len(A) == 1 and len(A[0]) == 1:
+        return scale(B, A[0][0])
     result = []
     for row in range(len(A)):
         newrow = []
@@ -37,28 +42,22 @@ def inverse(A):
         for row in range(len(A)):
             newrow.append(A[row][column])
         result.append(newrow)
-    return result        
-     
-A = [[1, 5], [4, 5]]
-B = [[7], [2]]
-C = [[7], [2]]
+    return result   
 
-print(mult(A, B))
-print(inverse(B))
-print(add(B, C))
-
+def randomvalue():
+    return random.choice([1, -1]) * random.random()
 
 class Neuron:
     def __init__(self, weights: list, bias: float):
-        self.weights = inverse([weights])
-        self.bias = bias
+        self.weights = weights
+        self.bias = [bias]
         self.value = 0
 
     def normalize(self, n: float) -> float:
         return 1 / (1 + math.e ** (-n))
     
     def activate(self, input):
-        return self.normalize(mult([input], self.weights)[0][0] + self.bias)
+        return self.normalize(mult([self.weights] ,inverse([input]))[0][0] + self.bias[0])
 
     def compute(self, inputs):
         self.value = self.activate(inputs)
@@ -66,9 +65,9 @@ class Neuron:
         return expected - self.activate(input)     
 
     def learnfunktion(self, input, expected):
-        delta = scale(inverse([input]), 0.1 * self.cost(input, expected))
-        self.weights = add(self.weights, delta)
-        self.bias += 0.1 * self.cost(input, expected)   
+        delta = scale([input], 0.1 * self.cost(input, expected))
+        self.weights = add([self.weights], delta)[0]
+        self.bias[0] += 0.1 * self.cost(input, expected)   
 
     def learn(self, datensatz, wiederholungen):
         for i in range(wiederholungen):
@@ -80,11 +79,11 @@ class Layer:
         self.neurons = neurons
         self.weights = []
         for row in range(len(self.neurons)):
-            weights = []
-            for weight in self.neurons[row].weights:
-                weights.append(weight)
-        self.weights = inverse(self.weights)        
-    
+            self.weights.append(self.neurons[row].weights)
+        self.bias = []
+        for row in range(len(self.neurons)):
+            self.bias.append(self.neurons[row].bias)    
+     
     def getValues(self):
         values = []
         for neuron in self.neurons:
@@ -95,20 +94,25 @@ class Layer:
         for neuron in self.neurons:
             neuron.compute(inputLayer.getValues())  
 
-    def getDeltas(self, nextLayerError, nextLayerNeurons):
-        
+    def getDelta(self, nextLayerWeights, nextLayerError):
+        delta = mult(inverse(nextLayerWeights), nextLayerError)
+        for row in range(len(delta)):
+            val = self.getValues()[row]
+            delta[row][0] *= val * (1 - val)
+        return delta   
 
-
-    def learnfunktion(self, inputLayer, nextLayerError, learnrate, nextLayerNeurons):
+    def learnfunktion(self, inputLayer, nextLayerError, learnrate):
+        self.weights = add(self.weights, scale(mult(nextLayerError, [inputLayer.getValues()]), learnrate))
+        self.bias = add(self.bias, scale(nextLayerError, learnrate))
         for neuron in range(len(self.neurons)):
-            for i in range(len(self.neurons[neuron].weights)):
-                self.neurons[neuron].weights[i] += learnrate * self.getDeltas(nextLayerError, nextLayerNeurons)[neuron] * inputLayer.neurons[i].value     
-            self.neurons[neuron].bias += learnrate * self.getDeltas(nextLayerError, nextLayerNeurons)[neuron]    
+            self.neurons[neuron].weights = self.weights[neuron]
+            self.neurons[neuron].bias = self.bias[neuron]
+
 
     def getError(self, expected):
         error = []
         for i in range(len(self.neurons)):
-            error.append(expected[i] - self.getValues()[i])
+            error.append((expected[i] - self.getValues()[i]) * (self.getValues()[i] * (1 - self.getValues()[i])))
         return error
 
 class Network:
@@ -123,15 +127,17 @@ class Network:
         for i in range(repetitions):
             for j in range(len(trainingsdata)):
                 for neuron in range(len(self.layers[0].neurons)):
-                    for k in range(len(trainingsdata[0][0])):
-                        self.layers[0].neurons[neuron].value = trainingsdata[j][0][k]
+                    self.layers[0].neurons[neuron].value = trainingsdata[j][0][neuron]
                 self.compute()
-                nextLayerError = self.layers[-1].getError(trainingsdata[j][1])
+                nextLayerError = [self.layers[-1].getError(trainingsdata[j][1])]
                 for layer in range(1, len(self.layers)):
-                    print(1)
-                    print(len(self.layers[-layer].neurons))
-                    self.layers[-layer].learnfunktion(self.layers[-(layer + 1)], nextLayerError, 0.1, len(self.layers[-layer].neurons))
-                    nextLayerError = self.layers[-layer].getDeltas(nextLayerError, len(self.layers[-layer].neurons))     
+                    current_layer = self.layers[-layer]
+                    input_layer = self.layers[-(layer + 1)]
+                    old_weights = current_layer.weights
+                    current_layer.learnfunktion(input_layer, nextLayerError, 0.5)
+                    if layer < len(self.layers) - 1:
+                        nextLayerError = input_layer.getDelta(old_weights, nextLayerError)
+
 
 xor_datensatz = [
     [[0, 0], [0]],
@@ -147,20 +153,19 @@ and_datensatz = [
     [[1, 1], 1]
 ]
 
-Neuro = Neuron([0, 0], 0)
-Neuro.learn(and_datensatz, 1000)
-Neuro.compute([1, 0])
-print(Neuro.value)
-# inputNeuron1 = Neuron([], 0)
-# inputNeuron2 = Neuron([], 0)
-# inputNeuron1.value = 1
-# inputNeuron2.value = 1
-# hiddenNeuron1 = Neuron([0, 0], 0)
-# hiddenNeuron2 = Neuron([0, 0], 0)
-# inputLayer = Layer([inputNeuron1, inputNeuron2])
-# hiddenLayer = Layer([hiddenNeuron1, hiddenNeuron2])
-# endNeuron = Neuron([0, 0], 0)
-# endLayer = Layer([endNeuron])
-# network = Network([inputLayer, hiddenLayer, endLayer])
-# inputNeuron1.value = 1
-# inputNeuron2.value = 0
+inputNeuron1 = Neuron([], 0)
+inputNeuron2 = Neuron([], 0)
+hiddenNeuron1 = Neuron([randomvalue(), randomvalue()], randomvalue())
+hiddenNeuron2 = Neuron([randomvalue(), randomvalue()], randomvalue())
+hiddenNeuron3 = Neuron([randomvalue(), randomvalue()], randomvalue())
+hiddenNeuron4 = Neuron([randomvalue(), randomvalue()], randomvalue())
+hiddenLayer = Layer([hiddenNeuron1, hiddenNeuron2, hiddenNeuron3, hiddenNeuron4])
+inputLayer = Layer([inputNeuron1, inputNeuron2])
+endNeuron = Neuron([randomvalue(), randomvalue(), randomvalue(), randomvalue()], randomvalue())
+endLayer = Layer([endNeuron])
+network = Network([inputLayer, hiddenLayer, endLayer])
+network.learn(10000, xor_datensatz)
+inputNeuron1.value = 0
+inputNeuron2.value = 1
+network.compute()
+print(endLayer.getValues())
